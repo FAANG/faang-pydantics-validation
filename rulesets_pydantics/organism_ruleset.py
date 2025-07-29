@@ -5,48 +5,11 @@ import re
 
 from .standard_ruleset import SampleCoreMetadata
 
-DateUnits = Literal[
-    "YYYY-MM-DD",
-    "YYYY-MM",
-    "YYYY",
-    "not applicable",
-    "not collected",
-    "not provided",
-    "restricted access"
-]
 
-WeightUnits = Literal["kilograms", "grams"]
-
-TimeUnits = Literal[
-    "days",
-    "weeks",
-    "months",
-    "day",
-    "week",
-    "month"
-]
-
-DeliveryTiming = Literal[
-    "early parturition",
-    "full-term parturition",
-    "delayed parturition"
-]
-
-DeliveryEase = Literal[
-    "normal autonomous delivery",
-    "c-section",
-    "veterinarian assisted"
-]
-
-class BaseOntologyTerm(BaseModel):
+class Organism(BaseModel):
     text: str
-    term: str
-    ontology_name: Optional[str] = None
-
-
-class Organism(BaseOntologyTerm):
-    ontology_name: Literal["NCBITaxon"] = "NCBITaxon"
     term: Union[str, Literal["restricted access"]]
+    ontology_name: Literal["NCBITaxon"] = "NCBITaxon"
 
     @field_validator('term')
     def validate_ncbi_taxon(cls, v, info):
@@ -66,7 +29,8 @@ class Organism(BaseOntologyTerm):
         return v
 
 
-class Sex(BaseOntologyTerm):
+class Sex(BaseModel):
+    text: str
     ontology_name: Literal["PATO"] = "PATO"
     term: Union[str, Literal["restricted access"]]
 
@@ -90,7 +54,15 @@ class Sex(BaseOntologyTerm):
 
 class BirthDate(BaseModel):
     value: str
-    units: DateUnits
+    units: Literal[
+    "YYYY-MM-DD",
+    "YYYY-MM",
+    "YYYY",
+    "not applicable",
+    "not collected",
+    "not provided",
+    "restricted access"
+]
 
     @field_validator('value')
     def validate_birth_date(cls, v, info):
@@ -105,7 +77,8 @@ class BirthDate(BaseModel):
         return v
 
 
-class Breed(BaseOntologyTerm):
+class Breed(BaseModel):
+    text: str
     ontology_name: Literal["LBO"] = "LBO"
     term: Union[str, Literal["not applicable", "restricted access"]]
 
@@ -128,7 +101,8 @@ class Breed(BaseOntologyTerm):
         return v
 
 
-class HealthStatus(BaseOntologyTerm):
+class HealthStatus(BaseModel):
+    text: str
     ontology_name: Optional[Literal["PATO", "EFO"]] = None
     term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
 
@@ -172,25 +146,40 @@ class BirthLocationLongitude(BaseModel):
 
 class BirthWeight(BaseModel):
     value: float
-    units: WeightUnits
+    units: Literal["kilograms", "grams"]
 
 
 class PlacentalWeight(BaseModel):
     value: float
-    units: WeightUnits
+    units: Literal["kilograms", "grams"]
 
 
 class PregnancyLength(BaseModel):
     value: float
-    units: TimeUnits
+    units: Literal[
+    "days",
+    "weeks",
+    "months",
+    "day",
+    "week",
+    "month"
+]
 
 
 class DeliveryTimingField(BaseModel):
-    value: DeliveryTiming
+    value: Literal[
+    "early parturition",
+    "full-term parturition",
+    "delayed parturition"
+]
 
 
 class DeliveryEaseField(BaseModel):
-    value: DeliveryEase
+    value: Literal[
+    "normal autonomous delivery",
+    "c-section",
+    "veterinarian assisted"
+]
 
 
 class Pedigree(BaseModel):
