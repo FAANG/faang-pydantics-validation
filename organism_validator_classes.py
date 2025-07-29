@@ -67,7 +67,7 @@ class OntologyValidator:
 
 
     def validate_with_elixir(self, data: Dict, schema: Dict) -> List[ValidationResult]:
-        print("validating with elixir")
+        print(f"validating {data['custom']['sample_name']['value']} with elixir")
         results = []
 
         try:
