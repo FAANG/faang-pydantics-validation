@@ -90,20 +90,20 @@ class PydanticValidator:
     def validate_ontologies(self, model: FAANGOrganoidSample) -> List[str]:
         errors = []
 
-        # Validate organ_model term
+        # organ_model term
         if model.organ_model.term != "restricted access":
             if not (model.organ_model.term.startswith("UBERON:") or
                     model.organ_model.term.startswith("BTO:")):
                 errors.append(f"Organ model term '{model.organ_model.term}' should be from UBERON or BTO ontology")
 
-        # Validate organ_part_model if present
+        # organ_part_model
         if model.organ_part_model and model.organ_part_model.term != "restricted access":
             if not (model.organ_part_model.term.startswith("UBERON:") or
                     model.organ_part_model.term.startswith("BTO:")):
                 errors.append(
                     f"Organ part model term '{model.organ_part_model.term}' should be from UBERON or BTO ontology")
 
-        # Validate freezing date consistency
+        # freezing date consistency
         if model.freezing_date and model.freezing_date.value != "restricted access":
             import datetime
             date_value = model.freezing_date.value
@@ -160,8 +160,7 @@ class PydanticValidator:
         if not model.derived_from:
             return errors
 
-        # Organoid-specific relationship validation would go here
-        # For example, checking that parent is specimen_from_organism type
+        # Organoid-specific relationship validation can go here
 
         return errors
 
@@ -250,14 +249,14 @@ class PydanticValidator:
             if parent_id == "restricted access":
                 continue
 
-            # Check if parent exists in current batch
+            # check if parent exists in current batch
             if parent_id not in sample_map and not parent_id.startswith('SAM'):
                 sample_errors.append(
                     f"Parent sample '{parent_id}' not found in current batch"
                 )
 
-            # For organoids, we should check that parent is specimen_from_organism type
-            # This would require additional context about parent samples
+            # for organoids, we should check that parent is specimen_from_organism type
+
 
             if sample_errors:
                 errors_by_sample[sample_name] = sample_errors
@@ -270,13 +269,13 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
         "characteristics": {}
     }
 
-    # Material
+    # material
     biosample_data["characteristics"]["material"] = [{
         "text": model.material.text,
         "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.material.term.replace(':', '_')}"]
     }]
 
-    # Required fields
+    # required fields
     biosample_data["characteristics"]["organ model"] = [{
         "text": model.organ_model.text,
         "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.organ_model.term.replace(':', '_')}"]
@@ -303,7 +302,7 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
         "text": model.growth_environment.value
     }]
 
-    # Conditional fields - only include if freezing method is not fresh
+    # only include if freezing method is not fresh
     if model.freezing_method.value != "fresh":
         if model.freezing_date:
             biosample_data["characteristics"]["freezing date"] = [{
@@ -316,7 +315,7 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
                 "text": model.freezing_protocol.value
             }]
 
-    # Optional fields
+    # optional fields
     if model.organ_part_model:
         biosample_data["characteristics"]["organ part model"] = [{
             "text": model.organ_part_model.text,
@@ -339,7 +338,7 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
             "text": model.organoid_morphology.value
         }]
 
-    # Relationships
+    # relationships
     if model.derived_from:
         biosample_data["relationships"] = [{
             "type": "derived from",
@@ -387,22 +386,18 @@ def generate_validation_report(validation_results: Dict[str, Any]) -> str:
 
 def get_submission_status(validation_results: Dict[str, Any]) -> str:
     def has_issues(record: Dict[str, Any]) -> bool:
-        # Check for errors in invalid organoids
         if 'errors' in record and record['errors']:
             return True
 
-        # Check for relationship errors in valid organoids
         if 'relationship_errors' in record and record['relationship_errors']:
             return True
 
         return False
 
-    # Check invalid organoids
     for record in validation_results.get('invalid_organoids', []):
         if has_issues(record):
             return 'Fix issues'
 
-    # Check valid organoids for relationship errors
     for record in validation_results.get('valid_organoids', []):
         if has_issues(record):
             return 'Fix issues'
