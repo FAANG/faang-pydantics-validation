@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, field_validator, HttpUrl
 from typing import Optional, List, Literal
 
 
@@ -38,8 +38,9 @@ class Material(BaseModel):
     )
 
     # check text and term consistency
-    @validator('term')
-    def validate_text_term_consistency(cls, v, values):
+    @field_validator('term')
+    def validate_text_term_consistency(cls, v, info):
+        values = info.data
         if 'text' not in values:
             return v
 
@@ -84,7 +85,7 @@ class SecondaryProject(BaseModel):
 class Availability(BaseModel):
     value: HttpUrl = Field(..., description="Link to web page or email address (with mailto: prefix)")
 
-    @validator('value')
+    @field_validator('value')
     def validate_availability_format(cls, v):
         url_str = str(v)
         if not (url_str.startswith('http://') or url_str.startswith('https://') or url_str.startswith('mailto:')):
