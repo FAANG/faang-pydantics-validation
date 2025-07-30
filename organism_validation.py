@@ -48,26 +48,6 @@ class PydanticValidator:
             errors_dict['errors'].append(str(e))
             return None, errors_dict
 
-        # elixir validation
-        if validate_with_json_schema:
-            try:
-                if self._schema is None:
-                    print("Loading organism schema...")
-                    with open(self.schema_file_path, 'r') as f:
-                        self._schema = json.load(f)
-
-                elixir_results = self.ontology_validator.validate_with_elixir(data, self._schema)
-
-                for vr in elixir_results:
-                    path = vr.field_path.lstrip('/')
-                    for msg in vr.errors:
-                        errors_dict['field_errors'].setdefault(path, []).append(msg)
-                        errors_dict['errors'].append(f"{path}: {msg}")
-
-            except Exception as e:
-                print(f"JSON Schema validation error: {e}")
-                errors_dict['warnings'].append(f"JSON Schema validation skipped due to error: {e}")
-
         # recommended fields
         recommended_fields = ['birth_date', 'breed', 'health_status']
         for field in recommended_fields:
