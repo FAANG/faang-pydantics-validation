@@ -65,48 +65,6 @@ class OntologyValidator:
             print(f"Error fetching from OLS: {e}")
             return []
 
-
-    def validate_with_elixir(self, data: Dict, schema: Dict) -> List[ValidationResult]:
-        print(f"validating {data['custom']['sample_name']['value']} with elixir")
-        results = []
-
-        try:
-            if "$schema" not in schema:
-                schema = schema.copy()
-                schema["$schema"] = "http://json-schema.org/draft-07/schema#"
-
-            json_to_send = {
-                'schema': schema,
-                'object': data
-            }
-
-            response = requests.post(ELIXIR_VALIDATOR_URL, json=json_to_send, timeout=30)
-
-            if response.status_code == 200:
-                validation_results = response.json()
-
-                # empty array
-                if isinstance(validation_results, list) and len(validation_results) == 0:
-                    return results
-
-                for item in validation_results:
-                    if isinstance(item, dict) and item.get('errors'):
-                        errors = [e for e in item['errors']
-                                  if e != 'should match exactly one schema in oneOf']
-                        if errors:
-                            result = ValidationResult(
-                                field_path=item.get('dataPath', '') or item.get('instancePath', ''),
-                                errors=errors
-                            )
-                            results.append(result)
-            else:
-                print(f"Elixir validator returned {response.status_code}")
-
-        except Exception as e:
-            print(f"Error using Elixir validator: {e}")
-
-        return results
-
 class BreedSpeciesValidator:
 
     def __init__(self, ontology_validator):
@@ -122,20 +80,13 @@ class BreedSpeciesValidator:
         if breed_term in ["not applicable", "restricted access"]:
             return errors
 
-        breed_schema = {
-            "type": "string",
-            "graph_restriction": {
-                "ontologies": ["obo:lbo"],
-                "classes": [SPECIES_BREED_LINKS[organism_term]],
-                "relations": ["rdfs:subClassOf"],
-                "direct": False,
-                "include_self": True
-            }
-        }
-
-        validation_results = self.ontology_validator.validate_with_elixir(breed_term, breed_schema)
-
-        if validation_results:
+        validation_result = self.ontology_validator.validate_ontology_term(
+            term=breed_term,
+            ontology_name="obo:lbo",
+            allowed_classes=[SPECIES_BREED_LINKS[organism_term]],
+            text=breed_term
+        )
+        if validation_result.errors:
             errors.append("Breed doesn't match the animal species")
 
         return errors

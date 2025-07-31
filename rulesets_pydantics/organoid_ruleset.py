@@ -1,9 +1,9 @@
-from pydantic import BaseModel, Field, validator, AnyUrl
-from ..organism_validator_classes import OntologyValidator
+from pydantic import BaseModel, Field, field_validator, AnyUrl
+from organism_validator_classes import OntologyValidator
 from typing import Optional, Union, Literal
 import re
 
-from rulesets_pydantics.standard_ruleset import SampleCoreMetadata
+from .standard_ruleset import SampleCoreMetadata
 
 
 class OrganModel(BaseModel):
@@ -11,15 +11,16 @@ class OrganModel(BaseModel):
     text: str
     term: Union[str, Literal["restricted access"]]
 
-    _ov = OntologyValidator(cache_enabled=True)
-
-    @validator('term')
-    def validate_organ_model(cls, v, values, **kwargs):
+    @field_validator('term')
+    def validate_organ_model(cls, v, info):
         if v == "restricted access":
             return v
 
+        ov = OntologyValidator(cache_enabled=True)
+
+        values = info.data
         ont = values.get('ontology_name')
-        res = cls._ov.validate_ontology_term(
+        res = ov.validate_ontology_term(
             term=v,
             ontology_name=ont,
             allowed_classes=["UBERON:0001062", "BTO:0000042"]
@@ -34,15 +35,15 @@ class OrganPartModel(BaseModel):
     text: str
     term: Union[str, Literal["restricted access"]]
 
-    _ov = OntologyValidator(cache_enabled=True)
-
-    @validator('term')
-    def validate_organ_part_model(cls, v, values, **kwargs):
+    @field_validator('term')
+    def validate_organ_part_model(cls, v, info):
         if v == "restricted access":
             return v
 
+        ov = OntologyValidator(cache_enabled=True)
+        values = info.data
         ont = values.get('ontology_name')
-        res = cls._ov.validate_ontology_term(
+        res = ov.validate_ontology_term(
             term=v,
             ontology_name=ont,
             allowed_classes=["UBERON:0001062", "BTO:0000042"]
@@ -56,8 +57,8 @@ class FreezingDate(BaseModel):
     value: Union[str, Literal["restricted access"]]
     units: Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]
 
-    @validator('value')
-    def validate_freezing_date(cls, v, values):
+    @field_validator('value')
+    def validate_freezing_date(cls, v, info):
         if v == "restricted access":
             return v
 
@@ -152,15 +153,17 @@ class FAANGOrganoidSample(SampleCoreMetadata):
     organoid_morphology: Optional[OrganoidMorphology] = Field(None,
                                                               description="General description of the organoid morphology. e.g. 'Epithelial monolayer with budding crypt-like domains' or 'Optic cup structure'. Be consistent within your project if multiple similar samples.")
 
-    @validator('freezing_date')
-    def validate_freezing_date_required(cls, v, values):
+    @field_validator('freezing_date')
+    def validate_freezing_date_required(cls, v, info):
+        values = info.data
         freezing_method = values.get('freezing_method')
         if freezing_method and freezing_method.value != 'fresh' and v is None:
             raise ValueError("freezing_date is required when freezing_method is not 'fresh'")
         return v
 
-    @validator('freezing_protocol')
-    def validate_freezing_protocol_required(cls, v, values):
+    @field_validator('freezing_protocol')
+    def validate_freezing_protocol_required(cls, v, info):
+        values = info.data
         freezing_method = values.get('freezing_method')
         if freezing_method and freezing_method.value != 'fresh' and v is None:
             raise ValueError("freezing_protocol is required when freezing_method is not 'fresh'")
