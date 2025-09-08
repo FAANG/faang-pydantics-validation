@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator, AnyUrl
 from organism_validator_classes import OntologyValidator
-from typing import List, Optional, Union, Literal
+from typing import List, Optional, Union, Literal, Dict, Any
 import re
 
 from .standard_ruleset import SampleCoreMetadata
@@ -198,47 +198,57 @@ class Custom(BaseModel):
     sample_name: SampleName
 
 
-class FAANGOrganismSample(SampleCoreMetadata):
-    # required fields
-    organism: Organism = Field(..., description="NCBI taxon ID of organism.")
-    sex: Sex = Field(..., description="Animal sex, described using any child term of PATO_0000047.")
-
-    # reccomended fields
-    birth_date: Optional[BirthDate] = Field(None, description="Birth date, in the format YYYY-MM-DD, or YYYY-MM where "
-                                                              "only the month is known. For embryo samples record "
-                                                              "'not applicable")
-    breed: Optional[Breed] = Field(None, description="Animal breed, described using the FAANG breed description "
-                                                     "guidelines (http://bit.ly/FAANGbreed). Should be considered "
-                                                     "mandatory for terrestiral species, for aquatic species "
-                                                     "record 'not applicable'.")
-    health_status: Optional[List[HealthStatus]] = Field(None,
-                                                        description="Healthy animals should have the term normal, "
-                                                                    "otherwise use the as many disease terms as "
-                                                                    "necessary from EFO.")
-
-    # optional fields
-    diet: Optional[Diet] = None
-    birth_location: Optional[BirthLocation] = None
-    birth_location_latitude: Optional[BirthLocationLatitude] = None
-    birth_location_longitude: Optional[BirthLocationLongitude] = None
-    birth_weight: Optional[BirthWeight] = None
-    placental_weight: Optional[PlacentalWeight] = None
-    pregnancy_length: Optional[PregnancyLength] = None
-    delivery_timing: Optional[DeliveryTimingField] = None
-    delivery_ease: Optional[DeliveryEaseField] = None
-    pedigree: Optional[Pedigree] = None
-    child_of: Optional[List[ChildOf]] = Field(default=None, min_items=1, max_items=2,
-                                              description="Healthy animals should have the term normal, otherwise use "
-                                                          "the as many disease terms as necessary from EFO.")
-    custom: Optional[Custom] = None
+class FAANGOrganismSample(BaseModel):
+    organism: List[Dict[str, Any]] = Field(..., description="List of organism samples")
 
     class Config:
         extra = "forbid"
-        validate_by_name    = True
+        validate_by_name = True
         validate_default = True
         validate_assignment = True
 
+    @field_validator('organism')
+    def validate_organism_samples(cls, v):
+        if not v or not isinstance(v, list):
+            raise ValueError("organism must be a non-empty list")
 
+        for sample in v:
+            # Validate required fields
+            if "Sample Name" not in sample:
+                raise ValueError("Each organism sample must have a 'Sample Name'")
+            if "Material" not in sample:
+                raise ValueError("Each organism sample must have a 'Material'")
+            if "Term Source ID" not in sample:
+                raise ValueError("Each organism sample must have a 'Material Term Source ID'")
+            if "Project" not in sample:
+                raise ValueError("Each organism sample must have a 'Project'")
+            if "Organism" not in sample:
+                raise ValueError("Each organism sample must have an 'Organism'")
+            if "Organism Term Source ID" not in sample:
+                raise ValueError("Each organism sample must have an 'Organism Term Source ID'")
+            if "Sex" not in sample:
+                raise ValueError("Each organism sample must have a 'Sex'")
+            if "Sex Term Source ID" not in sample:
+                raise ValueError("Each organism sample must have a 'Sex Term Source ID'")
 
+            # Validate material
+            if sample["Material"] != "organism":
+                raise ValueError(f"Material must be 'organism', got '{sample['Material']}'")
 
+            # Validate project
+            if sample["Project"] != "FAANG":
+                raise ValueError(f"Project must be 'FAANG', got '{sample['Project']}'")
 
+            # Validate secondary project is a list
+            if "Secondary Project" in sample and not isinstance(sample["Secondary Project"], list):
+                raise ValueError("Secondary Project must be a list")
+
+            # Validate health status is a list
+            if "Health Status" in sample and not isinstance(sample["Health Status"], list):
+                raise ValueError("Health Status must be a list")
+
+            # Validate child of is a list
+            if "Child Of" in sample and not isinstance(sample["Child Of"], list):
+                raise ValueError("Child Of must be a list")
+
+        return v
