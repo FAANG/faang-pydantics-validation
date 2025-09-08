@@ -22,7 +22,7 @@ class PydanticValidator:
         validate_relationships: bool = True,
         validate_ontologies: bool = True,
         validate_with_json_schema: bool = True
-    ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
+    ) -> Tuple[Optional[Dict[str, Any]], Dict[str, List[str]]]:
 
         errors_dict = {
             'errors': [],
@@ -30,97 +30,169 @@ class PydanticValidator:
             'field_errors': {}
         }
 
-        # pydantic validation
-        try:
-            organism_model = FAANGOrganismSample(**data)
-        except ValidationError as e:
-            for error in e.errors():
-                field_path = '.'.join(str(x) for x in error['loc'])
-                error_msg = error['msg']
+        # Basic validation for required fields
+        required_fields = [
+            "Sample Name", "Material", "Term Source ID", "Project",
+            "Organism", "Organism Term Source ID", "Sex", "Sex Term Source ID"
+        ]
 
-                if field_path not in errors_dict['field_errors']:
-                    errors_dict['field_errors'][field_path] = []
-                errors_dict['field_errors'][field_path].append(error_msg)
-                errors_dict['errors'].append(f"{field_path}: {error_msg}")
+        for field in required_fields:
+            if field not in data:
+                if field not in errors_dict['field_errors']:
+                    errors_dict['field_errors'][field] = []
+                errors_dict['field_errors'][field].append(f"Field '{field}' is required")
+                errors_dict['errors'].append(f"{field}: Field is required")
 
+        if errors_dict['errors']:
             return None, errors_dict
-        except Exception as e:
-            errors_dict['errors'].append(str(e))
-            return None, errors_dict
+
+        # Validate material
+        if data["Material"] != "organism":
+            field = "Material"
+            if field not in errors_dict['field_errors']:
+                errors_dict['field_errors'][field] = []
+            errors_dict['field_errors'][field].append(f"Material must be 'organism', got '{data['Material']}'")
+            errors_dict['errors'].append(f"{field}: Material must be 'organism', got '{data['Material']}'")
+
+        # Validate project
+        if data["Project"] != "FAANG":
+            field = "Project"
+            if field not in errors_dict['field_errors']:
+                errors_dict['field_errors'][field] = []
+            errors_dict['field_errors'][field].append(f"Project must be 'FAANG', got '{data['Project']}'")
+            errors_dict['errors'].append(f"{field}: Project must be 'FAANG', got '{data['Project']}'")
+
+        # Validate Health Status
+        if "Health Status" in data:
+            health_status = data["Health Status"].split(",")
+            if not isinstance(health_status, list) and not isinstance(health_status, str):
+                if "Health Status" not in errors_dict['field_errors']:
+                    errors_dict['field_errors']["Health Status"] = []
+                errors_dict['field_errors']["Health Status"].append("Health Status must be a list")
+                errors_dict['errors'].append("Health Status: Health Status must be a list")
+            else:
+                # Validate each health status value
+                for status in health_status:
+                    if not isinstance(status, str):
+                        if "Health Status" not in errors_dict['field_errors']:
+                            errors_dict['field_errors']["Health Status"] = []
+                        errors_dict['field_errors']["Health Status"].append(
+                            f"Health Status values must be strings, got {type(status)}"
+                        )
+                        errors_dict['errors'].append(
+                            f"Health Status: values must be strings, got {type(status)}"
+                        )
+
+        # Validate Secondary Project
+        if "Secondary Project" in data:
+            secondary_project = data["Secondary Project"].split(",")
+            if not isinstance(secondary_project, list):
+                if "Secondary Project" not in errors_dict['field_errors']:
+                    errors_dict['field_errors']["Secondary Project"] = []
+                errors_dict['field_errors']["Secondary Project"].append(
+                    "Secondary Project must be a list"
+                )
+                errors_dict['errors'].append(
+                    "Secondary Project: Secondary Project must be a list"
+                )
+            else:
+                # Validate each secondary project value
+                for project in secondary_project:
+                    if not isinstance(project, str):
+                        if "Secondary Project" not in errors_dict['field_errors']:
+                            errors_dict['field_errors']["Secondary Project"] = []
+                        errors_dict['field_errors']["Secondary Project"].append(
+                            f"Secondary Project values must be strings, got {type(project)}"
+                        )
+                        errors_dict['errors'].append(
+                            f"Secondary Project: values must be strings, got {type(project)}"
+                        )
 
         # recommended fields
-        recommended_fields = ['birth_date', 'breed', 'health_status']
+        recommended_fields = ['Birth Date', 'Breed', 'Health Status']
         for field in recommended_fields:
-            if getattr(organism_model, field, None) is None:
+            if field not in data or not data[field]:
                 errors_dict['warnings'].append(
                     f"Field '{field}' is recommended but was not provided"
                 )
 
         # ontology validation
-        if validate_ontologies:
-            ontology_errors = self.validate_ontologies(organism_model)
+        if validate_ontologies and not errors_dict['errors']:
+            ontology_errors = self.validate_ontologies(data)
             errors_dict['errors'].extend(ontology_errors)
 
-        return organism_model, errors_dict
+        if errors_dict['errors']:
+            return None, errors_dict
 
-    def validate_ontologies(self, model: FAANGOrganismSample) -> List[str]:
+        return data, errors_dict
+
+    def validate_ontologies(self, data: Dict[str, Any]) -> List[str]:
         errors = []
 
-        if model.organism.term != "restricted access":
-            if not model.organism.term.startswith("NCBITaxon:"):
-                errors.append(f"Organism term '{model.organism.term}' should be from NCBITaxon ontology")
+        # Validate organism term
+        organism_term = data.get("Organism Term Source ID")
+        if organism_term != "restricted access":
+            # Convert underscore to colon for validation
+            organism_term_colon = organism_term.replace("_", ":")
+            if not organism_term_colon.startswith("NCBITaxon:"):
+                errors.append(f"Organism term '{organism_term}' should be from NCBITaxon ontology")
 
-        if model.sex.term != "restricted access":
-            if not model.sex.term.startswith("PATO:"):
-                errors.append(f"Sex term '{model.sex.term}' should be from PATO ontology")
+        # Validate sex term
+        sex_term = data.get("Sex Term Source ID")
+        if sex_term != "restricted access":
+            # Convert underscore to colon for validation
+            sex_term_colon = sex_term.replace("_", ":")
+            if not sex_term_colon.startswith("PATO:"):
+                errors.append(f"Sex term '{sex_term}' should be from PATO ontology")
 
-        if model.breed and model.organism:
+        # Validate breed against species
+        breed = data.get("Breed")
+        breed_term = data.get("Breed Term Source ID")
+        if breed and breed_term and organism_term:
+            # Convert underscores to colons for validation
+            breed_term_colon = breed_term.replace("_", ":")
+            organism_term_colon = organism_term.replace("_", ":")
+
+            # Skip validation for now to avoid errors
+            #  We'll need to update the breed validator to handle the new format
             breed_errors = self.breed_validator.validate_breed_for_species(
-                model.organism.term,
-                model.breed.term
+                organism_term_colon,
+                breed_term_colon
             )
             if breed_errors:
                 errors.append(
-                    f"Breed '{model.breed.text}' doesn't match the animal "
-                    f"specie: '{model.organism.text}'"
+                    f"Breed '{breed}' doesn't match the animal "
+                    f"species: '{data.get('Organism')}'"
                 )
 
-        # validate breed against species
-        if model.breed and model.organism:
-            breed_errors = self.breed_validator.validate_breed_for_species(
-                model.organism.term,
-                model.breed.term
-            )
-            if breed_errors:
-                errors.append(
-                    f"Breed '{model.breed.text}' doesn't match the animal "
-                    f"specie: '{model.organism.text}'"
-                )
-
-        # validate health status
-        if model.health_status:
-            for i, status in enumerate(model.health_status):
-                if status.term not in ["not applicable", "not collected", "not provided", "restricted access"]:
-                    if not (status.term.startswith("PATO:") or status.term.startswith("EFO:")):
-                        errors.append(
-                            f"Health status[{i}] term '{status.term}' should be from PATO or EFO ontology"
-                        )
+        # Validate health status
+        health_status = data.get("Health Status", [])
+        health_status_term = data.get("Health Status Term Source ID")
+        if health_status and health_status_term:
+            if health_status_term not in ["not applicable", "not collected", "not provided", "restricted access"]:
+                # Convert underscore to colon for validation
+                health_status_term_colon = health_status_term.replace("_", ":")
+                if not (health_status_term_colon.startswith("PATO:") or health_status_term_colon.startswith("EFO:")):
+                    errors.append(
+                        f"Health status term '{health_status_term}' should be from PATO or EFO ontology"
+                    )
 
         return errors
 
     def validate_organism_relationships(
         self,
-        model: FAANGOrganismSample,
+        data: Dict[str, Any],
         sample_name: str
     ) -> List[str]:
         errors = []
 
-        if not model.child_of:
+        child_of = data.get("Child Of", [])
+        if not child_of:
             return errors
 
         # max 2 parents
-        if len(model.child_of) > 2:
-            errors.append(f"Organism can have at most 2 parents, found {len(model.child_of)}")
+        if len(child_of) > 2:
+            errors.append(f"Organism can have at most 2 parents, found {len(child_of)}")
 
         # Additional relationship checks would go here
         # (checking parent existence, species match, etc.)
@@ -145,18 +217,18 @@ class PydanticValidator:
 
         # validate organisms
         for i, org_data in enumerate(organisms):
-            sample_name = org_data.get('custom', {}).get('sample_name', {}).get('value', f'organism_{i}')
+            sample_name = org_data.get('Sample Name')
 
-            model, errors = self.validate_organism_sample(
+            validated_data, errors = self.validate_organism_sample(
                 org_data,
                 validate_relationships=False
             )
 
-            if model and not errors['errors']:
+            if validated_data and not errors['errors']:
                 results['valid_organisms'].append({
                     'index': i,
                     'sample_name': sample_name,
-                    'model': model,
+                    'data': validated_data,
                     'warnings': errors['warnings']
                 })
                 results['summary']['valid'] += 1
@@ -173,7 +245,7 @@ class PydanticValidator:
         # validate relationships
         if results['valid_organisms']:
             relationship_errors = self.validate_relationships(
-                [org['model'] for org in results['valid_organisms']],
+                [org['data'] for org in results['valid_organisms']],
                 organisms
             )
 
@@ -190,46 +262,46 @@ class PydanticValidator:
 
     def validate_relationships(
         self,
-        models: List[FAANGOrganismSample],
+        data_list: List[Dict[str, Any]],
         raw_data: List[Dict[str, Any]]
     ) -> Dict[str, List[str]]:
         errors_by_sample = {}
 
         sample_map = {}
-        for i, (model, data) in enumerate(zip(models, raw_data)):
-            sample_name = data.get('custom', {}).get('sample_name', {}).get('value', f'organism_{i}')
-            sample_map[sample_name] = model
+        for i, data in enumerate(data_list):
+            sample_name = data.get('Sample Name', f'organism_{i}')
+            sample_map[sample_name] = data
 
         # organism relationships
-        for sample_name, model in sample_map.items():
-            if not model.child_of:
+        for sample_name, data in sample_map.items():
+            child_of = data.get('Child Of', [])
+            if not child_of:
                 continue
 
             sample_errors = []
 
-            if len(model.child_of) > 2:
-                sample_errors.append(f"Organism can have at most 2 parents, found {len(model.child_of)}")
+            if len(child_of) > 2:
+                sample_errors.append(f"Organism can have at most 2 parents, found {len(child_of)}")
 
-            for parent_ref in model.child_of:
-                parent_id = parent_ref.value
-
+            for parent_id in child_of:
                 if parent_id == "restricted access":
                     continue
 
                 if parent_id in sample_map:
-                    parent_model = sample_map[parent_id]
+                    parent_data = sample_map[parent_id]
 
                     # check species match
-                    if model.organism.text != parent_model.organism.text:
+                    if data.get('Organism') != parent_data.get('Organism'):
                         sample_errors.append(
-                            f"Species mismatch: child is '{model.organism.text}' "
-                            f"but parent '{parent_id}' is '{parent_model.organism.text}'"
+                            f"Species mismatch: child is '{data.get('Organism')}' "
+                            f"but parent '{parent_id}' is '{parent_data.get('Organism')}'"
                         )
 
                     # circular relationships
-                    if parent_model.child_of:
-                        for grandparent in parent_model.child_of:
-                            if grandparent.value == sample_name:
+                    parent_child_of = parent_data.get('Child Of', [])
+                    if parent_child_of:
+                        for grandparent in parent_child_of:
+                            if grandparent == sample_name:
                                 sample_errors.append(
                                     f"Circular relationship detected: '{parent_id}' "
                                     f"lists '{sample_name}' as its parent"
@@ -244,44 +316,44 @@ class PydanticValidator:
 
         return errors_by_sample
 
-def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str, Any]:
+def export_organism_to_biosample_format(data: Dict[str, Any]) -> Dict[str, Any]:
     biosample_data = {
         "characteristics": {}
     }
 
     biosample_data["characteristics"]["material"] = [{
-        "text": model.material.text,
-        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.material.term.replace(':', '_')}"]
+        "text": data.get("Material", ""),
+        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{data.get('Material Term Source ID', '').replace(':', '_')}"]
     }]
 
     biosample_data["characteristics"]["organism"] = [{
-        "text": model.organism.text,
-        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.organism.term.replace(':', '_')}"]
+        "text": data.get("Organism", ""),
+        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{data.get('Organism Term Source ID', '').replace(':', '_')}"]
     }]
 
     biosample_data["characteristics"]["sex"] = [{
-        "text": model.sex.text,
-        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.sex.term.replace(':', '_')}"]
+        "text": data.get("Sex", ""),
+        "ontologyTerms": [f"http://purl.obolibrary.org/obo/{data.get('Sex Term Source ID', '').replace(':', '_')}"]
     }]
 
-    if model.birth_date:
+    if "Birth Date" in data and data["Birth Date"]:
         biosample_data["characteristics"]["birth date"] = [{
-            "text": model.birth_date.value,
-            "unit": model.birth_date.units
+            "text": data["Birth Date"],
+            "unit": data.get("Birth Date Unit", "")
         }]
 
-    if model.breed:
+    if "Breed" in data and data["Breed"]:
         biosample_data["characteristics"]["breed"] = [{
-            "text": model.breed.text,
-            "ontologyTerms": [f"http://purl.obolibrary.org/obo/{model.breed.term.replace(':', '_')}"]
+            "text": data["Breed"],
+            "ontologyTerms": [f"http://purl.obolibrary.org/obo/{data.get('Breed Term Source ID', '').replace(':', '_')}"]
         }]
 
-    if model.child_of:
+    if "Child Of" in data and data["Child Of"]:
         biosample_data["relationships"] = []
-        for parent in model.child_of:
+        for parent in data["Child Of"]:
             biosample_data["relationships"].append({
                 "type": "child of",
-                "target": parent.value
+                "target": parent
             })
 
     return biosample_data
@@ -354,391 +426,46 @@ if __name__ == "__main__":
     json_string = """
     {
         "organism": [
-            {
-                "sample_description": {
-                    "value": "Adult female, 23.5 months of age, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2009-04",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H1"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Foal, 9 days old, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2014-07",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H2"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Whole embryo, 34 days gestational age, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2016-01",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H3"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Endometrium (pregnant day 16)"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2016-01",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H4"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Endometrium (pregnant day 50)"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2016-01",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H5"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Adult male, 4 years of age, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "male",
-                    "term": "PATO:0000384"
-                },
-                "birth_date": {
-                    "value": "2016-01",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H6"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Adult"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "male",
-                    "term": "PATO:0000384"
-                },
-                "birth_date": {
-                    "value": "2014-07",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H7"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Adult, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "male",
-                    "term": "PATO:0000384"
-                },
-                "birth_date": {
-                    "value": "2014-07",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H8"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Full term, Thoroughbred"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "female",
-                    "term": "PATO:0000383"
-                },
-                "birth_date": {
-                    "value": "2014-07",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H9"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Adult"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "male",
-                    "term": "PATO:0000384"
-                },
-                "birth_date": {
-                    "value": "2014-07",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H10"
-                    }
-                }
-            },
-            {
-                "sample_description": {
-                    "value": "Foal"
-                },
-                "material": {
-                    "text": "organism",
-                    "term": "OBI:0100026"
-                },
-                "project": {
-                    "value": "FAANG"
-                },
-                "organism": {
-                    "text": "Equus caballus",
-                    "term": "NCBITaxon:9796"
-                },
-                "sex": {
-                    "text": "male",
-                    "term": "PATO:0000384"
-                },
-                "birth_date": {
-                    "value": "2013-02",
-                    "units": "YYYY-MM"
-                },
-                "health_status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "custom": {
-                    "sample_name": {
-                        "value": "ECA_UKY_H11"
-                    }
-                }
-            }
+          
+       {
+            "Sample Name": "ECA_UKY_H1",
+            "Sample Description": "Adult female, 23.5 months of age, Thoroughbred",
+            "Material": "organism",
+            "Term Source ID": "OBI_0100026",
+            "Project": "FAANG",
+            "Secondary Project": "test",
+            "Availability": "",
+            "Same as": "",
+            "Organism": "Equus caballus",
+            "Organism Term Source ID": "NCBITaxon_9796",
+            "Sex": "female",
+            "Sex Term Source ID": "PATO_0000383",
+            "Birth Date": "2009-04",
+            "Unit": "YYYY-MM",
+            "Breed": "Thoroughbred",
+            "Breed Term Source ID": "LBO_0000910",
+            "Health Status": "normal",
+            "Health Status Term Source ID": "PATO_0000461",
+            "Diet": "",
+            "Birth Location": "",
+            "Birth Location Latitude": "",
+            "Birth Location Latitude Unit": "",
+            "Birth Location Longitude": "",
+            "Birth Location Longitude Unit": "",
+            "Birth Weight": "",
+            "Birth Weight Unit": "",
+            "Placental Weight": "",
+            "Placental Weight Unit": "",
+            "Pregnancy Length": "",
+            "Pregnancy Length Unit": "",
+            "Delivery Timing": "",
+            "Delivery Ease": "",
+            "Child Of": [
+                "",
+                ""
+            ],
+            "Pedigree": ""
+        }
         ]
     }
     """
@@ -755,6 +482,6 @@ if __name__ == "__main__":
     # export to BioSamples format
     if results['valid_organisms']:
         for valid_org in results['valid_organisms']:
-            biosample_data = export_organism_to_biosample_format(valid_org['model'])
+            biosample_data = export_organism_to_biosample_format(valid_org['data'])
             # print(f"\nBioSample format for {valid_org['sample_name']}:")
             # print(json.dumps(biosample_data, indent=2))
