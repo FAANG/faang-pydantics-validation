@@ -22,38 +22,41 @@ class FAANGOrganismSample(SampleCoreMetadata):
         "not applicable",
         "not collected",
         "not provided",
-        "restricted access"
+        "restricted access",
+        ""  # Allow empty string
     ]] = Field(None, alias="Unit")
     breed: Optional[str] = Field(None, alias="Breed")
-    breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access"]]] = Field(None,
-                                                                                                       alias="Breed Term Source ID")
+    breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(None,
+                                                                                                           alias="Breed Term Source ID")
     health_status: Optional[List[dict]] = Field(None, alias="health_status")  # Keep original structure
 
     # Optional fields - numeric fields
     diet: Optional[str] = Field(None, alias="Diet")
     birth_location: Optional[str] = Field(None, alias="Birth Location")
     birth_location_latitude: Optional[str] = Field(None, alias="Birth Location Latitude")
-    birth_location_latitude_unit: Optional[Literal["decimal degrees"]] = Field(None,
-                                                                               alias="Birth Location Latitude Unit")
+    birth_location_latitude_unit: Optional[Literal["decimal degrees", ""]] = Field(None,
+                                                                                   alias="Birth Location Latitude Unit")
     birth_location_longitude: Optional[str] = Field(None, alias="Birth Location Longitude")
-    birth_location_longitude_unit: Optional[Literal["decimal degrees"]] = Field(None,
-                                                                                alias="Birth Location Longitude Unit")
+    birth_location_longitude_unit: Optional[Literal["decimal degrees", ""]] = Field(None,
+                                                                                    alias="Birth Location Longitude Unit")
     birth_weight: Optional[str] = Field(None, alias="Birth Weight")
-    birth_weight_unit: Optional[Literal["kilograms", "grams"]] = Field(None, alias="Birth Weight Unit")
+    birth_weight_unit: Optional[Literal["kilograms", "grams", ""]] = Field(None, alias="Birth Weight Unit")
     placental_weight: Optional[str] = Field(None, alias="Placental Weight")
-    placental_weight_unit: Optional[Literal["kilograms", "grams"]] = Field(None, alias="Placental Weight Unit")
+    placental_weight_unit: Optional[Literal["kilograms", "grams", ""]] = Field(None, alias="Placental Weight Unit")
     pregnancy_length: Optional[str] = Field(None, alias="Pregnancy Length")
-    pregnancy_length_unit: Optional[Literal["days", "weeks", "months", "day", "week", "month"]] = Field(None,
-                                                                                                        alias="Pregnancy Length Unit")
+    pregnancy_length_unit: Optional[Literal["days", "weeks", "months", "day", "week", "month", ""]] = Field(None,
+                                                                                                            alias="Pregnancy Length Unit")
     delivery_timing: Optional[Literal[
         "early parturition",
         "full-term parturition",
-        "delayed parturition"
+        "delayed parturition",
+        ""  # Allow empty string
     ]] = Field(None, alias="Delivery Timing")
     delivery_ease: Optional[Literal[
         "normal autonomous delivery",
         "c-section",
-        "veterinarian assisted"
+        "veterinarian assisted",
+        ""  # Allow empty string
     ]] = Field(None, alias="Delivery Ease")
     child_of: Optional[List[str]] = Field(None, alias="Child Of")
     pedigree: Optional[str] = Field(None,
@@ -231,8 +234,11 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
     # Helper method to convert empty strings to None for optional fields
     @field_validator(
-        'diet', 'birth_location', 'birth_location_latitude', 'birth_location_longitude',
-        'birth_weight', 'placental_weight', 'pregnancy_length', 'pedigree'
+        'birth_date_unit', 'birth_location_latitude_unit', 'birth_location_longitude_unit',
+        'birth_weight_unit', 'placental_weight_unit', 'pregnancy_length_unit',
+        'delivery_timing', 'delivery_ease', 'diet', 'birth_location',
+        'birth_location_latitude', 'birth_location_longitude', 'birth_weight',
+        'placental_weight', 'pregnancy_length', 'pedigree', 'breed_term_source_id'
     )
     def convert_empty_strings_to_none(cls, v):
         """Convert empty strings to None for optional fields"""
