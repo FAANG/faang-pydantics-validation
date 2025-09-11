@@ -6,239 +6,124 @@ import re
 from .standard_ruleset import SampleCoreMetadata
 
 
-class Organism(BaseModel):
-    text: str
-    term: Union[str, Literal["restricted access"]]
-    ontology_name: Literal["NCBITaxon"] = "NCBITaxon"
+class FAANGOrganismSample(SampleCoreMetadata):
+    # Required organism-specific fields
+    organism: str = Field(..., alias="Organism")
+    organism_term_source_id: str = Field(..., alias="Organism Term Source ID")
+    sex: str = Field(..., alias="Sex")
+    sex_term_source_id: str = Field(..., alias="Sex Term Source ID")
 
-    @field_validator('term')
-    def validate_ncbi_taxon(cls, v, info):
+    # Recommended fields
+    birth_date: Optional[str] = Field(None, alias="Birth Date")
+    birth_date_unit: Optional[str] = Field(None, alias="Unit")
+    breed: Optional[str] = Field(None, alias="Breed")
+    breed_term_source_id: Optional[str] = Field(None, alias="Breed Term Source ID")
+    health_status: Optional[List[dict]] = Field(None, alias="health_status")  # Keep as is for now
+
+    # Optional fields
+    diet: Optional[str] = Field(None, alias="Diet")
+    birth_location: Optional[str] = Field(None, alias="Birth Location")
+    birth_location_latitude: Optional[str] = Field(None, alias="Birth Location Latitude")
+    birth_location_latitude_unit: Optional[str] = Field(None, alias="Birth Location Latitude Unit")
+    birth_location_longitude: Optional[str] = Field(None, alias="Birth Location Longitude")
+    birth_location_longitude_unit: Optional[str] = Field(None, alias="Birth Location Longitude Unit")
+    birth_weight: Optional[str] = Field(None, alias="Birth Weight")
+    birth_weight_unit: Optional[str] = Field(None, alias="Birth Weight Unit")
+    placental_weight: Optional[str] = Field(None, alias="Placental Weight")
+    placental_weight_unit: Optional[str] = Field(None, alias="Placental Weight Unit")
+    pregnancy_length: Optional[str] = Field(None, alias="Pregnancy Length")
+    pregnancy_length_unit: Optional[str] = Field(None, alias="Pregnancy Length Unit")
+    delivery_timing: Optional[str] = Field(None, alias="Delivery Timing")
+    delivery_ease: Optional[str] = Field(None, alias="Delivery Ease")
+    child_of: Optional[List[str]] = Field(None, alias="Child Of")
+    pedigree: Optional[str] = Field(None, alias="Pedigree")
+
+    @field_validator('organism_term_source_id')
+    def validate_organism_term(cls, v, info):
+        """Validate organism term format and ontology"""
         if v == "restricted access":
             return v
 
-        ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name', "NCBITaxon")
-        res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["NCBITaxon"]
-        )
-        if res.errors:
-            raise ValueError(f"Organism term invalid: {res.errors}")
+        # Convert underscore format to colon format for validation
+        term_with_colon = v.replace('_', ':', 1)
+
+        if not term_with_colon.startswith("NCBITaxon:"):
+            raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
+
+        # Here you could add actual ontology validation
+        # ov = OntologyValidator(cache_enabled=True)
+        # res = ov.validate_ontology_term(term=term_with_colon, ontology_name="NCBITaxon")
+
         return v
 
-
-class Sex(BaseModel):
-    text: str
-    ontology_name: Literal["PATO"] = "PATO"
-    term: Union[str, Literal["restricted access"]]
-
-    @field_validator('term')
-    def validate_pato_sex(cls, v, info):
+    @field_validator('sex_term_source_id')
+    def validate_sex_term(cls, v, info):
+        """Validate sex term format and ontology"""
         if v == "restricted access":
             return v
 
-        ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name')
-        res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["PATO:0000047"]
-        )
-        if res.errors:
-            raise ValueError(f"Sex term invalid: {res.errors}")
+        # Convert underscore format to colon format for validation
+        term_with_colon = v.replace('_', ':', 1)
+
+        if not term_with_colon.startswith("PATO:"):
+            raise ValueError(f"Sex term '{v}' should be from PATO ontology")
+
         return v
 
-
-class BirthDate(BaseModel):
-    value: str
-    units: Literal[
-    "YYYY-MM-DD",
-    "YYYY-MM",
-    "YYYY",
-    "not applicable",
-    "not collected",
-    "not provided",
-    "restricted access"
-]
-
-    @field_validator('value')
-    def validate_birth_date(cls, v, info):
-        if v in ["not applicable", "not collected", "not provided", "restricted access"]:
+    @field_validator('breed_term_source_id')
+    def validate_breed_term(cls, v, info):
+        """Validate breed term format if provided"""
+        if not v or v in ["not applicable", "restricted access", ""]:
             return v
 
-        pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|[12]\d{3}-(0[1-9]|1[0-2])|[12]\d{3}$'
+        # Convert underscore format to colon format for validation
+        term_with_colon = v.replace('_', ':', 1)
+
+        if not term_with_colon.startswith("LBO:"):
+            raise ValueError(f"Breed term '{v}' should be from LBO ontology")
+
+        return v
+
+    @field_validator('birth_date')
+    def validate_birth_date_format(cls, v, info):
+        """Validate birth date format"""
+        if not v or v in ["not applicable", "not collected", "not provided", "restricted access", ""]:
+            return v
+
+        # Check format based on the unit
+        values = info.data
+        unit = values.get('Unit') or values.get('birth_date_unit')
+
+        if unit == "YYYY-MM-DD":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
+        elif unit == "YYYY-MM":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])$'
+        elif unit == "YYYY":
+            pattern = r'^[12]\d{3}$'
+        else:
+            return v  # No validation if unit is not recognized
 
         if not re.match(pattern, v):
-            raise ValueError(f"Invalid birth date format: {v}. Must match YYYY-MM-DD, YYYY-MM, or YYYY pattern")
+            raise ValueError(f"Invalid birth date format: {v}. Must match {unit} pattern")
 
         return v
 
+    @field_validator('child_of')
+    def validate_child_of(cls, v):
+        """Clean up child_of list by removing empty strings"""
+        if v is None:
+            return None
 
-class Breed(BaseModel):
-    text: str
-    ontology_name: Literal["LBO"] = "LBO"
-    term: Union[str, Literal["not applicable", "restricted access"]]
+        # Filter out empty strings and None values
+        cleaned = [item for item in v if item and item.strip()]
 
-    @field_validator('term')
-    def validate_lbo_breed(cls, v, info):
-        if v in ["not applicable", "restricted access"]:
-            return v
+        if len(cleaned) > 2:
+            raise ValueError("Organism can have at most 2 parents")
 
-        ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name')
-        res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["LBO"]
-        )
-        if res.errors:
-            raise ValueError(f"Breed term invalid: {res.errors}")
-
-        return v
-
-
-class HealthStatus(BaseModel):
-    text: str
-    ontology_name: Optional[Literal["PATO", "EFO"]] = None
-    term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
-
-    @field_validator('term')
-    def validate_health_status(cls, v, info):
-        if v in ["not applicable", "not collected", "not provided", "restricted access"]:
-            return v
-
-        # determine which ontology to use (PATO or EFO)
-        ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name', "PATO")
-        res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["PATO:0000461", "EFO:0000408"]
-        )
-        if res.errors:
-            raise ValueError(f"HealthStatus term invalid: {res.errors}")
-
-        return v
-
-
-class Diet(BaseModel):
-    value: str
-
-
-class BirthLocation(BaseModel):
-    value: str
-
-
-class BirthLocationLatitude(BaseModel):
-    value: float
-    units: Literal["decimal degrees"] = "decimal degrees"
-
-
-class BirthLocationLongitude(BaseModel):
-    value: float
-    units: Literal["decimal degrees"] = "decimal degrees"
-
-
-class BirthWeight(BaseModel):
-    value: float
-    units: Literal["kilograms", "grams"]
-
-
-class PlacentalWeight(BaseModel):
-    value: float
-    units: Literal["kilograms", "grams"]
-
-
-class PregnancyLength(BaseModel):
-    value: float
-    units: Literal[
-    "days",
-    "weeks",
-    "months",
-    "day",
-    "week",
-    "month"
-]
-
-
-class DeliveryTimingField(BaseModel):
-    value: Literal[
-    "early parturition",
-    "full-term parturition",
-    "delayed parturition"
-]
-
-
-class DeliveryEaseField(BaseModel):
-    value: Literal[
-    "normal autonomous delivery",
-    "c-section",
-    "veterinarian assisted"
-]
-
-
-class Pedigree(BaseModel):
-    value: AnyUrl
-
-
-class ChildOf(BaseModel):
-    value: str
-
-
-class SampleName(BaseModel):
-    value: str
-
-
-class Custom(BaseModel):
-    sample_name: SampleName
-
-
-class FAANGOrganismSample(SampleCoreMetadata):
-    # required fields
-    organism: Organism = Field(..., description="NCBI taxon ID of organism.")
-    sex: Sex = Field(..., description="Animal sex, described using any child term of PATO_0000047.")
-
-    # reccomended fields
-    birth_date: Optional[BirthDate] = Field(None, description="Birth date, in the format YYYY-MM-DD, or YYYY-MM where "
-                                                              "only the month is known. For embryo samples record "
-                                                              "'not applicable")
-    breed: Optional[Breed] = Field(None, description="Animal breed, described using the FAANG breed description "
-                                                     "guidelines (http://bit.ly/FAANGbreed). Should be considered "
-                                                     "mandatory for terrestiral species, for aquatic species "
-                                                     "record 'not applicable'.")
-    health_status: Optional[List[HealthStatus]] = Field(None,
-                                                        description="Healthy animals should have the term normal, "
-                                                                    "otherwise use the as many disease terms as "
-                                                                    "necessary from EFO.")
-
-    # optional fields
-    diet: Optional[Diet] = None
-    birth_location: Optional[BirthLocation] = None
-    birth_location_latitude: Optional[BirthLocationLatitude] = None
-    birth_location_longitude: Optional[BirthLocationLongitude] = None
-    birth_weight: Optional[BirthWeight] = None
-    placental_weight: Optional[PlacentalWeight] = None
-    pregnancy_length: Optional[PregnancyLength] = None
-    delivery_timing: Optional[DeliveryTimingField] = None
-    delivery_ease: Optional[DeliveryEaseField] = None
-    pedigree: Optional[Pedigree] = None
-    child_of: Optional[List[ChildOf]] = Field(default=None, min_items=1, max_items=2,
-                                              description="Healthy animals should have the term normal, otherwise use "
-                                                          "the as many disease terms as necessary from EFO.")
-    custom: Optional[Custom] = None
+        return cleaned if cleaned else None
 
     class Config:
-        extra = "forbid"
-        validate_by_name    = True
+        populate_by_name = True
         validate_default = True
         validate_assignment = True
-
-
-
-
-
+        extra = "forbid"

@@ -1,0 +1,43 @@
+{
+    "Sample Name": "ECA_UKY_H11",
+    "Sample Description": "Foal",
+    "Material": "organism",
+    "Term Source ID": "OBI_0100026",
+    "Project": "FAANG",
+    "Secondary Project": "",
+    "Availability": "",
+    "Same as": "",
+    "Organism": "Equus caballus",
+    "Organism Term Source ID": "NCBITaxon_9796",
+    "Sex": "male",
+    "Sex Term Source ID": "PATO_0000384",
+    "Birth Date": "2013-02",
+    "Unit": "YYYY-MM",
+    "Breed": "Thoroughbred",
+    "Breed Term Source ID": "LBO_0000910",
+    "health_status": [
+      {
+        "text": "normal",
+        "term": "PATO:0000461"
+      }
+    ],
+    "Diet": "",
+    "Birth Location": "",
+    "Birth Location Latitude": "",
+    "Birth Location Latitude Unit": "",
+    "Birth Location Longitude": "",
+    "Birth Location Longitude Unit": "",
+    "Birth Weight": "",
+    "Birth Weight Unit": "",
+    "Placental Weight": "",
+    "Placental Weight Unit": "",
+    "Pregnancy Length": "",
+    "Pregnancy Length Unit": "",
+    "Delivery Timing": "",
+    "Delivery Ease": "",
+    "Child Of": [
+      "",
+      ""
+    ],
+    "Pedigree": ""
+  }
