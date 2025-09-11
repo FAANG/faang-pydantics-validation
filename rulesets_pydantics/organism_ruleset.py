@@ -5,6 +5,29 @@ import re
 
 from .standard_ruleset import SampleCoreMetadata
 
+class HealthStatus(BaseModel):
+    text: str
+    ontology_name: Optional[Literal["PATO", "EFO"]] = None
+    term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
+
+    @field_validator('term')
+    def validate_health_status(cls, v, info):
+        if v in ["not applicable", "not collected", "not provided", "restricted access"]:
+            return v
+
+        # determine which ontology to use (PATO or EFO)
+        ov = OntologyValidator(cache_enabled=True)
+        values = info.data
+        ont = values.get('ontology_name', "PATO")
+        res = ov.validate_ontology_term(
+            term=v,
+            ontology_name=ont,
+            allowed_classes=["PATO:0000461", "EFO:0000408"]
+        )
+        if res.errors:
+            raise ValueError(f"HealthStatus term invalid: {res.errors}")
+
+        return v
 
 class FAANGOrganismSample(SampleCoreMetadata):
     # Required organism-specific fields
@@ -28,8 +51,12 @@ class FAANGOrganismSample(SampleCoreMetadata):
     breed: Optional[str] = Field(None, alias="Breed")
     breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(None,
                                                                                                            alias="Breed Term Source ID")
-    health_status: Optional[List[dict]] = Field(None, alias="health_status")  # Keep original structure
 
+    health_status: Optional[List[HealthStatus]] = Field(None,
+                                                        alias="health_status",
+                                                        description="Healthy animals should have the term normal, "
+                                                                    "otherwise use the as many disease terms as "
+                                                                    "necessary from EFO.")
     # Optional fields - numeric fields
     diet: Optional[str] = Field(None, alias="Diet")
     birth_location: Optional[str] = Field(None, alias="Birth Location")
@@ -75,14 +102,14 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
 
         # Optional: Add actual ontology validation
-        # ov = OntologyValidator(cache_enabled=True)
-        # res = ov.validate_ontology_term(
-        #     term=term_with_colon,
-        #     ontology_name="NCBITaxon",
-        #     allowed_classes=["NCBITaxon"]
-        # )
-        # if res.errors:
-        #     raise ValueError(f"Organism term invalid: {res.errors}")
+        ov = OntologyValidator(cache_enabled=True)
+        res = ov.validate_ontology_term(
+            term=term_with_colon,
+            ontology_name="NCBITaxon",
+            allowed_classes=["NCBITaxon"]
+        )
+        if res.errors:
+            raise ValueError(f"Organism term invalid: {res.errors}")
 
         return v
 
@@ -99,14 +126,14 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Sex term '{v}' should be from PATO ontology")
 
         # Optional: Add actual ontology validation
-        # ov = OntologyValidator(cache_enabled=True)
-        # res = ov.validate_ontology_term(
-        #     term=term_with_colon,
-        #     ontology_name="PATO",
-        #     allowed_classes=["PATO:0000047"]
-        # )
-        # if res.errors:
-        #     raise ValueError(f"Sex term invalid: {res.errors}")
+        ov = OntologyValidator(cache_enabled=True)
+        res = ov.validate_ontology_term(
+            term=term_with_colon,
+            ontology_name="PATO",
+            allowed_classes=["PATO:0000047"]
+        )
+        if res.errors:
+            raise ValueError(f"Sex term invalid: {res.errors}")
 
         return v
 
@@ -123,14 +150,14 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Breed term '{v}' should be from LBO ontology")
 
         # Optional: Add actual ontology validation
-        # ov = OntologyValidator(cache_enabled=True)
-        # res = ov.validate_ontology_term(
-        #     term=term_with_colon,
-        #     ontology_name="LBO",
-        #     allowed_classes=["LBO"]
-        # )
-        # if res.errors:
-        #     raise ValueError(f"Breed term invalid: {res.errors}")
+        ov = OntologyValidator(cache_enabled=True)
+        res = ov.validate_ontology_term(
+            term=term_with_colon,
+            ontology_name="LBO",
+            allowed_classes=["LBO"]
+        )
+        if res.errors:
+            raise ValueError(f"Breed term invalid: {res.errors}")
 
         return v
 
