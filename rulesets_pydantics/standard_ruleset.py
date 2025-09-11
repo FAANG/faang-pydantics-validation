@@ -6,12 +6,43 @@ class SampleCoreMetadata(BaseModel):
     # Required fields
     sample_name: str = Field(..., alias="Sample Name")
     sample_description: Optional[str] = Field(None, alias="Sample Description")
-    material: str = Field(..., alias="Material")
-    term_source_id: str = Field(..., alias="Term Source ID")
+    material: Literal[
+        "organism",
+        "specimen from organism",
+        "cell specimen",
+        "single cell specimen",
+        "pool of specimens",
+        "cell culture",
+        "cell line",
+        "organoid",
+        "restricted access"
+    ] = Field(..., alias="Material")
+    term_source_id: Literal[
+        "OBI_0100026",  # organism
+        "OBI_0001479",  # specimen from organism
+        "OBI_0001468",  # cell specimen
+        "OBI_0002127",  # single cell specimen
+        "OBI_0302716",  # pool of specimens
+        "OBI_0001876",  # cell culture
+        "CLO_0000031",  # cell line
+        "NCIT_C172259",  # organoid
+        "restricted access"
+    ] = Field(..., alias="Term Source ID")
     project: Literal["FAANG"] = Field(..., alias="Project")
 
     # Optional fields
-    secondary_project: Optional[str] = Field(None, alias="Secondary Project")
+    secondary_project: Optional[Literal[
+        "AQUA-FAANG",
+        "BovReg",
+        "GENE-SWitCH",
+        "Bovine-FAANG",
+        "EFFICACE",
+        "GEroNIMO",
+        "RUMIGEN",
+        "Equine-FAANG",
+        "Holoruminant",
+        "USPIGFAANG"
+    ]] = Field(None, alias="Secondary Project")
     availability: Optional[str] = Field(None, alias="Availability")
     same_as: Optional[str] = Field(None, alias="Same as")
 
@@ -49,7 +80,22 @@ class SampleCoreMetadata(BaseModel):
             raise ValueError("Availability must be a web URL or email address with 'mailto:' prefix")
         return v
 
+    @field_validator('sample_name')
+    def validate_sample_name(cls, v):
+        """Validate that sample name is not empty"""
+        if not v or v.strip() == "":
+            raise ValueError("Sample Name is required and cannot be empty")
+        return v.strip()
+
+    @field_validator('secondary_project')
+    def validate_secondary_project(cls, v):
+        """Handle empty strings for optional secondary project"""
+        if not v or v.strip() == "":  # Convert empty strings to None
+            return None
+        return v
+
     class Config:
         populate_by_name = True  # Updated for Pydantic v2
         validate_default = True
         validate_assignment = True
+        extra = "forbid"  # Prevent extra fields
