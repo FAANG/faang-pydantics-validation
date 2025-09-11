@@ -46,18 +46,12 @@ class PydanticValidator:
             errors_dict['errors'].append(str(e))
             return None, errors_dict
 
-        # Check for recommended fields
-        recommended_field_mapping = {
-            'birth_date': 'Birth Date',
-            'breed': 'Breed',
-            'health_status': 'health_status'
-        }
-
-        for model_field, json_field in recommended_field_mapping.items():
-            value = getattr(organism_model, model_field, None)
-            if not value or (isinstance(value, str) and value.strip() == ""):
+        # recommended fields
+        recommended_fields = ['birth_date', 'breed', 'health_status']
+        for field in recommended_fields:
+            if getattr(organism_model, field, None) is None:
                 errors_dict['warnings'].append(
-                    f"Field '{json_field}' is recommended but was not provided"
+                    f"Field '{field}' is recommended but was not provided"
                 )
 
         # Additional ontology validation
@@ -309,8 +303,12 @@ def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str,
 
     # Health status (keep existing format)
     if model.health_status:
-        biosample_data["characteristics"]["health status"] = model.health_status
-
+        biosample_data["characteristics"]["health status"] = []
+        for status in model.health_status:
+            biosample_data["characteristics"]["health status"].append({
+                "text": status.text,
+                "ontologyTerms": [f"http://purl.obolibrary.org/obo/{status.term.replace(':', '_')}"]
+            })
     # Relationships
     if model.child_of:
         biosample_data["relationships"] = []
@@ -374,7 +372,7 @@ if __name__ == "__main__":
         "Material": "organism",
         "Term Source ID": "OBI_0100026",
         "Project": "FAANG",
-        "Secondary Project": "",
+        "Secondary Project": "AQUA-FAANG",
         "Availability": "",
         "Same as": "",
         "Organism": "Equus caballus",
@@ -383,8 +381,8 @@ if __name__ == "__main__":
         "Sex Term Source ID": "PATO_0000384",
         "Birth Date": "2013-02",
         "Unit": "YYYY-MM",
-        "Breed": "Thoroughbred",
-        "Breed Term Source ID": "LBO_0000910",
+        # "Breed": "Thoroughbred",
+        # "Breed Term Source ID": "LBO_0000910",
         "health_status": [
             {
                 "text": "normal",
