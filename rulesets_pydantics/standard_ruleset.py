@@ -4,6 +4,7 @@ from typing import Optional, List, Literal
 
 class SampleCoreMetadata(BaseModel):
     # required fields
+    sample_name: str = Field(..., alias="Sample Name")
     sample_description: Optional[str] = Field(None, alias="Sample Description")
     material: Literal[
         "organism",
