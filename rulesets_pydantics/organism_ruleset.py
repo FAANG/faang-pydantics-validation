@@ -31,6 +31,7 @@ class HealthStatus(BaseModel):
 
 class FAANGOrganismSample(SampleCoreMetadata):
     # Required organism-specific fields
+    sample_name: str = Field(..., alias="Sample Name")
     organism: str = Field(..., alias="Organism")
     organism_term_source_id: Union[str, Literal["restricted access"]] = Field(..., alias="Organism Term Source ID")
     sex: str = Field(..., alias="Sex")
@@ -91,7 +92,14 @@ class FAANGOrganismSample(SampleCoreMetadata):
     child_of: Optional[List[str]] = Field(None, alias="Child Of")
     pedigree: Optional[str] = Field(None,
                                     alias="Pedigree")
+    # sample_name: Optional[str] = Field(None, alias="Sample Name")
 
+
+    @field_validator('sample_name')
+    def validate_sample_name(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("Sample Name is required and cannot be empty")
+        return v.strip()
 
     @field_validator('organism_term_source_id')
     def validate_organism_term(cls, v, info):

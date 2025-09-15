@@ -4,7 +4,6 @@ from typing import Optional, List, Literal
 
 class SampleCoreMetadata(BaseModel):
     # required fields
-    sample_name: str = Field(..., alias="Sample Name")
     sample_description: Optional[str] = Field(None, alias="Sample Description")
     material: Literal[
         "organism",
@@ -79,11 +78,6 @@ class SampleCoreMetadata(BaseModel):
             raise ValueError("Availability must be a web URL or email address with 'mailto:' prefix")
         return v
 
-    @field_validator('sample_name')
-    def validate_sample_name(cls, v):
-        if not v or v.strip() == "":
-            raise ValueError("Sample Name is required and cannot be empty")
-        return v.strip()
 
     @field_validator('secondary_project')
     def validate_secondary_project(cls, v):
