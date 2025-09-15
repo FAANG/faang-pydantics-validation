@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, AnyUrl
+from pydantic import BaseModel, Field, field_validator
 from organism_validator_classes import OntologyValidator
 from typing import List, Optional, Union, Literal
 import re
@@ -46,7 +46,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
         "not collected",
         "not provided",
         "restricted access",
-        ""  # Allow empty string
+        ""
     ]] = Field(None, alias="Unit")
     breed: Optional[str] = Field(None, alias="Breed")
     breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(None,
@@ -60,48 +60,51 @@ class FAANGOrganismSample(SampleCoreMetadata):
     # Optional fields - numeric fields
     diet: Optional[str] = Field(None, alias="Diet")
     birth_location: Optional[str] = Field(None, alias="Birth Location")
-    birth_location_latitude: Optional[str] = Field(None, alias="Birth Location Latitude")
-    birth_location_latitude_unit: Optional[Literal["decimal degrees", ""]] = Field(None,
+
+    birth_location_latitude: Optional[float] = Field(None, alias="Birth Location Latitude")
+    birth_location_latitude_unit: Optional[Literal["decimal degrees"]] = Field(None,
                                                                                    alias="Birth Location Latitude Unit")
-    birth_location_longitude: Optional[str] = Field(None, alias="Birth Location Longitude")
-    birth_location_longitude_unit: Optional[Literal["decimal degrees", ""]] = Field(None,
+    birth_location_longitude: Optional[float] = Field(None, alias="Birth Location Longitude")
+    birth_location_longitude_unit: Optional[Literal["decimal degrees"]] = Field(None,
                                                                                     alias="Birth Location Longitude Unit")
-    birth_weight: Optional[str] = Field(None, alias="Birth Weight")
-    birth_weight_unit: Optional[Literal["kilograms", "grams", ""]] = Field(None, alias="Birth Weight Unit")
-    placental_weight: Optional[str] = Field(None, alias="Placental Weight")
-    placental_weight_unit: Optional[Literal["kilograms", "grams", ""]] = Field(None, alias="Placental Weight Unit")
-    pregnancy_length: Optional[str] = Field(None, alias="Pregnancy Length")
+    birth_weight: Optional[float] = Field(None, alias="Birth Weight")
+    birth_weight_unit: Optional[Literal["kilograms", "grams"]] = Field(None, alias="Birth Weight Unit")
+
+    placental_weight: Optional[float] = Field(None, alias="Placental Weight")
+    placental_weight_unit: Optional[Literal["kilograms", "grams"]] = Field(None, alias="Placental Weight Unit")
+
+    pregnancy_length: Optional[float] = Field(None, alias="Pregnancy Length")
     pregnancy_length_unit: Optional[Literal["days", "weeks", "months", "day", "week", "month", ""]] = Field(None,
                                                                                                             alias="Pregnancy Length Unit")
     delivery_timing: Optional[Literal[
         "early parturition",
         "full-term parturition",
-        "delayed parturition",
-        ""  # Allow empty string
+        "delayed parturition"
     ]] = Field(None, alias="Delivery Timing")
+
     delivery_ease: Optional[Literal[
         "normal autonomous delivery",
         "c-section",
-        "veterinarian assisted",
-        ""  # Allow empty string
+        "veterinarian assisted"
     ]] = Field(None, alias="Delivery Ease")
+
     child_of: Optional[List[str]] = Field(None, alias="Child Of")
     pedigree: Optional[str] = Field(None,
-                                    alias="Pedigree")  # Should be AnyUrl in original but keeping as string for JSON compatibility
+                                    alias="Pedigree")
+
 
     @field_validator('organism_term_source_id')
     def validate_organism_term(cls, v, info):
-        """Validate organism term format and ontology"""
         if v == "restricted access":
             return v
 
-        # Convert underscore format to colon format for validation
+        # convert underscore to colon
         term_with_colon = v.replace('_', ':', 1)
 
         if not term_with_colon.startswith("NCBITaxon:"):
             raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
 
-        # Optional: Add actual ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term_with_colon,
@@ -115,17 +118,16 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
     @field_validator('sex_term_source_id')
     def validate_sex_term(cls, v, info):
-        """Validate sex term format and ontology"""
         if v == "restricted access":
             return v
 
-        # Convert underscore format to colon format for validation
+        # convert underscore to colon
         term_with_colon = v.replace('_', ':', 1)
 
         if not term_with_colon.startswith("PATO:"):
             raise ValueError(f"Sex term '{v}' should be from PATO ontology")
 
-        # Optional: Add actual ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term_with_colon,
@@ -139,17 +141,16 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
     @field_validator('breed_term_source_id')
     def validate_breed_term(cls, v, info):
-        """Validate breed term format if provided"""
         if not v or v in ["not applicable", "restricted access", ""]:
             return v
 
-        # Convert underscore format to colon format for validation
+        # convert underscore to colon
         term_with_colon = v.replace('_', ':', 1)
 
         if not term_with_colon.startswith("LBO:"):
             raise ValueError(f"Breed term '{v}' should be from LBO ontology")
 
-        # Optional: Add actual ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term_with_colon,
@@ -163,11 +164,9 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
     @field_validator('birth_date')
     def validate_birth_date_format(cls, v, info):
-        """Validate birth date format"""
         if not v or v in ["not applicable", "not collected", "not provided", "restricted access", ""]:
             return v
 
-        # Check format based on the unit
         values = info.data
         unit = values.get('Unit') or values.get('birth_date_unit')
 
@@ -178,18 +177,17 @@ class FAANGOrganismSample(SampleCoreMetadata):
         elif unit == "YYYY":
             pattern = r'^[12]\d{3}$'
         else:
-            return v  # No validation if unit is not recognized
+            return v
 
         if not re.match(pattern, v):
             raise ValueError(f"Invalid birth date format: {v}. Must match {unit} pattern")
 
         return v
 
-    @field_validator('birth_location_latitude')
+    @field_validator('birth_location_latitude', mode='before')
     def validate_latitude(cls, v):
-        """Validate latitude value if provided"""
         if not v or v.strip() == "":
-            return v
+            return None
 
         try:
             lat_val = float(v)
@@ -202,11 +200,10 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
         return v
 
-    @field_validator('birth_location_longitude')
+    @field_validator('birth_location_longitude', mode='before')
     def validate_longitude(cls, v):
-        """Validate longitude value if provided"""
         if not v or v.strip() == "":
-            return v
+            return None
 
         try:
             lon_val = float(v)
@@ -219,27 +216,24 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
         return v
 
-    @field_validator('birth_weight', 'placental_weight', 'pregnancy_length')
+    @field_validator('birth_weight', 'placental_weight', 'pregnancy_length', mode='before')
     def validate_numeric_fields(cls, v):
-        """Validate numeric fields if provided"""
         if not v or v.strip() == "":
-            return v
+            return None
 
         try:
             float(v)
         except ValueError:
-            field_name = cls.__name__  # This won't work as expected, but shows intent
             raise ValueError(f"Value must be a valid number, got '{v}'")
 
         return v
 
     @field_validator('child_of')
     def validate_child_of(cls, v):
-        """Clean up child_of list and validate constraints"""
         if v is None:
             return None
 
-        # Filter out empty strings and None values
+        # filter empty strings and None
         cleaned = [item.strip() for item in v if item and item.strip()]
 
         if len(cleaned) > 2:
@@ -249,11 +243,9 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
     @field_validator('pedigree')
     def validate_pedigree_url(cls, v):
-        """Validate pedigree URL format if provided"""
         if not v or v.strip() == "":
             return v
 
-        # Basic URL validation (simplified since original used AnyUrl)
         if not (v.startswith('http://') or v.startswith('https://')):
             raise ValueError("Pedigree must be a valid URL starting with http:// or https://")
 
@@ -265,10 +257,9 @@ class FAANGOrganismSample(SampleCoreMetadata):
         'birth_weight_unit', 'placental_weight_unit', 'pregnancy_length_unit',
         'delivery_timing', 'delivery_ease', 'diet', 'birth_location',
         'birth_location_latitude', 'birth_location_longitude', 'birth_weight',
-        'placental_weight', 'pregnancy_length', 'pedigree', 'breed_term_source_id'
+        'placental_weight', 'pregnancy_length', 'pedigree', 'breed_term_source_id', mode='before'
     )
     def convert_empty_strings_to_none(cls, v):
-        """Convert empty strings to None for optional fields"""
         if v is not None and v.strip() == "":
             return None
         return v

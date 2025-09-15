@@ -3,8 +3,7 @@ from typing import Optional, List, Literal
 
 
 class SampleCoreMetadata(BaseModel):
-    # Required fields
-    sample_name: str = Field(..., alias="Sample Name")
+    # required fields
     sample_description: Optional[str] = Field(None, alias="Sample Description")
     material: Literal[
         "organism",
@@ -28,9 +27,10 @@ class SampleCoreMetadata(BaseModel):
         "NCIT_C172259",  # organoid
         "restricted access"
     ] = Field(..., alias="Term Source ID")
+
     project: Literal["FAANG"] = Field(..., alias="Project")
 
-    # Optional fields
+    # optional fields
     secondary_project: Optional[Literal[
         "AQUA-FAANG",
         "BovReg",
@@ -48,9 +48,8 @@ class SampleCoreMetadata(BaseModel):
 
     @field_validator('term_source_id')
     def validate_material_term(cls, v, info):
-        """Validate that the term matches the material type"""
         values = info.data
-        material = values.get('Material') or values.get('material')  # Handle both cases
+        material = values.get('Material') or values.get('material')
 
         material_term_mapping = {
             "organism": "OBI_0100026",
@@ -72,8 +71,7 @@ class SampleCoreMetadata(BaseModel):
 
     @field_validator('availability')
     def validate_availability_format(cls, v):
-        """Validate availability URL/email format if provided"""
-        if not v or v.strip() == "":  # Allow empty strings
+        if not v or v.strip() == "":
             return v
 
         if not (v.startswith('http://') or v.startswith('https://') or v.startswith('mailto:')):
@@ -82,20 +80,18 @@ class SampleCoreMetadata(BaseModel):
 
     @field_validator('sample_name')
     def validate_sample_name(cls, v):
-        """Validate that sample name is not empty"""
         if not v or v.strip() == "":
             raise ValueError("Sample Name is required and cannot be empty")
         return v.strip()
 
     @field_validator('secondary_project')
     def validate_secondary_project(cls, v):
-        """Handle empty strings for optional secondary project"""
-        if not v or v.strip() == "":  # Convert empty strings to None
+        if not v or v.strip() == "":
             return None
         return v
 
     class Config:
-        populate_by_name = True  # Updated for Pydantic v2
+        populate_by_name = True
         validate_default = True
         validate_assignment = True
-        extra = "forbid"  # Prevent extra fields
+        extra = "forbid"
