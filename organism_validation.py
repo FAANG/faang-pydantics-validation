@@ -66,7 +66,9 @@ class PydanticValidator:
 
         # convert underscore terms to colon format for ontology validation
         def convert_term(term_id: str) -> str:
-            if term_id and '_' in term_id and ':' not in term_id:
+            if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided"]:
+                return term_id
+            if '_' in term_id and ':' not in term_id:
                 return term_id.replace('_', ':', 1)
             return term_id
 
@@ -99,6 +101,15 @@ class PydanticValidator:
                 errors.append(f"Error validating sex term: {str(e)}")
 
         # Validate breed term - koosum check
+        if model.breed and model.breed.strip() and not model.breed_term_source_id:
+            errors.append(f"Breed '{model.breed}' is provided but Breed Term Source ID is missing")
+
+        # check if breed_term_source_id is provided without breed text
+        if (model.breed_term_source_id and
+            model.breed_term_source_id not in ["", "not applicable", "restricted access"] and
+            (not model.breed or not model.breed.strip())):
+            errors.append("Breed Term Source ID is provided but Breed text is missing")
+
         if (model.breed_term_source_id and
             model.breed_term_source_id not in ["not applicable", "restricted access", ""]):
             term_colon = convert_term(model.breed_term_source_id)
@@ -137,7 +148,6 @@ class PydanticValidator:
         self,
         organisms: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Validate a list of organism samples"""
 
         results = {
             'valid_organisms': [],
@@ -150,13 +160,13 @@ class PydanticValidator:
             }
         }
 
-        # Validate each organism
+        # validate organisms
         for i, org_data in enumerate(organisms):
             sample_name = org_data.get('Sample Name', f'organism_{i}')
 
             model, errors = self.validate_organism_sample(
                 org_data,
-                validate_relationships=False  # We'll do relationships separately
+                validate_relationships=False
             )
 
             if model and not errors['errors']:
@@ -184,7 +194,7 @@ class PydanticValidator:
                 organisms
             )
 
-            # Add relationship errors to results
+            # relationship errors
             for sample_name, errors in relationship_errors.items():
                 for org in results['valid_organisms']:
                     if org['sample_name'] == sample_name:
@@ -257,10 +267,14 @@ class PydanticValidator:
 def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str, Any]:
 
     def convert_term_to_url(term_id: str) -> str:
-        if not term_id or term_id == "restricted access":
+        if not term_id or term_id in ["restricted access", ""]:
             return ""
-        term_colon = term_id.replace('_', ':', 1)
+        if '_' in term_id and ':' not in term_id:
+            term_colon = term_id.replace('_', ':', 1)
+        else:
+            term_colon = term_id
         return f"http://purl.obolibrary.org/obo/{term_colon.replace(':', '_')}"
+
 
     biosample_data = {
         "characteristics": {}
