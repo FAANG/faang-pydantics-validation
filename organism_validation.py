@@ -28,7 +28,7 @@ class PydanticValidator:
             'field_errors': {}
         }
 
-        # Pydantic validation
+        # pydantic validation
         try:
             organism_model = FAANGOrganismSample(**data)
         except ValidationError as e:
@@ -54,7 +54,7 @@ class PydanticValidator:
                     f"Field '{field}' is recommended but was not provided"
                 )
 
-        # Additional ontology validation
+        # ontology validation
         if validate_ontologies:
             ontology_errors = self.validate_ontologies(organism_model)
             errors_dict['errors'].extend(ontology_errors)
@@ -62,16 +62,15 @@ class PydanticValidator:
         return organism_model, errors_dict
 
     def validate_ontologies(self, model: FAANGOrganismSample) -> List[str]:
-        """Validate ontology terms with actual ontology service"""
         errors = []
 
-        # Convert underscore terms back to colon format for ontology validation
+        # convert underscore terms to colon format for ontology validation
         def convert_term(term_id: str) -> str:
             if term_id and '_' in term_id and ':' not in term_id:
                 return term_id.replace('_', ':', 1)
             return term_id
 
-        # Validate organism term
+        # Validate organism term - koosum check
         if model.organism_term_source_id and model.organism_term_source_id != "restricted access":
             term_colon = convert_term(model.organism_term_source_id)
             try:
@@ -85,7 +84,7 @@ class PydanticValidator:
             except Exception as e:
                 errors.append(f"Error validating organism term: {str(e)}")
 
-        # Validate sex term
+        # Validate sex term - koosum check
         if model.sex_term_source_id and model.sex_term_source_id != "restricted access":
             term_colon = convert_term(model.sex_term_source_id)
             try:
@@ -99,7 +98,7 @@ class PydanticValidator:
             except Exception as e:
                 errors.append(f"Error validating sex term: {str(e)}")
 
-        # Validate breed term
+        # Validate breed term - koosum check
         if (model.breed_term_source_id and
             model.breed_term_source_id not in ["not applicable", "restricted access", ""]):
             term_colon = convert_term(model.breed_term_source_id)
@@ -196,12 +195,12 @@ class PydanticValidator:
 
         return results
 
+# Validate parent-child relationships between organisms
     def validate_relationships(
         self,
         models: List[FAANGOrganismSample],
         raw_data: List[Dict[str, Any]]
     ) -> Dict[str, List[str]]:
-        """Validate parent-child relationships between organisms"""
         errors_by_sample = {}
 
         # Create sample map
@@ -217,7 +216,7 @@ class PydanticValidator:
 
             sample_errors = []
 
-            # Check maximum parents
+            # check maximum parents
             if len(model.child_of) > 2:
                 sample_errors.append(f"Organism can have at most 2 parents, found {len(model.child_of)}")
 
@@ -229,14 +228,14 @@ class PydanticValidator:
                 if parent_id in sample_map:
                     parent_model = sample_map[parent_id]
 
-                    # Check species match
+                    # check species match
                     if model.organism != parent_model.organism:
                         sample_errors.append(
                             f"Species mismatch: child is '{model.organism}' "
                             f"but parent '{parent_id}' is '{parent_model.organism}'"
                         )
 
-                    # Check for circular relationships
+                    # circular relationships
                     if parent_model.child_of:
                         for grandparent_id in parent_model.child_of:
                             if grandparent_id == sample_name:
@@ -256,10 +255,8 @@ class PydanticValidator:
 
 
 def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str, Any]:
-    """Convert validated organism model to BioSample format"""
 
     def convert_term_to_url(term_id: str) -> str:
-        """Convert term ID to proper URL format"""
         if not term_id or term_id == "restricted access":
             return ""
         term_colon = term_id.replace('_', ':', 1)
@@ -269,32 +266,32 @@ def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str,
         "characteristics": {}
     }
 
-    # Material
+    # material
     biosample_data["characteristics"]["material"] = [{
         "text": model.material,
         "ontologyTerms": [convert_term_to_url(model.term_source_id)]
     }]
 
-    # Organism
+    # organism
     biosample_data["characteristics"]["organism"] = [{
         "text": model.organism,
         "ontologyTerms": [convert_term_to_url(model.organism_term_source_id)]
     }]
 
-    # Sex
+    # sex
     biosample_data["characteristics"]["sex"] = [{
         "text": model.sex,
         "ontologyTerms": [convert_term_to_url(model.sex_term_source_id)]
     }]
 
-    # Birth date
+    # birth date
     if model.birth_date and model.birth_date.strip():
         biosample_data["characteristics"]["birth date"] = [{
             "text": model.birth_date,
             "unit": model.birth_date_unit or ""
         }]
 
-    # Breed
+    # breed
     if model.breed and model.breed.strip():
         biosample_data["characteristics"]["breed"] = [{
             "text": model.breed,
@@ -309,7 +306,8 @@ def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str,
                 "text": status.text,
                 "ontologyTerms": [f"http://purl.obolibrary.org/obo/{status.term.replace(':', '_')}"]
             })
-    # Relationships
+
+    # relationships
     if model.child_of:
         biosample_data["relationships"] = []
         for parent in model.child_of:
@@ -323,7 +321,6 @@ def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str,
 
 
 def generate_validation_report(validation_results: Dict[str, Any]) -> str:
-    """Generate a human-readable validation report"""
     report = []
     report.append("FAANG Organism Validation Report")
     report.append("=" * 40)
@@ -332,7 +329,7 @@ def generate_validation_report(validation_results: Dict[str, Any]) -> str:
     report.append(f"Invalid organisms: {validation_results['summary']['invalid']}")
     report.append(f"Organisms with warnings: {validation_results['summary']['warnings']}")
 
-    # Show validation errors
+    # validation errors
     if validation_results['invalid_organisms']:
         report.append("\n\nValidation Errors:")
         report.append("-" * 20)
@@ -345,7 +342,7 @@ def generate_validation_report(validation_results: Dict[str, Any]) -> str:
                 if not any(error.startswith(field) for field in org['errors'].get('field_errors', {})):
                     report.append(f"  ERROR: {error}")
 
-    # Show warnings and relationship issues
+    # warnings and relationship issues
     if validation_results['valid_organisms']:
         warnings_found = False
         for org in validation_results['valid_organisms']:
