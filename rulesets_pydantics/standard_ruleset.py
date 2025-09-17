@@ -2,12 +2,10 @@ from pydantic import BaseModel, Field, field_validator, HttpUrl
 from typing import Optional, List, Literal
 
 
-class SampleDescription(BaseModel):
-    value: Optional[str] = Field(None, description="A brief description of the sample including species name")
-
-
-class Material(BaseModel):
-    text: Literal[
+class SampleCoreMetadata(BaseModel):
+    # required fields
+    sample_description: Optional[str] = Field(None, alias="Sample Description")
+    material: Literal[
         "organism",
         "specimen from organism",
         "cell specimen",
@@ -17,58 +15,23 @@ class Material(BaseModel):
         "cell line",
         "organoid",
         "restricted access"
-    ] = Field(..., description="The type of material being described")
-
-    term: Literal[
-        "OBI:0100026",  # organism
-        "OBI:0001479",  # specimen from organism
-        "OBI:0001468",  # cell specimen
-        "OBI:0002127",  # single cell specimen
-        "OBI:0302716",  # pool of specimens
-        "OBI:0001876",  # cell culture
-        "CLO:0000031",  # cell line
-        "NCIT:C172259",  # organoid
+    ] = Field(..., alias="Material")
+    term_source_id: Literal[
+        "OBI_0100026",  # organism
+        "OBI_0001479",  # specimen from organism
+        "OBI_0001468",  # cell specimen
+        "OBI_0002127",  # single cell specimen
+        "OBI_0302716",  # pool of specimens
+        "OBI_0001876",  # cell culture
+        "CLO_0000031",  # cell line
+        "NCIT_C172259",  # organoid
         "restricted access"
-    ] = Field(..., description="The ontology term for the material")
+    ] = Field(..., alias="Term Source ID")
 
-    ontology_name: Literal["OBI"] = "OBI"
-    comment: Optional[str] = Field(
-        default="Covers organism, specimen from organism, cell specimen, pool of specimens, cell culture, cell line, organoid.",
-        alias="comment"
-    )
+    project: Literal["FAANG"] = Field(..., alias="Project")
 
-    # check text and term consistency
-    @field_validator('term')
-    def validate_text_term_consistency(cls, v, info):
-        values = info.data
-        if 'text' not in values:
-            return v
-
-        text_term_mapping = {
-            "organism": "OBI:0100026",
-            "specimen from organism": "OBI:0001479",
-            "cell specimen": "OBI:0001468",
-            "single cell specimen": "OBI:0002127",
-            "pool of specimens": "OBI:0302716",
-            "cell culture": "OBI:0001876",
-            "cell line": "CLO:0000031",
-            "organoid": "NCIT:C172259",
-            "restricted access": "restricted access",
-        }
-
-        expected_term = text_term_mapping.get(values['text'])
-        if expected_term and v != expected_term:
-            raise ValueError(f"Term '{v}' does not match text '{values['text']}'. Expected term: '{expected_term}'")
-
-        return v
-
-
-class Project(BaseModel):
-    value: Literal["FAANG"] = Field("FAANG", description="State that the project is 'FAANG'")
-
-
-class SecondaryProject(BaseModel):
-    value: Optional[Literal[
+    # optional fields
+    secondary_project: Optional[Literal[
         "AQUA-FAANG",
         "BovReg",
         "GENE-SWitCH",
@@ -79,60 +42,51 @@ class SecondaryProject(BaseModel):
         "Equine-FAANG",
         "Holoruminant",
         "USPIGFAANG"
-    ]] = Field(None, description="Secondary project name")
+    ]] = Field(None, alias="Secondary Project")
+    availability: Optional[str] = Field(None, alias="Availability")
+    same_as: Optional[str] = Field(None, alias="Same as")
 
+    @field_validator('term_source_id')
+    def validate_material_term(cls, v, info):
+        values = info.data
+        material = values.get('Material') or values.get('material')
 
-class Availability(BaseModel):
-    value: HttpUrl = Field(..., description="Link to web page or email address (with mailto: prefix)")
+        material_term_mapping = {
+            "organism": "OBI_0100026",
+            "specimen from organism": "OBI_0001479",
+            "cell specimen": "OBI_0001468",
+            "single cell specimen": "OBI_0002127",
+            "pool of specimens": "OBI_0302716",
+            "cell culture": "OBI_0001876",
+            "cell line": "CLO_0000031",
+            "organoid": "NCIT_C172259",
+            "restricted access": "restricted access",
+        }
 
-    @field_validator('value')
+        expected_term = material_term_mapping.get(material)
+        if expected_term and v != expected_term:
+            raise ValueError(f"Term '{v}' does not match material '{material}'. Expected: '{expected_term}'")
+
+        return v
+
+    @field_validator('availability')
     def validate_availability_format(cls, v):
-        url_str = str(v)
-        if not (url_str.startswith('http://') or url_str.startswith('https://') or url_str.startswith('mailto:')):
+        if not v or v.strip() == "":
+            return v
+
+        if not (v.startswith('http://') or v.startswith('https://') or v.startswith('mailto:')):
             raise ValueError("Availability must be a web URL or email address with 'mailto:' prefix")
         return v
 
 
-class SameAs(BaseModel):
-    value: Optional[str] = Field(None, description="BioSample ID for an equivalent sample record")
-
-
-class SampleCoreMetadata(BaseModel):
-    # required fields
-    material: Material = Field(..., description="The type of material being described")
-    project: Project = Field(..., description="State that the project is 'FAANG'")
-
-    # optional fields
-    describedBy: Optional[
-        Literal["https://github.com/FAANG/faang-metadata/blob/master/docs/faang_sample_metadata.md"]] = None
-
-    sample_description: Optional[SampleDescription] = Field(
-        None,
-        description="Optional: A brief description of the sample including species name"
-    )
-    availability: Optional[Availability] = Field(
-        None,
-        description="Optional: Link to web page or email for sample availability"
-    )
-    same_as: Optional[SameAs] = Field(
-        None,
-        description="Optional: BioSample ID for an equivalent sample record, created before the FAANG metadata "
-                    "specification was available. This is optional and not intended for general use, "
-                    "please contact the data coordination centre (faang-dcc@ebi.ac.uk) before using it."
-    )
-    secondary_project: Optional[List[SecondaryProject]] = Field(
-        None,
-        description="Optional: State the secondary project(s) that this data belongs to e.g. 'AQUA-FAANG', "
-                    "'GENE-SWitCH' or 'BovReg'. Please use your official consortium shortened acronym if available. "
-                    "If your secondary project is not in the list, please contact the faang-dcc helpdesk to have it "
-                    "added. If your project uses the FAANG data portal project slices "
-                    "(https://data.faang.org/projects) then this field is required to ensure that your data appears in "
-                    "the data slice."
-    )
+    @field_validator('secondary_project')
+    def validate_secondary_project(cls, v):
+        if not v or v.strip() == "":
+            return None
+        return v
 
     class Config:
-        validate_by_name = True
+        populate_by_name = True
         validate_default = True
-
-
-
+        validate_assignment = True
+        extra = "forbid"

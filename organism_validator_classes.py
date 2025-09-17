@@ -97,39 +97,46 @@ class RelationshipValidator:
 
     def validate_relationships(self,
                                organisms: List[Dict[str, Any]],
-                               action: str = 'new') -> Dict[str, ValidationResult]:
+                               ) -> Dict[str, ValidationResult]:
         results = {}
 
         organism_map = {}
         for org in organisms:
-            name = self.get_organism_identifier(org, action)
+            name = self.get_organism_identifier(org)
             organism_map[name] = org
 
         # BioSamples
         biosample_ids = set()
         for org in organisms:
-            child_of = org.get('child_of', [])
-            if isinstance(child_of, dict):
+            child_of = org.get('Child Of', [])
+            if isinstance(child_of, str):
                 child_of = [child_of]
-            for parent in child_of:
-                parent_id = parent.get('value', '')
-                if parent_id.startswith('SAM'):
-                    biosample_ids.add(parent_id)
+            elif not isinstance(child_of, list):
+                child_of = []
+
+            for parent_id in child_of:
+                if parent_id and parent_id.strip() and parent_id.startswith('SAM'):
+                    biosample_ids.add(parent_id.strip())
 
         if biosample_ids:
             self.fetch_biosample_data(list(biosample_ids))
 
         # organism relationships
         for org in organisms:
-            name = self.get_organism_identifier(org, action)
+            name = self.get_organism_identifier(org)
             result = ValidationResult(field_path=f"organism.{name}.child_of")
 
-            child_of = org.get('child_of', [])
-            if isinstance(child_of, dict):
+            child_of = org.get('Child Of', [])
+            if isinstance(child_of, str):
                 child_of = [child_of]
+            elif not isinstance(child_of, list):
+                child_of = []
 
-            for parent_ref in child_of:
-                parent_id = parent_ref.get('value', '')
+            for parent_id in child_of:
+                if not parent_id or not parent_id.strip():
+                    continue
+
+                parent_id = parent_id.strip()
 
                 if parent_id == 'restricted access':
                     continue
@@ -144,7 +151,7 @@ class RelationshipValidator:
                 # parent data
                 if parent_id in organism_map:
                     parent_data = organism_map[parent_id]
-                    parent_species = parent_data.get('organism', {}).get('text', '')
+                    parent_species = parent_data.get('Organism', '')
                     parent_material = 'organism'
                 else:
                     parent_data = self.biosamples_cache.get(parent_id, {})
@@ -152,7 +159,7 @@ class RelationshipValidator:
                     parent_material = parent_data.get('material', '').lower()
 
                 # species match
-                current_species = org.get('organism', {}).get('text', '')
+                current_species = org.get('Organism', '')
 
                 if current_species and parent_species and current_species != parent_species:
                     result.errors.append(
@@ -170,12 +177,14 @@ class RelationshipValidator:
 
                 # circular relationships
                 if parent_id in organism_map:
-                    parent_relationships = parent_data.get('child_of', [])
-                    if isinstance(parent_relationships, dict):
+                    parent_relationships = parent_data.get('Child Of', [])
+                    if isinstance(parent_relationships, str):
                         parent_relationships = [parent_relationships]
+                    elif not isinstance(parent_relationships, list):
+                        parent_relationships = []
 
-                    for grandparent in parent_relationships:
-                        if grandparent.get('value') == name:
+                    for grandparent_id in parent_relationships:
+                        if grandparent_id and grandparent_id.strip() == name:
                             result.errors.append(
                                 f"Relationships part: parent '{parent_id}' "
                                 f"is listing the child as its parent"
@@ -186,14 +195,10 @@ class RelationshipValidator:
 
         return results
 
-    def get_organism_identifier(self, organism: Dict, action: str = 'new') -> str:
-        col_name = 'biosample_id' if action == 'update' else 'sample_name'
-
-        if 'custom' in organism and col_name in organism['custom']:
-            return organism['custom'][col_name]['value']
-        elif 'alias' in organism:
-            return organism.get('alias', {}).get('value', 'unknown')
-
+    def get_organism_identifier(self, organism: Dict) -> str:
+        sample_name = organism.get('Sample Name', '')
+        if sample_name and sample_name.strip():
+            return sample_name.strip()
         return 'unknown'
 
     def fetch_biosample_data(self, biosample_ids: List[str]):
