@@ -120,64 +120,6 @@ class PydanticValidator:
 
         return results
 
-# Validate parent-child relationships between organisms
-    def validate_relationships(
-        self,
-        models: List[FAANGOrganismSample],
-        raw_data: List[Dict[str, Any]]
-    ) -> Dict[str, List[str]]:
-        errors_by_sample = {}
-
-        # Create sample map
-        sample_map = {}
-        for i, (model, data) in enumerate(zip(models, raw_data)):
-            sample_name = data.get('Sample Name', f'organism_{i}')
-            sample_map[sample_name] = model
-
-        # Validate relationships
-        for sample_name, model in sample_map.items():
-            if not model.child_of:
-                continue
-
-            sample_errors = []
-
-            # check maximum parents
-            if len(model.child_of) > 2:
-                sample_errors.append(f"Organism can have at most 2 parents, found {len(model.child_of)}")
-
-            # Check each parent
-            for parent_id in model.child_of:
-                if parent_id == "restricted access":
-                    continue
-
-                if parent_id in sample_map:
-                    parent_model = sample_map[parent_id]
-
-                    # check species match
-                    if model.organism != parent_model.organism:
-                        sample_errors.append(
-                            f"Species mismatch: child is '{model.organism}' "
-                            f"but parent '{parent_id}' is '{parent_model.organism}'"
-                        )
-
-                    # circular relationships
-                    if parent_model.child_of:
-                        for grandparent_id in parent_model.child_of:
-                            if grandparent_id == sample_name:
-                                sample_errors.append(
-                                    f"Circular relationship detected: '{parent_id}' "
-                                    f"lists '{sample_name}' as its parent"
-                                )
-                else:
-                    sample_errors.append(
-                        f"Parent '{parent_id}' not found in current batch"
-                    )
-
-            if sample_errors:
-                errors_by_sample[sample_name] = sample_errors
-
-        return errors_by_sample
-
 
 def export_organism_to_biosample_format(model: FAANGOrganismSample) -> Dict[str, Any]:
 
