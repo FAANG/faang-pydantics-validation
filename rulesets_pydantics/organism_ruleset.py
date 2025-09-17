@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from organism_validator_classes import OntologyValidator
+from organism_validator_classes import BreedSpeciesValidator, OntologyValidator
 from typing import List, Optional, Union, Literal
 import re
 
@@ -167,6 +167,55 @@ class FAANGOrganismSample(SampleCoreMetadata):
         )
         if res.errors:
             raise ValueError(f"Breed term invalid: {res.errors}")
+
+        # breed-species compatibility validation
+        values = info.data
+        breed_text = values.get('Breed') or values.get('breed')
+        organism_text = values.get('Organism') or values.get('organism')
+        organism_term = values.get('Organism Term Source ID') or values.get('organism_term_source_id')
+
+        if breed_text and breed_text.strip() and organism_text and organism_text.strip():
+            try:
+                def convert_term(term_id: str) -> str:
+                    if not term_id or term_id in ["restricted access", "not applicable", "not collected",
+                                                  "not provided"]:
+                        return term_id
+                    if '_' in term_id and ':' not in term_id:
+                        return term_id.replace('_', ':', 1)
+                    return term_id
+
+                breed_validator = BreedSpeciesValidator(ov)  # Reuse the existing ontology validator
+                organism_term_colon = convert_term(organism_term)
+                breed_term_colon = convert_term(v)
+
+                breed_errors = breed_validator.validate_breed_for_species(
+                    organism_term_colon, breed_term_colon
+                )
+                if breed_errors:
+                    raise ValueError(f"Breed '{breed_text}' is not compatible with species '{organism_text}'")
+
+            except Exception as e:
+                if "not compatible" in str(e):
+                    raise  # Re-raise compatibility errors as-is
+                raise ValueError(f"Error validating breed-species compatibility: {str(e)}")
+
+        return v
+
+
+    @field_validator('breed')
+    def validate_breed_consistency(cls, v, info):
+        values = info.data
+        breed_term = values.get('Breed Term Source ID') or values.get('breed_term_source_id')
+
+        # check if breed is provided without breed_term_source_id
+        if v and v.strip() and not breed_term:
+            raise ValueError(f"Breed '{v}' is provided but Breed Term Source ID is missing")
+
+        #check if breed_term_source_id is provided without breed text
+        if (breed_term and
+            breed_term not in ["", "not applicable", "restricted access"] and
+            (not v or not v.strip())):
+            raise ValueError("Breed Term Source ID is provided but Breed text is missing")
 
         return v
 

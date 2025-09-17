@@ -18,7 +18,6 @@ class PydanticValidator:
         self,
         data: Dict[str, Any],
         validate_relationships: bool = True,
-        validate_ontologies: bool = True,
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
 
@@ -54,95 +53,8 @@ class PydanticValidator:
                     f"Field '{field}' is recommended but was not provided"
                 )
 
-        # ontology validation
-        if validate_ontologies:
-            ontology_errors = self.validate_ontologies(organism_model)
-            errors_dict['errors'].extend(ontology_errors)
-
         return organism_model, errors_dict
 
-    def validate_ontologies(self, model: FAANGOrganismSample) -> List[str]:
-        errors = []
-
-        # convert underscore terms to colon format for ontology validation
-        def convert_term(term_id: str) -> str:
-            if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided"]:
-                return term_id
-            if '_' in term_id and ':' not in term_id:
-                return term_id.replace('_', ':', 1)
-            return term_id
-
-        # Validate organism term - koosum check
-        if model.organism_term_source_id and model.organism_term_source_id != "restricted access":
-            term_colon = convert_term(model.organism_term_source_id)
-            try:
-                res = self.ontology_validator.validate_ontology_term(
-                    term=term_colon,
-                    ontology_name="NCBITaxon",
-                    allowed_classes=["NCBITaxon"]
-                )
-                if res.errors:
-                    errors.append(f"Organism term validation failed: {res.errors}")
-            except Exception as e:
-                errors.append(f"Error validating organism term: {str(e)}")
-
-        # Validate sex term - koosum check
-        if model.sex_term_source_id and model.sex_term_source_id != "restricted access":
-            term_colon = convert_term(model.sex_term_source_id)
-            try:
-                res = self.ontology_validator.validate_ontology_term(
-                    term=term_colon,
-                    ontology_name="PATO",
-                    allowed_classes=["PATO:0000047"]
-                )
-                if res.errors:
-                    errors.append(f"Sex term validation failed: {res.errors}")
-            except Exception as e:
-                errors.append(f"Error validating sex term: {str(e)}")
-
-        # Validate breed term - koosum check
-        if model.breed and model.breed.strip() and not model.breed_term_source_id:
-            errors.append(f"Breed '{model.breed}' is provided but Breed Term Source ID is missing")
-
-        # check if breed_term_source_id is provided without breed text
-        if (model.breed_term_source_id and
-            model.breed_term_source_id not in ["", "not applicable", "restricted access"] and
-            (not model.breed or not model.breed.strip())):
-            errors.append("Breed Term Source ID is provided but Breed text is missing")
-
-        if (model.breed_term_source_id and
-            model.breed_term_source_id not in ["not applicable", "restricted access", ""]):
-            term_colon = convert_term(model.breed_term_source_id)
-            try:
-                res = self.ontology_validator.validate_ontology_term(
-                    term=term_colon,
-                    ontology_name="LBO",
-                    allowed_classes=["LBO"]
-                )
-                if res.errors:
-                    errors.append(f"Breed term validation failed: {res.errors}")
-            except Exception as e:
-                errors.append(f"Error validating breed term: {str(e)}")
-
-        # Validate breed-species compatibility
-        if (model.breed and model.breed.strip() and
-            model.organism and model.organism.strip() and
-            model.breed_term_source_id and model.breed_term_source_id.strip()):
-            try:
-                organism_term = convert_term(model.organism_term_source_id)
-                breed_term = convert_term(model.breed_term_source_id)
-
-                breed_errors = self.breed_validator.validate_breed_for_species(
-                    organism_term, breed_term
-                )
-                if breed_errors:
-                    errors.append(
-                        f"Breed '{model.breed}' is not compatible with species '{model.organism}'"
-                    )
-            except Exception as e:
-                errors.append(f"Error validating breed-species compatibility: {str(e)}")
-
-        return errors
 
     def validate_with_pydantic(
         self,
