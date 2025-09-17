@@ -38,7 +38,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
     sex_term_source_id: Union[str, Literal["restricted access"]] = Field(..., alias="Sex Term Source ID")
 
     # recommended fields
-    birth_date: Optional[str] = Field(None, alias="Birth Date")
+    birth_date: Optional[str] = Field(None, alias="Birth Date", json_schema_extra={"recommended": True})
     birth_date_unit: Optional[Literal[
         "YYYY-MM-DD",
         "YYYY-MM",
@@ -48,16 +48,18 @@ class FAANGOrganismSample(SampleCoreMetadata):
         "not provided",
         "restricted access",
         ""
-    ]] = Field(None, alias="Unit")
-    breed: Optional[str] = Field(None, alias="Breed")
+    ]] = Field(None, alias="Unit", json_schema_extra={"recommended": True})
+    breed: Optional[str] = Field(None, alias="Breed", json_schema_extra={"recommended": True})
     breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(None,
-                                                                                                           alias="Breed Term Source ID")
+                                                                                                           alias="Breed Term Source ID",
+                                                                                                           json_schema_extra={"recommended": True})
 
     health_status: Optional[List[HealthStatus]] = Field(None,
                                                         alias="Health Status",
                                                         description="Healthy animals should have the term normal, "
                                                                     "otherwise use the as many disease terms as "
-                                                                    "necessary from EFO.")
+                                                                    "necessary from EFO.",
+                                                        json_schema_extra={"recommended": True})
     # Optional fields - numeric fields
     diet: Optional[str] = Field(None, alias="Diet")
     birth_location: Optional[str] = Field(None, alias="Birth Location")

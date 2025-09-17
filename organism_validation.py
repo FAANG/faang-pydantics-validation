@@ -14,6 +14,18 @@ class PydanticValidator:
         self.schema_file_path = schema_file_path or "faang_samples_organism.metadata_rules.json"
         self._schema = None
 
+    # get recommended fields from pydantic model using metadata
+    def get_recommended_fields(self, model_class) -> List[str]:
+        recommended_fields = []
+
+        for field_name, field_info in model_class.model_fields.items():
+            if (field_info.json_schema_extra and
+                isinstance(field_info.json_schema_extra, dict) and
+                field_info.json_schema_extra.get("recommended", False)):
+                recommended_fields.append(field_name)
+
+        return recommended_fields
+
     def validate_organism_sample(
         self,
         data: Dict[str, Any],
@@ -46,11 +58,13 @@ class PydanticValidator:
             return None, errors_dict
 
         # recommended fields
-        recommended_fields = ['birth_date', 'breed', 'health_status']
+        recommended_fields = self.get_recommended_fields(FAANGOrganismSample)
         for field in recommended_fields:
             if getattr(organism_model, field, None) is None:
+                field_info = FAANGOrganismSample.model_fields.get(field)
+                field_display_name = field_info.alias if field_info and field_info.alias else field
                 errors_dict['warnings'].append(
-                    f"Field '{field}' is recommended but was not provided"
+                    f"Field '{field_display_name}' is recommended but was not provided"
                 )
 
         return organism_model, errors_dict
