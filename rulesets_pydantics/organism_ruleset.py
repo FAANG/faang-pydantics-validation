@@ -30,14 +30,14 @@ class HealthStatus(BaseModel):
         return v
 
 class FAANGOrganismSample(SampleCoreMetadata):
-    # Required organism-specific fields
+    # required fields
     sample_name: str = Field(..., alias="Sample Name")
     organism: str = Field(..., alias="Organism")
     organism_term_source_id: Union[str, Literal["restricted access"]] = Field(..., alias="Organism Term Source ID")
     sex: str = Field(..., alias="Sex")
     sex_term_source_id: Union[str, Literal["restricted access"]] = Field(..., alias="Sex Term Source ID")
 
-    # Recommended fields
+    # recommended fields
     birth_date: Optional[str] = Field(None, alias="Birth Date")
     birth_date_unit: Optional[Literal[
         "YYYY-MM-DD",
@@ -54,7 +54,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
                                                                                                            alias="Breed Term Source ID")
 
     health_status: Optional[List[HealthStatus]] = Field(None,
-                                                        alias="health_status",
+                                                        alias="Health Status",
                                                         description="Healthy animals should have the term normal, "
                                                                     "otherwise use the as many disease terms as "
                                                                     "necessary from EFO.")

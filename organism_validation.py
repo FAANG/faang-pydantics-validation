@@ -58,7 +58,8 @@ class PydanticValidator:
 
     def validate_with_pydantic(
         self,
-        organisms: List[Dict[str, Any]]
+        organisms: List[Dict[str, Any]],
+        validate_relationships: bool = True,
     ) -> Dict[str, Any]:
 
         results = {
@@ -68,7 +69,8 @@ class PydanticValidator:
                 'total': len(organisms),
                 'valid': 0,
                 'invalid': 0,
-                'warnings': 0
+                'warnings': 0,
+                'relationship_errors': 0
             }
         }
 
@@ -86,7 +88,9 @@ class PydanticValidator:
                     'index': i,
                     'sample_name': sample_name,
                     'model': model,
-                    'warnings': errors['warnings']
+                    'data': org_data,
+                    'warnings': errors['warnings'],
+                    'relationship_errors': []
                 })
                 results['summary']['valid'] += 1
                 if errors['warnings']:
@@ -95,25 +99,24 @@ class PydanticValidator:
                 results['invalid_organisms'].append({
                     'index': i,
                     'sample_name': sample_name,
+                    'data': org_data,
                     'errors': errors
                 })
                 results['summary']['invalid'] += 1
 
         # Validate relationships between organisms
-        if results['valid_organisms']:
-            relationship_errors = self.validate_relationships(
-                [org['model'] for org in results['valid_organisms']],
-                organisms
+        if validate_relationships and results['valid_organisms']:
+            valid_organism_data = [org['data'] for org in results['valid_organisms']]
+            relationship_errors = self.relationship_validator.validate_relationships(
+                valid_organism_data
             )
 
             # relationship errors
-            for sample_name, errors in relationship_errors.items():
-                for org in results['valid_organisms']:
-                    if org['sample_name'] == sample_name:
-                        if 'relationship_errors' not in org:
-                            org['relationship_errors'] = []
-                        org['relationship_errors'].extend(errors)
-                        break
+            for org in results['valid_organisms']:
+                sample_name = org['sample_name']
+                if sample_name in relationship_errors:
+                    org['relationship_errors'] = relationship_errors[sample_name]
+                    results['summary']['relationship_errors'] += 1
 
         return results
 
@@ -289,48 +292,91 @@ def generate_validation_report(validation_results: Dict[str, Any]) -> str:
 
 if __name__ == "__main__":
     # Test with the new JSON format
-    new_json_data = {
-        "Sample Name": "ECA_UKY_H11",
-        "Sample Description": "Foal",
-        "Material": "organism",
-        "Term Source ID": "OBI_0100026",
-        "Project": "FAANG",
-        "Secondary Project": "AQUA-FAANG",
-        "Availability": "",
-        "Same as": "",
-        "Organism": "Equus caballus",
-        "Organism Term Source ID": "NCBITaxon:333920",
-        "Sex": "male",
-        "Sex Term Source ID": "PATO_0000384",
-        "Birth Date": "2013-02",
-        "Unit": "YYYY-MM",
-        # "Breed": "Thoroughbred",
-        # "Breed Term Source ID": "LBO_0000910",
-        "health_status": [
+    json_string = """
+     {
+         "organism": [
+             {
+                 "Sample Name": "ECA_UKY_H11",
+                 "Sample Description": "Foal",
+                 "Material": "organism",
+                 "Term Source ID": "OBI_0100026",
+                 "Project": "FAANG",
+                 "Secondary Project": "AQUA-FAANG",
+                 "Availability": "",
+                 "Same as": "",
+                 "Organism": "Equus caballus",
+                 "Organism Term Source ID": "NCBITaxon:333920",
+                 "Sex": "male",
+                 "Sex Term Source ID": "PATO_0000384",
+                 "Birth Date": "2013-02",
+                 "Unit": "YYYY-MM",
+                 "Health Status": [
+                     {
+                         "text": "normal",
+                         "term": "PATO:0000461"
+                     }
+                 ],
+                 "Diet": "",
+                 "Birth Location": "",
+                 "Birth Location Latitude": "",
+                 "Birth Location Latitude Unit": "",
+                 "Birth Location Longitude": "",
+                 "Birth Location Longitude Unit": "",
+                 "Birth Weight": "",
+                 "Birth Weight Unit": "",
+                 "Placental Weight": "",
+                 "Placental Weight Unit": "",
+                 "Pregnancy Length": "",
+                 "Pregnancy Length Unit": "",
+                 "Delivery Timing": "",
+                 "Delivery Ease": "",
+                 "Child Of": ["", ""],
+                 "Pedigree": ""
+             },
             {
-                "text": "normal",
-                "term": "PATO:0000461"
-            }
-        ],
-        "Diet": "",
-        "Birth Location": "",
-        "Birth Location Latitude": "",
-        "Birth Location Latitude Unit": "",
-        "Birth Location Longitude": "",
-        "Birth Location Longitude Unit": "",
-        "Birth Weight": "",
-        "Birth Weight Unit": "",
-        "Placental Weight": "",
-        "Placental Weight Unit": "",
-        "Pregnancy Length": "",
-        "Pregnancy Length Unit": "",
-        "Delivery Timing": "",
-        "Delivery Ease": "",
-        "Child Of": ["", ""],
-        "Pedigree": ""
-    }
+                 "Sample Name": "ECA_UKY_H1",
+                 "Sample Description": "Foal, 9 days old, Thoroughbred",
+                 "Material": "organism",
+                 "Term Source ID": "OBI_0100026",
+                 "Project": "FAANG",
+                 "Secondary Project": "AQUA-FAANG",
+                 "Availability": "",
+                 "Same as": "",
+                 "Organism": "Equus caballus",
+                 "Organism Term Source ID": "NCBITaxon:3037151",
+                 "Sex": "female",
+                 "Sex Term Source ID": "PATO_0000383",
+                 "Birth Date": "014-07",
+                 "Unit": "YYYY-MM",
+                 "Health Status": [
+                     {
+                         "text": "normal",
+                         "term": "PATO:0000461"
+                     }
+                 ],
+                 "Diet": "",
+                 "Birth Location": "",
+                 "Birth Location Latitude": "",
+                 "Birth Location Latitude Unit": "",
+                 "Birth Location Longitude": "",
+                 "Birth Location Longitude Unit": "",
+                 "Birth Weight": "",
+                 "Birth Weight Unit": "",
+                 "Placental Weight": "",
+                 "Placental Weight Unit": "",
+                 "Pregnancy Length": "",
+                 "Pregnancy Length Unit": "",
+                 "Delivery Timing": "",
+                 "Delivery Ease": "",
+                 "Child Of": ["aaa", ""],
+                 "Pedigree": ""
+             }
+         ]
+     }
+     """
 
-    sample_organisms = [new_json_data]
+    data = json.loads(json_string)
+    sample_organisms = data.get("organism", [])
 
     validator = PydanticValidator()
     results = validator.validate_with_pydantic(sample_organisms)
