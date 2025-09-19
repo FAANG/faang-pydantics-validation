@@ -548,231 +548,211 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
 if __name__ == "__main__":
     # Test with your provided data including cross-sample relationships
     json_string = '''
-    {
-        "organism": [
-             {
-                 "Sample Name": "ECA_UKY_H11",
-                 "Sample Description": "Foal",
-                 "Material": "organism",
-                 "Term Source ID": "OBI_0100026",
-                 "Project": "FAANG",
-                 "Secondary Project": "AQUA-FAANG",
-                 "Availability": "",
-                 "Same as": "",
-                 "Organism": "Equus caballus",
-                 "Organism Term Source ID": "NCBITaxon:333920",
-                 "Sex": "male",
-                 "Sex Term Source ID": "PATO_0000384",
-                 "Birth Date": "2013-02",
-                 "Unit": "YYYY-MM",
-                 "Health Status": [
-                     {
-                         "text": "normal",
-                         "term": "PATO:0000461"
-                     }
-                 ],
-                 "Diet": "",
-                 "Birth Location": "",
-                 "Birth Location Latitude": "",
-                 "Birth Location Latitude Unit": "",
-                 "Birth Location Longitude": "",
-                 "Birth Location Longitude Unit": "",
-                 "Birth Weight": "",
-                 "Birth Weight Unit": "",
-                 "Placental Weight": "",
-                 "Placental Weight Unit": "",
-                 "Pregnancy Length": "",
-                 "Pregnancy Length Unit": "",
-                 "Delivery Timing": "",
-                 "Delivery Ease": "",
-                 "Child Of": ["", ""],
-                 "Pedigree": ""
-             },
-            {
-                 "Sample Name": "ECA_UKY_H1",
-                 "Sample Description": "Foal, 9 days old, Thoroughbred",
-                 "Material": "organism",
-                 "Term Source ID": "OBI_0100026",
-                 "Project": "FAANG",
-                 "Secondary Project": "AQUA-FAANG",
-                 "Availability": "",
-                 "Same as": "",
-                 "Organism": "Equus caballus",
-                 "Organism Term Source ID": "NCBITaxon:3037151",
-                 "Sex": "female",
-                 "Sex Term Source ID": "PATO_0000383",
-                 "Birth Date": "014-07",
-                 "Unit": "YYYY-MM",
-                 "Health Status": [
-                     {
-                         "text": "normal",
-                         "term": "PATO:0000461"
-                     }
-                 ],
-                 "Diet": "",
-                 "Birth Location": "",
-                 "Birth Location Latitude": "",
-                 "Birth Location Latitude Unit": "",
-                 "Birth Location Longitude": "",
-                 "Birth Location Longitude Unit": "",
-                 "Birth Weight": "",
-                 "Birth Weight Unit": "",
-                 "Placental Weight": "",
-                 "Placental Weight Unit": "",
-                 "Pregnancy Length": "",
-                 "Pregnancy Length Unit": "",
-                 "Delivery Timing": "",
-                 "Delivery Ease": "",
-                 "Child Of": ["aaa", ""],
-                 "Pedigree": ""
-             }
-         ],
-        "organoid": [
-            {
-                "Sample Name": "OCU_INRAE_S1",
-                "sample_description": "Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)",
-                "Material": "organoid",
-                "Term Source ID": "NCIT_C172259",
-                "Project": "FAANG",
-                "organ_model": {
-                    "text": "Caecum",
-                    "term": "UBERON:0001153",
-                    "ontology_name": "UBERON"
-                },
-                "organ_part_model": {
-                    "text": "Caecum epithelium",
-                    "term": "UBERON:0005636",
-                    "ontology_name": "UBERON"
-                },
-                "freezing_date": {
-                    "value": "restricted access",
-                    "units": "restricted access"
-                },
-                "freezing_method": {
-                    "value": "fresh"
-                },
-                "freezing_protocol": {
-                    "value": "restricted access"
-                },
-                "organoid_passage": {
-                    "value": 2.0,
-                    "units": "passages"
-                },
-                "organoid_passage_protocol": {
-                    "value": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf"
-                },
-                "organoid_culture_and_passage_protocol": {
-                    "value": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf"
-                },
-                "growth_environment": {
-                    "value": "matrigel"
-                },
-                "type_of_organoid_culture": {
-                    "value": "2D"
-                },
-                "derived_from": {
-                    "value": "OCU_INRAE_PND18_S1"
-                }
-            },
-            {
-                "Sample Name": "OCU_INRAE_S2",
-                "sample_description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
-                "Material": "organoid",
-                "Term Source ID": "NCIT_C172259",
-                "Project": "FAANG",
-                "organ_model": {
-                    "text": "Caecum",
-                    "term": "UBERON:0001153",
-                    "ontology_name": "UBERON"
-                },
-                "organ_part_model": {
-                    "text": "Caecum epithelium",
-                    "term": "UBERON:0005636",
-                    "ontology_name": "UBERON"
-                },
-                "freezing_date": {
-                    "value": "restricted access",
-                    "units": "restricted access"
-                },
-                "freezing_method": {
-                    "value": "fresh"
-                },
-                "freezing_protocol": {
-                    "value": "restricted access"
-                },
-                "organoid_passage": {
-                    "value": 2.0,
-                    "units": "passages"
-                },
-                "organoid_passage_protocol": {
-                    "value": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf"
-                },
-                "organoid_culture_and_passage_protocol": {
-                    "value": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf"
-                },
-                "growth_environment": {
-                    "value": "matrigel"
-                },
-                "type_of_organoid_culture": {
-                    "value": "2D"
-                },
-                "derived_from": {
-                    "value": "OCU_INRAE_PND18_S1"
-                }
-            }
-        ],
-        "specimen_from_organism": [
+       {
+      "organism": [
         {
-            "samples_core": {
-                "sample_description": {
-                    "value": "Adipose Tissue, H1"
-                },
-                "material": {
-                    "text": "specimen from organism",
-                    "term": "OBI:0001479"
-                },
-                "project": {
-                    "value": "FAANG"
-                }
-            },
-            "specimen_collection_date": {
-                "value": "2005-05",
-                "units": "YYYY-MM"
-            },
-            "geographic_location": {
-                "value": "Denmark"
-            },
-            "animal_age_at_collection": {
-                "value": 23.5,
-                "units": "month"
-            },
-            "developmental_stage": {
-                "text": "adult",
-                "term": "EFO:0001272"
-            },
-            "health_status_at_collection": [
-                {
-                    "text": "normal",
-                    "term": "PATO:0000461"
-                }
-            ],
-            "organism_part": {
-                "text": "adipose tissue",
-                "term": "UBERON:0001013"
-            },
-            "specimen_collection_protocol": {
-                "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
-            },
-            "derived_from": {
-                "value": "OCU_INRAE_PND18"
-            },
-            "custom": {
-                "sample_name": {
-                    "value": "OCU_INRAE_PND18_S1"
-                }
+          "Sample Name": "ECA_UKY_H11",
+          "Sample Description": "Foal",
+          "Material": "organism",
+          "Term Source ID": "OBI_0100026",
+          "Project": "FAANG",
+          "Secondary Project": "AQUA-FAANG",
+          "Availability": "",
+          "Same as": "",
+          "Organism": "Equus caballus",
+          "Organism Term Source ID": "NCBITaxon:333920",
+          "Sex": "male",
+          "Sex Term Source ID": "PATO_0000384",
+          "Birth Date": "2013-02",
+          "Unit": "YYYY-MM",
+          "Health Status": [
+            {
+              "text": "normal",
+              "term": "PATO:0000461"
             }
+          ],
+          "Diet": "",
+          "Birth Location": "",
+          "Birth Location Latitude": "",
+          "Birth Location Latitude Unit": "",
+          "Birth Location Longitude": "",
+          "Birth Location Longitude Unit": "",
+          "Birth Weight": "",
+          "Birth Weight Unit": "",
+          "Placental Weight": "",
+          "Placental Weight Unit": "",
+          "Pregnancy Length": "",
+          "Pregnancy Length Unit": "",
+          "Delivery Timing": "",
+          "Delivery Ease": "",
+          "Child Of": [
+            "",
+            ""
+          ],
+          "Pedigree": ""
+        },
+        {
+          "Sample Name": "ECA_UKY_H1",
+          "Sample Description": "Foal, 9 days old, Thoroughbred",
+          "Material": "organism",
+          "Term Source ID": "OBI_0100026",
+          "Project": "FAANG",
+          "Secondary Project": "AQUA-FAANG",
+          "Availability": "",
+          "Same as": "",
+          "Organism": "Equus caballus",
+          "Organism Term Source ID": "NCBITaxon:3037151",
+          "Sex": "female",
+          "Sex Term Source ID": "PATO_0000383",
+          "Birth Date": "014-07",
+          "Unit": "YYYY-MM",
+          "Health Status": [
+            {
+              "text": "normal",
+              "term": "PATO:0000461"
+            }
+          ],
+          "Diet": "",
+          "Birth Location": "",
+          "Birth Location Latitude": "",
+          "Birth Location Latitude Unit": "",
+          "Birth Location Longitude": "",
+          "Birth Location Longitude Unit": "",
+          "Birth Weight": "",
+          "Birth Weight Unit": "",
+          "Placental Weight": "",
+          "Placental Weight Unit": "",
+          "Pregnancy Length": "",
+          "Pregnancy Length Unit": "",
+          "Delivery Timing": "",
+          "Delivery Ease": "",
+          "Child Of": [
+            "aaa",
+            ""
+          ],
+          "Pedigree": ""
         }
-    ]
+      ],
+      "organoid": [
+        {
+          "Sample Name": "OCU_INRAE_S1",
+          "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)",
+          "Material": "organoid",
+          "Term Source ID": "NCIT:C172259",
+          "Project": "FAANG",
+          "Secondary Project": "",
+          "Availability": "",
+          "Same as": "",
+          "Organ Model": "Caecum",
+          "Organ Model Term Source ID": "UBERON:0001153",
+          "Organ Part Model": "Caecum epithelium",
+          "Organ Part Model Term Source ID": "UBERON:0005636",
+          "Freezing Date": "restricted access",
+          "Unit": "restricted access",
+          "Freezing Method": "fresh",
+          "Freezing Protocol": "restricted access",
+          "Number Of Frozen Cells": "",
+          "Number Of Frozen Cells Unit": "",
+          "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+          "Organoid Passage": "2",
+          "Organoid Passage Unit": "passages",
+          "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+          "Type Of Organoid Culture": "2D",
+          "Organoid Morphology": "",
+          "Growth Environment": "matrigel",
+          "Growth Environment Unit": "1",
+          "Stored Oxygen Level": "",
+          "Stored Oxygen Level Unit": "",
+          "Incubation Temperature": "",
+          "Incubation Temperature Unit": "",
+          "Derived From": "OCU_INRAE_PND18_S1"
+        },
+        {
+          "Sample Name": "OCU_INRAE_S2",
+          "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
+          "Material": "organoid",
+          "Term Source ID": "NCIT:C172259",
+          "Project": "FAANG",
+          "Secondary Project": "",
+          "Availability": "",
+          "Same as": "",
+          "Organ Model": "Caecum",
+          "Organ Model Term Source ID": "UBERON:0001153",
+          "Organ Part Model": "Caecum epithelium",
+          "Organ Part Model Term Source ID": "UBERON:0005636",
+          "Freezing Date": "restricted access",
+          "Unit": "restricted access",
+          "Freezing Method": "fresh",
+          "Freezing Protocol": "restricted access",
+          "Number Of Frozen Cells": "",
+          "Number Of Frozen Cells Unit": "",
+          "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+          "Organoid Passage": "2",
+          "Organoid Passage Unit": "passages",
+          "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+          "Type Of Organoid Culture": "2D",
+          "Organoid Morphology": "",
+          "Growth Environment": "matrigel",
+          "Growth Environment Unit": "1",
+          "Stored Oxygen Level": "",
+          "Stored Oxygen Level Unit": "",
+          "Incubation Temperature": "",
+          "Incubation Temperature Unit": "",
+          "Derived From": "OCU_INRAE_PND18_S1"
+        }
+      ],
+      "specimen_from_organism": [
+        {
+          "samples_core": {
+            "sample_description": {
+              "value": "Adipose Tissue, H1"
+            },
+            "material": {
+              "text": "specimen from organism",
+              "term": "OBI:0001479"
+            },
+            "project": {
+              "value": "FAANG"
+            }
+          },
+          "specimen_collection_date": {
+            "value": "2005-05",
+            "units": "YYYY-MM"
+          },
+          "geographic_location": {
+            "value": "Denmark"
+          },
+          "animal_age_at_collection": {
+            "value": 23.5,
+            "units": "month"
+          },
+          "developmental_stage": {
+            "text": "adult",
+            "term": "EFO:0001272"
+          },
+          "health_status_at_collection": [
+            {
+              "text": "normal",
+              "term": "PATO:0000461"
+            }
+          ],
+          "organism_part": {
+            "text": "adipose tissue",
+            "term": "UBERON:0001013"
+          },
+          "specimen_collection_protocol": {
+            "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+          },
+          "derived_from": {
+            "value": "OCU_INRAE_PND18"
+          },
+          "custom": {
+            "sample_name": {
+              "value": "OCU_INRAE_PND18_S1"
+            }
+          }
+        }
+      ]
     }
     '''
 
@@ -786,7 +766,7 @@ if __name__ == "__main__":
         sample_organoids,
         validate_relationships=True,
         all_samples=data,  # Pass the entire dataset for cross-sample validation
-        validate_ontology_text = True
+        validate_ontology_text=True
     )
 
     report = generate_organoid_validation_report(results)
