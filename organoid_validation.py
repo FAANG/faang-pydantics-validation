@@ -69,55 +69,138 @@ class OrganoidPydanticValidator:
 
         return organoid_model, errors_dict
 
-    def validate_derived_from_relationships(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    def validate_derived_from_relationships(self, organoids: List[Dict[str, Any]],
+                                            all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         """
-        Validate derived_from relationships between organoids
+        Validate derived_from relationships based on Django RelationshipsIssues logic
         """
+        # ALLOWED_RELATIONSHIPS mapping based on Django constants
+        ALLOWED_RELATIONSHIPS = {
+            'organoid': ['specimen from organism', 'cell culture', 'cell line'],
+            'organism': ['organism'],  # organism can reference other organisms (parent-child)
+            'specimen from organism': ['organism'],
+            'cell culture': ['specimen from organism', 'organism'],
+            'cell line': ['specimen from organism', 'organism'],
+            'cell specimen': ['specimen from organism', 'organism'],
+            'single cell specimen': ['specimen from organism', 'organism'],
+            'pool of specimens': ['specimen from organism', 'organism']
+        }
+
         relationship_errors = {}
-        sample_names = set()
+        relationships = {}  # Store relationship info like Django version
 
-        # Collect all sample names
-        for organoid in organoids:
-            sample_name = None
-            if 'custom' in organoid and 'sample_name' in organoid['custom']:
-                sample_name = organoid['custom']['sample_name']['value']
-            elif 'Sample Name' in organoid:
-                sample_name = organoid['Sample Name']
+        # Step 1: Collect all relationships and materials (similar to Django collect_relationships)
+        if all_samples:
+            for sample_type, samples in all_samples.items():
+                for sample in samples:
+                    sample_name = self._extract_sample_name(sample)
+                    if sample_name:
+                        relationships[sample_name] = {}
 
-            if sample_name:
-                sample_names.add(sample_name)
+                        # Extract material type
+                        material = self._extract_material(sample)
+                        relationships[sample_name]['material'] = material
 
-        # Check derived_from references
-        for i, organoid in enumerate(organoids):
-            current_sample_name = None
-            if 'custom' in organoid and 'sample_name' in organoid['custom']:
-                current_sample_name = organoid['custom']['sample_name']['value']
-            elif 'Sample Name' in organoid:
-                current_sample_name = organoid['Sample Name']
+                        # Extract derived_from relationships
+                        derived_from = self._extract_derived_from(sample)
+                        if derived_from:
+                            relationships[sample_name]['relationships'] = derived_from
 
-            if not current_sample_name:
-                current_sample_name = f"organoid_{i}"
+        # Step 2: Validate relationships (similar to Django check_relationships)
+        for sample_name, rel_info in relationships.items():
+            if 'relationships' not in rel_info:
+                continue
 
+            current_material = rel_info['material']
             errors = []
 
-            if 'derived_from' in organoid:
-                derived_from_value = organoid['derived_from']['value'] if isinstance(organoid['derived_from'],
-                                                                                     dict) else organoid['derived_from']
+            # Skip if restricted access
+            if 'restricted access' in rel_info['relationships']:
+                continue
 
-                # Check if derived_from references exist (basic validation)
-                if derived_from_value and derived_from_value not in sample_names:
-                    # This could be a reference to an external sample - we'll add as warning
-                    errors.append(f"Derived from '{derived_from_value}' not found in current submission")
+            for derived_from_ref in rel_info['relationships']:
+                # Check if referenced sample exists
+                if derived_from_ref not in relationships:
+                    errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
+                else:
+                    # Check material compatibility
+                    ref_material = relationships[derived_from_ref]['material']
+                    allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
+
+                    if ref_material not in allowed_materials:
+                        errors.append(
+                            f"Relationships part: referenced entity '{derived_from_ref}' "
+                            f"does not match condition 'should be {' or '.join(allowed_materials)}'"
+                        )
+
+                    # Additional check for organism parent-child relationships
+                    if current_material == 'organism' and ref_material == 'organism':
+                        self._check_organism_parent_child(sample_name, rel_info,
+                                                          derived_from_ref, relationships[derived_from_ref],
+                                                          errors, relationships)
 
             if errors:
-                relationship_errors[current_sample_name] = errors
+                relationship_errors[sample_name] = errors
 
         return relationship_errors
+
+    def _extract_sample_name(self, sample: Dict) -> str:
+        """Extract sample name from various possible locations"""
+        if 'custom' in sample and 'sample_name' in sample['custom']:
+            return sample['custom']['sample_name']['value']
+        elif 'Sample Name' in sample:
+            return sample['Sample Name']
+        return None
+
+    def _extract_material(self, sample: Dict) -> str:
+        """Extract material type from sample"""
+        if 'Material' in sample:
+            return sample['Material']
+        elif 'samples_core' in sample and 'material' in sample['samples_core']:
+            return sample['samples_core']['material']['text']
+        return None
+
+    def _extract_derived_from(self, sample: Dict) -> List[str]:
+        """Extract derived_from references from sample"""
+        derived_from_refs = []
+
+        if 'derived_from' in sample:
+            derived_from = sample['derived_from']
+            if isinstance(derived_from, dict) and 'value' in derived_from:
+                derived_from_refs.append(derived_from['value'])
+            elif isinstance(derived_from, list):
+                for item in derived_from:
+                    if isinstance(item, dict) and 'value' in item:
+                        derived_from_refs.append(item['value'])
+                    elif isinstance(item, str):
+                        derived_from_refs.append(item)
+            elif isinstance(derived_from, str):
+                derived_from_refs.append(derived_from)
+
+        # Also check for 'child_of' relationship (for organisms)
+        if 'Child Of' in sample:
+            child_of = sample['Child Of']
+            if isinstance(child_of, list):
+                for parent in child_of:
+                    if parent and parent.strip():
+                        derived_from_refs.append(parent.strip())
+
+        return [ref for ref in derived_from_refs if ref and ref.strip()]
+
+    def _check_organism_parent_child(self, current_name: str, current_info: Dict,
+                                     parent_name: str, parent_info: Dict,
+                                     errors: List[str], all_relationships: Dict):
+        """Check organism parent-child relationships (from Django check_parents)"""
+        # Check if parent is also listing child as its parent (circular reference)
+        if 'relationships' in parent_info and current_name in parent_info['relationships']:
+            errors.append(f"Relationships part: parent '{parent_name}' is listing "
+                          f"the child as its parent")
 
     def validate_with_pydantic(
         self,
         organoids: List[Dict[str, Any]],
         validate_relationships: bool = True,
+        all_samples: Dict[str, List[Dict]] = None,
     ) -> Dict[str, Any]:
         """
         Validate a list of organoid samples
@@ -170,12 +253,11 @@ class OrganoidPydanticValidator:
                 })
                 results['summary']['invalid'] += 1
 
-        # Validate relationships between organoids
-        if validate_relationships and results['valid_organoids']:
-            valid_organoid_data = [org['data'] for org in results['valid_organoids']]
-            relationship_errors = self.validate_derived_from_relationships(valid_organoid_data)
+        # Validate relationships between samples
+        if validate_relationships and all_samples:
+            relationship_errors = self.validate_derived_from_relationships(organoids, all_samples)
 
-            # Add relationship errors
+            # Add relationship errors to valid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
@@ -316,7 +398,7 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
 
 
 if __name__ == "__main__":
-    # Test with your provided data
+    # Test with your provided data including cross-sample relationships
     json_string = '''
     {
         "organism": [
@@ -550,7 +632,13 @@ if __name__ == "__main__":
     sample_organoids = data.get("organoid", [])
 
     validator = OrganoidPydanticValidator()
-    results = validator.validate_with_pydantic(sample_organoids)
+
+    # Pass all samples for cross-validation
+    results = validator.validate_with_pydantic(
+        sample_organoids,
+        validate_relationships=True,
+        all_samples=data  # Pass the entire dataset for cross-sample validation
+    )
 
     report = generate_organoid_validation_report(results)
     print(report)
