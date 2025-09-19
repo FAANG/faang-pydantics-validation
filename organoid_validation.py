@@ -145,45 +145,29 @@ class OrganoidPydanticValidator:
         return relationship_errors
 
     def _extract_sample_name(self, sample: Dict) -> str:
-        """Extract sample name from various possible locations"""
-        if 'custom' in sample and 'sample_name' in sample['custom']:
-            return sample['custom']['sample_name']['value']
-        elif 'Sample Name' in sample:
-            return sample['Sample Name']
-        return None
+        return sample.get('Sample Name', '')
 
     def _extract_material(self, sample: Dict) -> str:
-        """Extract material type from sample"""
-        if 'Material' in sample:
-            return sample['Material']
-        elif 'samples_core' in sample and 'material' in sample['samples_core']:
-            return sample['samples_core']['material']['text']
-        return None
+        return sample.get('Material', '')
 
     def _extract_derived_from(self, sample: Dict) -> List[str]:
         """Extract derived_from references from sample"""
         derived_from_refs = []
 
-        if 'derived_from' in sample:
-            derived_from = sample['derived_from']
-            if isinstance(derived_from, dict) and 'value' in derived_from:
-                derived_from_refs.append(derived_from['value'])
-            elif isinstance(derived_from, list):
-                for item in derived_from:
-                    if isinstance(item, dict) and 'value' in item:
-                        derived_from_refs.append(item['value'])
-                    elif isinstance(item, str):
-                        derived_from_refs.append(item)
-            elif isinstance(derived_from, str):
-                derived_from_refs.append(derived_from)
+        if 'Derived From' in sample:
+            derived_from = sample['Derived From']
+            if derived_from and derived_from.strip():
+                derived_from_refs.append(derived_from.strip())
 
-        # Also check for 'child_of' relationship (for organisms)
-        if 'Child Of' in sample:
-            child_of = sample['Child Of']
-            if isinstance(child_of, list):
-                for parent in child_of:
-                    if parent and parent.strip():
-                        derived_from_refs.append(parent.strip())
+            # Also check for 'Child Of' relationship (for organisms)
+            if 'Child Of' in sample:
+                child_of = sample['Child Of']
+                if isinstance(child_of, list):
+                    for parent in child_of:
+                        if parent and parent.strip():
+                            derived_from_refs.append(parent.strip())
+                elif child_of and child_of.strip():
+                    derived_from_refs.append(child_of.strip())
 
         return [ref for ref in derived_from_refs if ref and ref.strip()]
 
@@ -205,16 +189,14 @@ class OrganoidPydanticValidator:
 
         for organoid in organoids:
             # Extract terms from organ_model
-            if 'organ_model' in organoid and isinstance(organoid['organ_model'], dict):
-                term = organoid['organ_model'].get('term')
-                if term:
-                    ids.add(term)
+            organ_model_term = organoid.get('Organ Model Term Source ID')
+            if organ_model_term and organ_model_term != "restricted access":
+                ids.add(organ_model_term)
 
             # Extract terms from organ_part_model
-            if 'organ_part_model' in organoid and isinstance(organoid['organ_part_model'], dict):
-                term = organoid['organ_part_model'].get('term')
-                if term:
-                    ids.add(term)
+            organ_part_term = organoid.get('Organ Part Model Term Source ID')
+            if organ_part_term and organ_part_term != "restricted access":
+                ids.add(organ_part_term)
 
         # Fetch ontology data from OLS
         return self.fetch_ontology_data_for_ids(ids)
@@ -229,7 +211,9 @@ class OrganoidPydanticValidator:
         for term_id in ids:
             if term_id and term_id != "restricted access":
                 try:
-                    ols_data = self.ontology_validator.fetch_from_ols(term_id)
+                    # Convert underscore to colon for OLS lookup
+                    term_for_lookup = term_id.replace('_', ':', 1) if '_' in term_id else term_id
+                    ols_data = self.ontology_validator.fetch_from_ols(term_for_lookup)
                     if ols_data:
                         results[term_id] = ols_data
                 except Exception as e:
@@ -241,7 +225,7 @@ class OrganoidPydanticValidator:
     def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         """
         Validate that ontology text matches the official term labels from OLS
-        Based on Django check_ontology_text() function
+        Updated for flattened JSON structure
         """
         ontology_data = self.collect_ontology_ids(organoids)
         text_consistency_errors = {}
@@ -250,20 +234,22 @@ class OrganoidPydanticValidator:
             sample_name = organoid.get('Sample Name', f'organoid_{i}')
             errors = []
 
-            # Validate organ_model text-term consistency
-            if 'organ_model' in organoid and isinstance(organoid['organ_model'], dict):
-                organ_model = organoid['organ_model']
-                error = self._check_text_term_consistency(
-                    organ_model, ontology_data, 'organ_model'
+            # Validate organ model text-term consistency (now flattened)
+            organ_model_text = organoid.get('Organ Model')
+            organ_model_term = organoid.get('Organ Model Term Source ID')
+            if organ_model_text and organ_model_term and organ_model_term != "restricted access":
+                error = self._check_text_term_consistency_flattened(
+                    organ_model_text, organ_model_term, ontology_data, 'organ_model'
                 )
                 if error:
                     errors.append(error)
 
-            # Validate organ_part_model text-term consistency
-            if 'organ_part_model' in organoid and isinstance(organoid['organ_part_model'], dict):
-                organ_part = organoid['organ_part_model']
-                error = self._check_text_term_consistency(
-                    organ_part, ontology_data, 'organ_part_model'
+            # Validate organ part model text-term consistency (now flattened)
+            organ_part_text = organoid.get('Organ Part Model')
+            organ_part_term = organoid.get('Organ Part Model Term Source ID')
+            if organ_part_text and organ_part_term and organ_part_term != "restricted access":
+                error = self._check_text_term_consistency_flattened(
+                    organ_part_text, organ_part_term, ontology_data, 'organ_part_model'
                 )
                 if error:
                     errors.append(error)
@@ -273,23 +259,24 @@ class OrganoidPydanticValidator:
 
         return text_consistency_errors
 
-    def _check_text_term_consistency(self, field_data: Dict, ontology_data: Dict, field_name: str) -> str:
+    def _check_text_term_consistency_flattened(self, text: str, term: str,
+                                               ontology_data: Dict, field_name: str) -> str:
         """
-        Check if text matches term label from OLS
-        Based on Django check_ols() function
+        Check if text matches term label from OLS for flattened structure
         """
-        if not isinstance(field_data, dict):
-            return None
-
-        text = field_data.get('text')
-        term = field_data.get('term')
-        ontology_name = field_data.get('ontology_name')
-
         if not text or not term or term == "restricted access":
             return None
 
         if term not in ontology_data:
             return f"Couldn't find term '{term}' in OLS"
+
+        # Determine ontology based on term prefix
+        term_with_colon = term.replace('_', ':', 1) if '_' in term else term
+        ontology_name = None
+        if term_with_colon.startswith("UBERON:"):
+            ontology_name = "UBERON"
+        elif term_with_colon.startswith("BTO:"):
+            ontology_name = "BTO"
 
         # Get labels from OLS data
         term_labels = []
@@ -333,13 +320,7 @@ class OrganoidPydanticValidator:
 
         # Validate individual organoids
         for i, org_data in enumerate(organoids):
-            sample_name = 'Unknown'
-            if 'custom' in org_data and 'sample_name' in org_data['custom']:
-                sample_name = org_data['custom']['sample_name']['value']
-            elif 'Sample Name' in org_data:
-                sample_name = org_data['Sample Name']
-            else:
-                sample_name = f'organoid_{i}'
+            sample_name = org_data.get('Sample Name', f'organoid_{i}')
 
             model, errors = self.validate_organoid_sample(
                 org_data,
@@ -419,65 +400,67 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
     }]
 
     # Organ model
-    if model.organ_model:
-        biosample_data["characteristics"]["organ model"] = [{
-            "text": model.organ_model.text,
-            "ontologyTerms": [convert_term_to_url(model.organ_model.term)]
-        }]
+    biosample_data["characteristics"]["organ model"] = [{
+        "text": model.organ_model,
+        "ontologyTerms": [convert_term_to_url(model.organ_model_term_source_id)]
+    }]
 
     # Organ part model (optional)
     if model.organ_part_model:
         biosample_data["characteristics"]["organ part model"] = [{
-            "text": model.organ_part_model.text,
-            "ontologyTerms": [convert_term_to_url(model.organ_part_model.term)]
+            "text": model.organ_part_model,
+            "ontologyTerms": [convert_term_to_url(model.organ_part_model_term_source_id)]
         }]
 
     # Freezing method
-    if model.freezing_method:
-        biosample_data["characteristics"]["freezing method"] = [{
-            "text": model.freezing_method.value
-        }]
+    biosample_data["characteristics"]["freezing method"] = [{
+        "text": model.freezing_method
+    }]
 
     # Freezing date (if provided and not fresh)
-    if model.freezing_date and model.freezing_date.value != "restricted access":
+    if model.freezing_date and model.freezing_date != "restricted access":
         biosample_data["characteristics"]["freezing date"] = [{
-            "text": model.freezing_date.value,
-            "unit": model.freezing_date.units
+            "text": model.freezing_date,
+            "unit": model.freezing_date_unit or ""
         }]
 
     # Organoid passage
-    if model.organoid_passage:
-        biosample_data["characteristics"]["organoid passage"] = [{
-            "text": str(model.organoid_passage.value),
-            "unit": model.organoid_passage.units
-        }]
+    biosample_data["characteristics"]["organoid passage"] = [{
+        "text": str(model.organoid_passage),
+        "unit": model.organoid_passage_unit
+    }]
 
     # Growth environment
-    if model.growth_environment:
-        biosample_data["characteristics"]["growth environment"] = [{
-            "text": model.growth_environment.value
-        }]
+    biosample_data["characteristics"]["growth environment"] = [{
+        "text": model.growth_environment
+    }]
 
     # Type of organoid culture
-    if model.type_of_organoid_culture:
-        biosample_data["characteristics"]["type of organoid culture"] = [{
-            "text": model.type_of_organoid_culture.value
-        }]
+    biosample_data["characteristics"]["type of organoid culture"] = [{
+        "text": model.type_of_organoid_culture
+    }]
 
     # Organoid morphology (optional)
     if model.organoid_morphology:
         biosample_data["characteristics"]["organoid morphology"] = [{
-            "text": model.organoid_morphology.value
+            "text": model.organoid_morphology
+        }]
+
+    # Number of frozen cells (optional)
+    if model.number_of_frozen_cells is not None:
+        biosample_data["characteristics"]["number of frozen cells"] = [{
+            "text": str(model.number_of_frozen_cells),
+            "unit": model.number_of_frozen_cells_unit or "organoids"
         }]
 
     # Relationships - derived from
-    if model.derived_from:
-        biosample_data["relationships"] = [{
-            "type": "derived from",
-            "target": model.derived_from.value
-        }]
+    biosample_data["relationships"] = [{
+        "type": "derived from",
+        "target": model.derived_from
+    }]
 
     return biosample_data
+
 
 
 def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> str:
