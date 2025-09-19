@@ -196,11 +196,125 @@ class OrganoidPydanticValidator:
             errors.append(f"Relationships part: parent '{parent_name}' is listing "
                           f"the child as its parent")
 
+    def collect_ontology_ids(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
+        """
+        Collect all ontology term IDs from organoids for OLS validation
+        Based on Django collect_ids() function
+        """
+        ids = set()
+
+        for organoid in organoids:
+            # Extract terms from organ_model
+            if 'organ_model' in organoid and isinstance(organoid['organ_model'], dict):
+                term = organoid['organ_model'].get('term')
+                if term:
+                    ids.add(term)
+
+            # Extract terms from organ_part_model
+            if 'organ_part_model' in organoid and isinstance(organoid['organ_part_model'], dict):
+                term = organoid['organ_part_model'].get('term')
+                if term:
+                    ids.add(term)
+
+        # Fetch ontology data from OLS
+        return self.fetch_ontology_data_for_ids(ids)
+
+    def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
+        """
+        Fetch ontology data from OLS for given term IDs
+        Based on Django fetch_text_for_ids() function
+        """
+        results = {}
+
+        for term_id in ids:
+            if term_id and term_id != "restricted access":
+                try:
+                    ols_data = self.ontology_validator.fetch_from_ols(term_id)
+                    if ols_data:
+                        results[term_id] = ols_data
+                except Exception as e:
+                    print(f"Error fetching ontology data for {term_id}: {e}")
+                    results[term_id] = []
+
+        return results
+
+    def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        """
+        Validate that ontology text matches the official term labels from OLS
+        Based on Django check_ontology_text() function
+        """
+        ontology_data = self.collect_ontology_ids(organoids)
+        text_consistency_errors = {}
+
+        for i, organoid in enumerate(organoids):
+            sample_name = organoid.get('Sample Name', f'organoid_{i}')
+            errors = []
+
+            # Validate organ_model text-term consistency
+            if 'organ_model' in organoid and isinstance(organoid['organ_model'], dict):
+                organ_model = organoid['organ_model']
+                error = self._check_text_term_consistency(
+                    organ_model, ontology_data, 'organ_model'
+                )
+                if error:
+                    errors.append(error)
+
+            # Validate organ_part_model text-term consistency
+            if 'organ_part_model' in organoid and isinstance(organoid['organ_part_model'], dict):
+                organ_part = organoid['organ_part_model']
+                error = self._check_text_term_consistency(
+                    organ_part, ontology_data, 'organ_part_model'
+                )
+                if error:
+                    errors.append(error)
+
+            if errors:
+                text_consistency_errors[sample_name] = errors
+
+        return text_consistency_errors
+
+    def _check_text_term_consistency(self, field_data: Dict, ontology_data: Dict, field_name: str) -> str:
+        """
+        Check if text matches term label from OLS
+        Based on Django check_ols() function
+        """
+        if not isinstance(field_data, dict):
+            return None
+
+        text = field_data.get('text')
+        term = field_data.get('term')
+        ontology_name = field_data.get('ontology_name')
+
+        if not text or not term or term == "restricted access":
+            return None
+
+        if term not in ontology_data:
+            return f"Couldn't find term '{term}' in OLS"
+
+        # Get labels from OLS data
+        term_labels = []
+        for label_data in ontology_data[term]:
+            if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
+                term_labels.append(label_data.get('label', '').lower())
+            elif not ontology_name:
+                term_labels.append(label_data.get('label', '').lower())
+
+        if not term_labels:
+            return f"Couldn't find label in OLS with ontology name: {ontology_name}"
+
+        # Check if provided text matches any OLS label
+        if str(text).lower() not in term_labels:
+            return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
+                    f"for term '{term}' in field '{field_name}'")
+
+        return None
+
     def validate_with_pydantic(
         self,
         organoids: List[Dict[str, Any]],
         validate_relationships: bool = True,
         all_samples: Dict[str, List[Dict]] = None,
+        validate_ontology_text: bool = True,
     ) -> Dict[str, Any]:
         """
         Validate a list of organoid samples
@@ -263,6 +377,19 @@ class OrganoidPydanticValidator:
                 if sample_name in relationship_errors:
                     org['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
+
+        # Validate ontology text consistency
+        if validate_ontology_text:
+            text_consistency_errors = self.validate_ontology_text_consistency(organoids)
+
+            # Add text consistency errors as warnings to valid organoids
+            for org in results['valid_organoids']:
+                sample_name = org['sample_name']
+                if sample_name in text_consistency_errors:
+                    if 'ontology_warnings' not in org:
+                        org['ontology_warnings'] = []
+                    org['ontology_warnings'].extend(text_consistency_errors[sample_name])
+                    results['summary']['warnings'] += 1
 
         return results
 
@@ -393,6 +520,27 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
                     report.append(f"  WARNING: {warning}")
                 for error in org.get('relationship_errors', []):
                     report.append(f"  RELATIONSHIP: {error}")
+
+
+    # Update the warnings section to include ontology warnings:
+    if validation_results['valid_organoids']:
+        warnings_found = False
+        for org in validation_results['valid_organoids']:
+            if (org.get('warnings') or org.get('relationship_errors') or
+                org.get('ontology_warnings')):
+                if not warnings_found:
+                    report.append("\n\nWarnings and Non-Critical Issues:")
+                    report.append("-" * 30)
+                    warnings_found = True
+
+                report.append(f"\nOrganoid: {org['sample_name']} (index: {org['index']})")
+                for warning in org.get('warnings', []):
+                    report.append(f"  WARNING: {warning}")
+                for error in org.get('relationship_errors', []):
+                    report.append(f"  RELATIONSHIP: {error}")
+                # Add ontology warnings
+                for warning in org.get('ontology_warnings', []):
+                    report.append(f"  ONTOLOGY: {warning}")
 
     return "\n".join(report)
 
@@ -637,7 +785,8 @@ if __name__ == "__main__":
     results = validator.validate_with_pydantic(
         sample_organoids,
         validate_relationships=True,
-        all_samples=data  # Pass the entire dataset for cross-sample validation
+        all_samples=data,  # Pass the entire dataset for cross-sample validation
+        validate_ontology_text = True
     )
 
     report = generate_organoid_validation_report(results)
