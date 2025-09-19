@@ -62,17 +62,18 @@ class FAANGOrganoidSample(SampleCoreMetadata):
             raise ValueError("Sample Name is required and cannot be empty")
         return v.strip()
 
-    @field_validator('term_source_id')
+    @field_validator('term_source_id', mode='before')
     def validate_material_term(cls, v):
         if v == "restricted access":
             return v
 
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1)
+        # Convert colon to underscore if needed (for Literal compatibility)
+        if ':' in v:
+            v = v.replace(':', '_', 1)
 
-        # For organoid material, should be NCIT:C172259
-        expected_term = "NCIT:C172259"
-        if term_with_colon != expected_term:
+        # For organoid material, should be NCIT_C172259 (underscore format)
+        expected_term = "NCIT_C172259"
+        if v != expected_term:
             raise ValueError(f"Term Source ID for organoid should be '{expected_term}', got '{v}'")
         return v
 
