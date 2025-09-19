@@ -115,7 +115,7 @@ class OrganoidPydanticValidator:
             errors = []
 
             # Skip if restricted access
-            if 'restricted access' in rel_info['relationships']:
+            if any('restricted access' == ref for ref in rel_info['relationships']):
                 continue
 
             for derived_from_ref in rel_info['relationships']:
