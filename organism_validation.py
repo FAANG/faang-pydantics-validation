@@ -1,7 +1,7 @@
 from pydantic import ValidationError
 from typing import List, Optional, Dict, Any, Tuple
 import json
-from organism_validator_classes import OntologyValidator, BreedSpeciesValidator, RelationshipValidator
+from generic_validator_classes import OntologyValidator, BreedSpeciesValidator, RelationshipValidator
 
 from rulesets_pydantics.organism_ruleset import FAANGOrganismSample
 

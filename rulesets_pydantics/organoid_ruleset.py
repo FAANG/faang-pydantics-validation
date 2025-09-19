@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator, model_validator
-from organism_validator_classes import OntologyValidator  # Assuming this exists from your organism example
+from generic_validator_classes import OntologyValidator  # Assuming this exists from your organism example
 from typing import List, Optional, Union, Literal
 import re
 from datetime import datetime

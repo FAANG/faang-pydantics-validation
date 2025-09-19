@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from organism_validator_classes import BreedSpeciesValidator, OntologyValidator
+from generic_validator_classes import BreedSpeciesValidator, OntologyValidator
 from typing import List, Optional, Union, Literal
 import re
 
