@@ -4,91 +4,27 @@ from typing import List, Optional, Union, Literal
 import re
 from datetime import datetime
 
-from .standard_ruleset import SampleCoreMetadata  # Assuming this exists
+from .standard_ruleset import SampleCoreMetadata
 
 
-class MaterialField(BaseModel):
-    text: Literal[
-        "organism", "specimen from organism", "cell specimen", "single cell specimen",
-        "pool of specimens", "cell culture", "cell line", "organoid", "restricted access"
-    ]
-    term: Literal[
-        "OBI:0100026", "OBI:0001479", "OBI:0001468", "OBI:0002127",
-        "OBI:0302716", "OBI:0001876", "CLO:0000031", "NCIT:C172259", "restricted access"
-    ]
-    mandatory: Literal["mandatory"] = "mandatory"
-    ontology_name: Literal["OBI"] = "OBI"
-
-    @field_validator('text')
-    def validate_material_text(cls, v, info):
-        # For organoid samples, text should be "organoid"
-        if v != "organoid" and v != "restricted access":
-            raise ValueError("Material text must be 'organoid' for organoid samples")
-        return v
-
-    @field_validator('term')
-    def validate_material_term(cls, v, info):
-        values = info.data
-        text = values.get('text')
-
-        if v == "restricted access":
-            return v
-
-        # Validate that term matches text
-        text_term_mapping = {
-            "organism": "OBI:0100026",
-            "specimen from organism": "OBI:0001479",
-            "cell specimen": "OBI:0001468",
-            "single cell specimen": "OBI:0002127",
-            "pool of specimens": "OBI:0302716",
-            "cell culture": "OBI:0001876",
-            "cell line": "CLO:0000031",
-            "organoid": "NCIT:C172259"
-        }
-
-        if text and text in text_term_mapping and v != text_term_mapping[text]:
-            raise ValueError(f"Term '{v}' does not match text '{text}'")
-
-        return v
+# class MaterialField(BaseModel):
+#     text: Literal[
+#         "organism", "specimen from organism", "cell specimen", "single cell specimen",
+#         "pool of specimens", "cell culture", "cell line", "organoid", "restricted access"
+#     ]
+#     term: Literal[
+#         "OBI:0100026", "OBI:0001479", "OBI:0001468", "OBI:0002127",
+#         "OBI:0302716", "OBI:0001876", "CLO:0000031", "NCIT:C172259", "restricted access"
+#     ]
+#
+#     @field_validator('text')
+#     def validate_material_text(cls, v, info):
+#         # For organoid samples, text should be "organoid"
+#         if v != "organoid" and v != "restricted access":
+#             raise ValueError("Material text must be 'organoid' for organoid samples")
+#         return v
 
 
-class ProjectField(BaseModel):
-    value: Literal["FAANG"] = "FAANG"
-    mandatory: Literal["mandatory"] = "mandatory"
-
-
-class SecondaryProjectItem(BaseModel):
-    value: Literal[
-        "AQUA-FAANG", "BovReg", "GENE-SWitCH", "Bovine-FAANG",
-        "EFFICACE", "GEroNIMO", "RUMIGEN", "Equine-FAANG",
-        "Holoruminant", "USPIGFAANG"
-    ]
-    mandatory: Literal["optional"] = "optional"
-
-
-class SecondaryProjectField(BaseModel):
-    __root__: List[SecondaryProjectItem]
-
-
-class SampleDescriptionField(BaseModel):
-    value: str
-    mandatory: Literal["optional"] = "optional"
-
-
-class AvailabilityField(BaseModel):
-    value: str  # Should be URI format
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_availability_uri(cls, v):
-        if not (v.startswith('http://') or v.startswith('https://') or v.startswith('mailto:')):
-            raise ValueError("Availability must be a valid URL or email address (prefixed with 'mailto:')")
-        return v
-
-
-class SameAsField(BaseModel):
-    value: str
-    mandatory: Literal["optional"] = "optional"
 
 
 class OrganModelField(BaseModel):
@@ -297,27 +233,16 @@ class DerivedFromField(BaseModel):
         return v.strip()
 
 
-class FAANGOrganoidSample(BaseModel):
-    # Schema metadata
-    describedBy: Optional[str] = Field(
-        default="https://github.com/FAANG/faang-metadata/blob/master/docs/faang_sample_metadata.md",
-        const=True
-    )
-    schema_version: Optional[str] = None
+class FAANGOrganoidSample(SampleCoreMetadata):
 
-    # Optional fields
-    sample_description: Optional[SampleDescriptionField] = None
-    availability: Optional[AvailabilityField] = None
-    same_as: Optional[SameAsField] = None
-
-    secondary_project: Optional[List[SecondaryProjectItem]] = None
 
     # Required core fields
-    material: MaterialField
-    project: ProjectField = ProjectField()
+    # material: MaterialField # koosum to check material text should be organoid
+
 
 
     # Required organoid-specific fields
+    sample_name: str = Field(..., alias="Sample Name")
     organ_model: OrganModelField
     freezing_method: FreezingMethodField
     organoid_passage: OrganoidPassageField
@@ -336,14 +261,7 @@ class FAANGOrganoidSample(BaseModel):
     organoid_culture_and_passage_protocol: Optional[OrganoidCulturePassageProtocolField] = None
     organoid_morphology: Optional[OrganoidMorphologyField] = None
 
-    # Include samples_core from the parent class if needed
-    samples_core: Optional[SampleCoreMetadata] = None
 
-    @field_validator('schema_version')
-    def validate_schema_version(cls, v):
-        if v and not re.match(r'^[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$', v):
-            raise ValueError("Schema version must be in major.minor.patch format")
-        return v
 
     @model_validator(mode='after')
     def validate_conditional_requirements(self):
