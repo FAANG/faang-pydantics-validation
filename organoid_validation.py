@@ -72,12 +72,12 @@ class OrganoidPydanticValidator:
     def validate_derived_from_relationships(self, organoids: List[Dict[str, Any]],
                                             all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         """
-        Validate derived_from relationships based on Django RelationshipsIssues logic
+        Validate derived_from relationships based on flattened JSON structure
         """
-        # ALLOWED_RELATIONSHIPS mapping based on Django constants
+        # ALLOWED_RELATIONSHIPS mapping
         ALLOWED_RELATIONSHIPS = {
             'organoid': ['specimen from organism', 'cell culture', 'cell line'],
-            'organism': ['organism'],  # organism can reference other organisms (parent-child)
+            'organism': ['organism'],
             'specimen from organism': ['organism'],
             'cell culture': ['specimen from organism', 'organism'],
             'cell line': ['specimen from organism', 'organism'],
@@ -87,9 +87,9 @@ class OrganoidPydanticValidator:
         }
 
         relationship_errors = {}
-        relationships = {}  # Store relationship info like Django version
+        relationships = {}
 
-        # Step 1: Collect all relationships and materials (similar to Django collect_relationships)
+        # Step 1: Collect all relationships and materials from flattened structure
         if all_samples:
             for sample_type, samples in all_samples.items():
                 for sample in samples:
@@ -97,16 +97,16 @@ class OrganoidPydanticValidator:
                     if sample_name:
                         relationships[sample_name] = {}
 
-                        # Extract material type
+                        # Extract material type from flattened structure
                         material = self._extract_material(sample)
                         relationships[sample_name]['material'] = material
 
-                        # Extract derived_from relationships
+                        # Extract derived_from relationships from flattened structure
                         derived_from = self._extract_derived_from(sample)
                         if derived_from:
                             relationships[sample_name]['relationships'] = derived_from
 
-        # Step 2: Validate relationships (similar to Django check_relationships)
+        # Step 2: Validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue
@@ -154,27 +154,28 @@ class OrganoidPydanticValidator:
         """Extract derived_from references from sample"""
         derived_from_refs = []
 
+        # Check for 'Derived From' in organoid samples
         if 'Derived From' in sample:
             derived_from = sample['Derived From']
             if derived_from and derived_from.strip():
                 derived_from_refs.append(derived_from.strip())
 
-            # Also check for 'Child Of' relationship (for organisms)
-            if 'Child Of' in sample:
-                child_of = sample['Child Of']
-                if isinstance(child_of, list):
-                    for parent in child_of:
-                        if parent and parent.strip():
-                            derived_from_refs.append(parent.strip())
-                elif child_of and child_of.strip():
-                    derived_from_refs.append(child_of.strip())
+        # Also check for 'Child Of' relationship (for organisms)
+        if 'Child Of' in sample:
+            child_of = sample['Child Of']
+            if isinstance(child_of, list):
+                for parent in child_of:
+                    if parent and parent.strip():
+                        derived_from_refs.append(parent.strip())
+            elif child_of and child_of.strip():
+                derived_from_refs.append(child_of.strip())
 
         return [ref for ref in derived_from_refs if ref and ref.strip()]
 
     def _check_organism_parent_child(self, current_name: str, current_info: Dict,
                                      parent_name: str, parent_info: Dict,
                                      errors: List[str], all_relationships: Dict):
-        """Check organism parent-child relationships (from Django check_parents)"""
+        """Check organism parent-child relationships"""
         # Check if parent is also listing child as its parent (circular reference)
         if 'relationships' in parent_info and current_name in parent_info['relationships']:
             errors.append(f"Relationships part: parent '{parent_name}' is listing "
@@ -183,17 +184,17 @@ class OrganoidPydanticValidator:
     def collect_ontology_ids(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
         """
         Collect all ontology term IDs from organoids for OLS validation
-        Based on Django collect_ids() function
+        Updated for flattened JSON structure
         """
         ids = set()
 
         for organoid in organoids:
-            # Extract terms from organ_model
+            # Extract terms from organ model (now flattened)
             organ_model_term = organoid.get('Organ Model Term Source ID')
             if organ_model_term and organ_model_term != "restricted access":
                 ids.add(organ_model_term)
 
-            # Extract terms from organ_part_model
+            # Extract terms from organ part model (now flattened)
             organ_part_term = organoid.get('Organ Part Model Term Source ID')
             if organ_part_term and organ_part_term != "restricted access":
                 ids.add(organ_part_term)
@@ -204,7 +205,6 @@ class OrganoidPydanticValidator:
     def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
         """
         Fetch ontology data from OLS for given term IDs
-        Based on Django fetch_text_for_ids() function
         """
         results = {}
 
@@ -462,7 +462,6 @@ def export_organoid_to_biosample_format(model: FAANGOrganoidSample) -> Dict[str,
     return biosample_data
 
 
-
 def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> str:
     """
     Generate a human-readable validation report
@@ -492,23 +491,6 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
     if validation_results['valid_organoids']:
         warnings_found = False
         for org in validation_results['valid_organoids']:
-            if org.get('warnings') or org.get('relationship_errors'):
-                if not warnings_found:
-                    report.append("\n\nWarnings and Non-Critical Issues:")
-                    report.append("-" * 30)
-                    warnings_found = True
-
-                report.append(f"\nOrganoid: {org['sample_name']} (index: {org['index']})")
-                for warning in org.get('warnings', []):
-                    report.append(f"  WARNING: {warning}")
-                for error in org.get('relationship_errors', []):
-                    report.append(f"  RELATIONSHIP: {error}")
-
-
-    # Update the warnings section to include ontology warnings:
-    if validation_results['valid_organoids']:
-        warnings_found = False
-        for org in validation_results['valid_organoids']:
             if (org.get('warnings') or org.get('relationship_errors') or
                 org.get('ontology_warnings')):
                 if not warnings_found:
@@ -521,7 +503,6 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
                     report.append(f"  WARNING: {warning}")
                 for error in org.get('relationship_errors', []):
                     report.append(f"  RELATIONSHIP: {error}")
-                # Add ontology warnings
                 for warning in org.get('ontology_warnings', []):
                     report.append(f"  ONTOLOGY: {warning}")
 
@@ -529,9 +510,9 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
 
 
 if __name__ == "__main__":
-    # Test with your provided data including cross-sample relationships
+    # Test with the flattened JSON structure
     json_string = '''
-       {
+    {
       "organism": [
         {
           "Sample Name": "ECA_UKY_H11",
