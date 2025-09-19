@@ -512,7 +512,7 @@ def generate_organoid_validation_report(validation_results: Dict[str, Any]) -> s
 if __name__ == "__main__":
     # Test with the flattened JSON structure
     json_string = '''
-    {
+        {
       "organism": [
         {
           "Sample Name": "ECA_UKY_H11",
@@ -666,51 +666,51 @@ if __name__ == "__main__":
         }
       ],
       "specimen_from_organism": [
-{
-"Health Status": [
-{
-"text": "normal",
-"term": "PATO_0000461"
-}
-],
-"Sample Name": "OCU_INRAE_PND18_S1",
-"Sample Description": "Adipose Tissue, H1",
-"Material": "specimen from organism",
-"Term Source ID": "OBI_0001479",
-"Project": "FAANG",
-"Secondary Project": "",
-"Availability": "",
-"Same as": "",
-"Specimen Collection Date": "2005-05",
-"Unit": "YYYY-MM",
-"Geographic Location": "Denmark",
-"Animal Age At Collection": "23.5",
-"Animal Age At Collection Unit": "month",
-"Developmental Stage": "adult",
-"Developmental Stage Term Source ID": "EFO_0001272",
-"Organism Part": "adipose tissue",
-"Organism Part Term Source ID": "UBERON_0001013",
-"Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
-"Fasted Status": "",
-"Number of Pieces": "",
-"Number of Pieces Unit": "",
-"Specimen Volume": "",
-"Specimen Volume Unit": "",
-"Specimen Size": "",
-"Specimen Size Unit": "",
-"Specimen Weight": "",
-"Specimen Weight Unit": "",
-"Specimen Picture URL": "",
-"Gestational Age At Sample Collection": "",
-"Gestational Age At Sample Collection Unit": "",
-"Average Incubation temperature": "",
-"Average Incubation temperature Unit": "",
-"Average Incubation Humidity": "",
-"Average Incubation Humidity Unit": "",
-"Embryonic Stage": "",
-"Embryonic Stage Unit": "",
-"Derived From": "OCU_INRAE_PND18"
-}
+        {
+          "Health Status": [
+            {
+              "text": "normal",
+              "term": "PATO_0000461"
+            }
+          ],
+          "Sample Name": "OCU_INRAE_PND18_S1",
+          "Sample Description": "Adipose Tissue, H1",
+          "Material": "specimen from organism",
+          "Term Source ID": "OBI_0001479",
+          "Project": "FAANG",
+          "Secondary Project": "",
+          "Availability": "",
+          "Same as": "",
+          "Specimen Collection Date": "2005-05",
+          "Unit": "YYYY-MM",
+          "Geographic Location": "Denmark",
+          "Animal Age At Collection": "23.5",
+          "Animal Age At Collection Unit": "month",
+          "Developmental Stage": "adult",
+          "Developmental Stage Term Source ID": "EFO_0001272",
+          "Organism Part": "adipose tissue",
+          "Organism Part Term Source ID": "UBERON_0001013",
+          "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+          "Fasted Status": "",
+          "Number of Pieces": "",
+          "Number of Pieces Unit": "",
+          "Specimen Volume": "",
+          "Specimen Volume Unit": "",
+          "Specimen Size": "",
+          "Specimen Size Unit": "",
+          "Specimen Weight": "",
+          "Specimen Weight Unit": "",
+          "Specimen Picture URL": "",
+          "Gestational Age At Sample Collection": "",
+          "Gestational Age At Sample Collection Unit": "",
+          "Average Incubation temperature": "",
+          "Average Incubation temperature Unit": "",
+          "Average Incubation Humidity": "",
+          "Average Incubation Humidity Unit": "",
+          "Embryonic Stage": "",
+          "Embryonic Stage Unit": "",
+          "Derived From": "OCU_INRAE_PND18"
+        }
       ]
     }
     '''
