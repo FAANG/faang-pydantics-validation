@@ -1,0 +1,447 @@
+{
+  "validation_results": {
+    "sample_types_processed": [
+      "organism",
+      "organoid"
+    ],
+    "total_summary": {
+      "total_samples": 4,
+      "valid_samples": 4,
+      "invalid_samples": 0,
+      "warnings": 2,
+      "relationship_errors": 1
+    },
+    "results_by_type": {
+      "organism": {
+        "valid_organisms": [
+          {
+            "index": 0,
+            "sample_name": "ECA_UKY_H11",
+            "model": "sample_description='Foal' material='organism' term_source_id='OBI_0100026' project='FAANG' secondary_project='AQUA-FAANG' availability='' same_as='' sample_name='ECA_UKY_H11' organism='Equus caballus' organism_term_source_id='NCBITaxon:9796' sex='male' sex_term_source_id='PATO_0000384' birth_date='2013-02' birth_date_unit='YYYY-MM' breed=None breed_term_source_id=None health_status=[HealthStatus(text='normal', ontology_name=None, term='PATO:0000461')] diet=None birth_location=None birth_location_latitude=None birth_location_latitude_unit=None birth_location_longitude=None birth_location_longitude_unit=None birth_weight=None birth_weight_unit=None placental_weight=None placental_weight_unit=None pregnancy_length=None pregnancy_length_unit=None delivery_timing=None delivery_ease=None child_of=None pedigree=None",
+            "data": {
+              "Sample Name": "ECA_UKY_H11",
+              "Sample Description": "Foal",
+              "Material": "organism",
+              "Term Source ID": "OBI_0100026",
+              "Project": "FAANG",
+              "Secondary Project": "AQUA-FAANG",
+              "Availability": "",
+              "Same as": "",
+              "Organism": "Equus caballus",
+              "Organism Term Source ID": "NCBITaxon:9796",
+              "Sex": "male",
+              "Sex Term Source ID": "PATO_0000384",
+              "Birth Date": "2013-02",
+              "Unit": "YYYY-MM",
+              "Health Status": [
+                {
+                  "text": "normal",
+                  "term": "PATO:0000461"
+                }
+              ],
+              "Diet": "",
+              "Birth Location": "",
+              "Birth Location Latitude": "",
+              "Birth Location Latitude Unit": "",
+              "Birth Location Longitude": "",
+              "Birth Location Longitude Unit": "",
+              "Birth Weight": "",
+              "Birth Weight Unit": "",
+              "Placental Weight": "",
+              "Placental Weight Unit": "",
+              "Pregnancy Length": "",
+              "Pregnancy Length Unit": "",
+              "Delivery Timing": "",
+              "Delivery Ease": "",
+              "Child Of": [
+                "",
+                ""
+              ],
+              "Pedigree": ""
+            },
+            "warnings": [
+              "Field 'Breed' is recommended but was not provided",
+              "Field 'Breed Term Source ID' is recommended but was not provided"
+            ],
+            "relationship_errors": []
+          },
+          {
+            "index": 1,
+            "sample_name": "ECA_UKY_H1",
+            "model": "sample_description='Foal, 9 days old, Thoroughbred' material='organism' term_source_id='OBI_0100026' project='FAANG' secondary_project='AQUA-FAANG' availability='' same_as='' sample_name='ECA_UKY_H1' organism='Equus caballus' organism_term_source_id='NCBITaxon:9796' sex='female' sex_term_source_id='PATO_0000383' birth_date='2014-07' birth_date_unit='YYYY-MM' breed=None breed_term_source_id=None health_status=[HealthStatus(text='normal', ontology_name=None, term='PATO:0000461')] diet=None birth_location=None birth_location_latitude=None birth_location_latitude_unit=None birth_location_longitude=None birth_location_longitude_unit=None birth_weight=None birth_weight_unit=None placental_weight=None placental_weight_unit=None pregnancy_length=None pregnancy_length_unit=None delivery_timing=None delivery_ease=None child_of=['ECA_UKY_H11'] pedigree=None",
+            "data": {
+              "Sample Name": "ECA_UKY_H1",
+              "Sample Description": "Foal, 9 days old, Thoroughbred",
+              "Material": "organism",
+              "Term Source ID": "OBI_0100026",
+              "Project": "FAANG",
+              "Secondary Project": "AQUA-FAANG",
+              "Availability": "",
+              "Same as": "",
+              "Organism": "Equus caballus",
+              "Organism Term Source ID": "NCBITaxon:9796",
+              "Sex": "female",
+              "Sex Term Source ID": "PATO_0000383",
+              "Birth Date": "2014-07",
+              "Unit": "YYYY-MM",
+              "Health Status": [
+                {
+                  "text": "normal",
+                  "term": "PATO:0000461"
+                }
+              ],
+              "Diet": "",
+              "Birth Location": "",
+              "Birth Location Latitude": "",
+              "Birth Location Latitude Unit": "",
+              "Birth Location Longitude": "",
+              "Birth Location Longitude Unit": "",
+              "Birth Weight": "",
+              "Birth Weight Unit": "",
+              "Placental Weight": "",
+              "Placental Weight Unit": "",
+              "Pregnancy Length": "",
+              "Pregnancy Length Unit": "",
+              "Delivery Timing": "",
+              "Delivery Ease": "",
+              "Child Of": [
+                "ECA_UKY_H11",
+                ""
+              ],
+              "Pedigree": ""
+            },
+            "warnings": [
+              "Field 'Breed' is recommended but was not provided",
+              "Field 'Breed Term Source ID' is recommended but was not provided"
+            ],
+            "relationship_errors": []
+          }
+        ],
+        "invalid_organisms": [],
+        "summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid": 0,
+          "warnings": 2,
+          "relationship_errors": 0
+        }
+      },
+      "organoid": {
+        "valid_organoids": [
+          {
+            "index": 0,
+            "sample_name": "OCU_INRAE_S1",
+            "model": "sample_description='Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)' material='organoid' term_source_id='NCIT_C172259' project='FAANG' secondary_project=None availability=None same_as=None sample_name='OCU_INRAE_S1' organ_model='Caecum' organ_model_term_source_id='UBERON:0001153' freezing_method='fresh' organoid_passage=2.0 organoid_passage_unit='passages' organoid_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' type_of_organoid_culture='2D' growth_environment='matrigel' growth_environment_unit='1' derived_from='OCU_INRAE_PND18_S1' organ_part_model='Caecum epithelium' organ_part_model_term_source_id='UBERON:0005636' freezing_date='restricted access' freezing_date_unit='restricted access' freezing_protocol='restricted access' number_of_frozen_cells=None number_of_frozen_cells_unit=None organoid_culture_and_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' organoid_morphology=None stored_oxygen_level=None stored_oxygen_level_unit=None incubation_temperature=None incubation_temperature_unit=None",
+            "data": {
+              "Sample Name": "OCU_INRAE_S1",
+              "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)",
+              "Material": "organoid",
+              "Term Source ID": "NCIT_C172259",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Organ Model": "Caecum",
+              "Organ Model Term Source ID": "UBERON:0001153",
+              "Organ Part Model": "Caecum epithelium",
+              "Organ Part Model Term Source ID": "UBERON:0005636",
+              "Freezing Date": "restricted access",
+              "Unit": "restricted access",
+              "Freezing Method": "fresh",
+              "Freezing Protocol": "restricted access",
+              "Number Of Frozen Cells": "",
+              "Number Of Frozen Cells Unit": "",
+              "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+              "Organoid Passage": "2",
+              "Organoid Passage Unit": "passages",
+              "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+              "Type Of Organoid Culture": "2D",
+              "Organoid Morphology": "",
+              "Growth Environment": "matrigel",
+              "Growth Environment Unit": "1",
+              "Stored Oxygen Level": "",
+              "Stored Oxygen Level Unit": "",
+              "Incubation Temperature": "",
+              "Incubation Temperature Unit": "",
+              "Derived From": "OCU_INRAE_PND18_S1"
+            },
+            "warnings": [],
+            "relationship_errors": []
+          },
+          {
+            "index": 1,
+            "sample_name": "OCU_INRAE_S2",
+            "model": "sample_description='Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)' material='organoid' term_source_id='NCIT_C172259' project='FAANG' secondary_project=None availability=None same_as=None sample_name='OCU_INRAE_S2' organ_model='Caecum' organ_model_term_source_id='UBERON:0001153' freezing_method='fresh' organoid_passage=2.0 organoid_passage_unit='passages' organoid_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' type_of_organoid_culture='2D' growth_environment='matrigel' growth_environment_unit='1' derived_from='OCU_INRAE_PND18_S19' organ_part_model='Caecum epithelium' organ_part_model_term_source_id='UBERON:0005636' freezing_date='restricted access' freezing_date_unit='restricted access' freezing_protocol='restricted access' number_of_frozen_cells=None number_of_frozen_cells_unit=None organoid_culture_and_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' organoid_morphology=None stored_oxygen_level=None stored_oxygen_level_unit=None incubation_temperature=None incubation_temperature_unit=None",
+            "data": {
+              "Sample Name": "OCU_INRAE_S2",
+              "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
+              "Material": "organoid",
+              "Term Source ID": "NCIT_C172259",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Organ Model": "Caecum",
+              "Organ Model Term Source ID": "UBERON:0001153",
+              "Organ Part Model": "Caecum epithelium",
+              "Organ Part Model Term Source ID": "UBERON:0005636",
+              "Freezing Date": "restricted access",
+              "Unit": "restricted access",
+              "Freezing Method": "fresh",
+              "Freezing Protocol": "restricted access",
+              "Number Of Frozen Cells": "",
+              "Number Of Frozen Cells Unit": "",
+              "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+              "Organoid Passage": "2",
+              "Organoid Passage Unit": "passages",
+              "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+              "Type Of Organoid Culture": "2D",
+              "Organoid Morphology": "",
+              "Growth Environment": "matrigel",
+              "Growth Environment Unit": "1",
+              "Stored Oxygen Level": "",
+              "Stored Oxygen Level Unit": "",
+              "Incubation Temperature": "",
+              "Incubation Temperature Unit": "",
+              "Derived From": "OCU_INRAE_PND18_S19"
+            },
+            "warnings": [],
+            "relationship_errors": [
+              "Relationships part: no entity 'OCU_INRAE_PND18_S19' found"
+            ]
+          }
+        ],
+        "invalid_organoids": [],
+        "summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid": 0,
+          "warnings": 0,
+          "relationship_errors": 1
+        }
+      }
+    },
+    "reports_by_type": {
+      "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided",
+      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found"
+    }
+  },
+  "biosample_exports": {
+    "organism": [
+      {
+        "sample_name": "ECA_UKY_H11",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "organism",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/OBI_0100026"
+                ]
+              }
+            ],
+            "organism": [
+              {
+                "text": "Equus caballus",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/NCBITaxon_9796"
+                ]
+              }
+            ],
+            "sex": [
+              {
+                "text": "male",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000384"
+                ]
+              }
+            ],
+            "birth date": [
+              {
+                "text": "2013-02",
+                "unit": "YYYY-MM"
+              }
+            ],
+            "health status": [
+              {
+                "text": "normal",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000461"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "sample_name": "ECA_UKY_H1",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "organism",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/OBI_0100026"
+                ]
+              }
+            ],
+            "organism": [
+              {
+                "text": "Equus caballus",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/NCBITaxon_9796"
+                ]
+              }
+            ],
+            "sex": [
+              {
+                "text": "female",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000383"
+                ]
+              }
+            ],
+            "birth date": [
+              {
+                "text": "2014-07",
+                "unit": "YYYY-MM"
+              }
+            ],
+            "health status": [
+              {
+                "text": "normal",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000461"
+                ]
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "child of",
+              "target": "ECA_UKY_H11"
+            }
+          ]
+        }
+      }
+    ],
+    "organoid": [
+      {
+        "sample_name": "OCU_INRAE_S1",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "organoid",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/NCIT_C172259"
+                ]
+              }
+            ],
+            "organ model": [
+              {
+                "text": "Caecum",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0001153"
+                ]
+              }
+            ],
+            "organ part model": [
+              {
+                "text": "Caecum epithelium",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0005636"
+                ]
+              }
+            ],
+            "freezing method": [
+              {
+                "text": "fresh"
+              }
+            ],
+            "organoid passage": [
+              {
+                "text": "2.0",
+                "unit": "passages"
+              }
+            ],
+            "growth environment": [
+              {
+                "text": "matrigel"
+              }
+            ],
+            "type of organoid culture": [
+              {
+                "text": "2D"
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "derived from",
+              "target": "OCU_INRAE_PND18_S1"
+            }
+          ]
+        }
+      },
+      {
+        "sample_name": "OCU_INRAE_S2",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "organoid",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/NCIT_C172259"
+                ]
+              }
+            ],
+            "organ model": [
+              {
+                "text": "Caecum",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0001153"
+                ]
+              }
+            ],
+            "organ part model": [
+              {
+                "text": "Caecum epithelium",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0005636"
+                ]
+              }
+            ],
+            "freezing method": [
+              {
+                "text": "fresh"
+              }
+            ],
+            "organoid passage": [
+              {
+                "text": "2.0",
+                "unit": "passages"
+              }
+            ],
+            "growth environment": [
+              {
+                "text": "matrigel"
+              }
+            ],
+            "type of organoid culture": [
+              {
+                "text": "2D"
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "derived from",
+              "target": "OCU_INRAE_PND18_S19"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
