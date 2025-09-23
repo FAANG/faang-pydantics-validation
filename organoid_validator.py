@@ -129,6 +129,7 @@ class OrganoidValidator(BaseValidator):
                 continue
 
             current_material = rel_info['material']
+            print("koosum = ", current_material)
             errors = []
 
             # Skip if restricted access
@@ -150,10 +151,25 @@ class OrganoidValidator(BaseValidator):
                             f"does not match condition 'should be {' or '.join(allowed_materials)}'"
                         )
 
+                    # Additional check for organism parent-child relationships
+                    if current_material == 'organism' and ref_material == 'organism':
+                        self._check_organism_parent_child(sample_name, rel_info,
+                                                          derived_from_ref, relationships[derived_from_ref],
+                                                          errors, relationships)
+
             if errors:
                 relationship_errors[sample_name] = errors
 
         return relationship_errors
+
+    def _check_organism_parent_child(self, current_name: str, current_info: Dict,
+                                     parent_name: str, parent_info: Dict,
+                                     errors: List[str], all_relationships: Dict):
+        """Check organism parent-child relationships"""
+        # Check if parent is also listing child as its parent (circular reference)
+        if 'relationships' in parent_info and current_name in parent_info['relationships']:
+            errors.append(f"Relationships part: parent '{parent_name}' is listing "
+                          f"the child as its parent")
 
     def _extract_sample_name(self, sample: Dict) -> str:
         return sample.get('Sample Name', '')
