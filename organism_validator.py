@@ -7,20 +7,16 @@ import json
 
 
 class OrganismValidator(BaseValidator):
-    """Validator for FAANG organism samples"""
 
     def _initialize_validators(self):
-        """Initialize validators specific to organism samples"""
         self.ontology_validator = OntologyValidator(cache_enabled=True)
         self.breed_validator = BreedSpeciesValidator(self.ontology_validator)
         self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
-        """Return the organism model class"""
         return FAANGOrganismSample
 
     def get_sample_type_name(self) -> str:
-        """Return the sample type name"""
         return "organism"
 
     def validate_organism_sample(
@@ -29,9 +25,7 @@ class OrganismValidator(BaseValidator):
         validate_relationships: bool = True,
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
-        """
-        Validate a single organism sample - maintains original function signature
-        """
+
         model, errors = self.validate_single_sample(data, validate_relationships)
         return model, errors
 
@@ -40,9 +34,7 @@ class OrganismValidator(BaseValidator):
         organisms: List[Dict[str, Any]],
         validate_relationships: bool = True,
     ) -> Dict[str, Any]:
-        """
-        Validate organisms using pydantic - maintains original function signature
-        """
+
         return self.validate_samples(organisms, validate_relationships=validate_relationships)
 
     def validate_samples(
@@ -52,19 +44,18 @@ class OrganismValidator(BaseValidator):
         all_samples: Dict[str, List[Dict]] = None,
         **kwargs
     ) -> Dict[str, Any]:
-        """Validate organism samples with relationship validation"""
 
-        # Get base validation results
+        # base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
-        # Add relationship validation for organisms
+        # relationship validation for organisms
         if validate_relationships and results['valid_organisms']:
             valid_organism_data = [org['data'] for org in results['valid_organisms']]
             relationship_errors = self.relationship_validator.validate_relationships(
                 valid_organism_data
             )
 
-            # Add relationship errors to results
+            # add relationship errors to results
             for org in results['valid_organisms']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
@@ -75,7 +66,6 @@ class OrganismValidator(BaseValidator):
         return results
 
     def export_to_biosample_format(self, model: FAANGOrganismSample) -> Dict[str, Any]:
-        """Export organism model to BioSamples JSON format"""
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", ""]:

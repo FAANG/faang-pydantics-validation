@@ -7,18 +7,14 @@ import json
 
 
 class OrganoidValidator(BaseValidator):
-    """Validator for FAANG organoid samples"""
 
     def _initialize_validators(self):
-        """Initialize validators specific to organoid samples"""
         self.ontology_validator = OntologyValidator(cache_enabled=True)
 
     def get_model_class(self) -> Type[BaseModel]:
-        """Return the organoid model class"""
         return FAANGOrganoidSample
 
     def get_sample_type_name(self) -> str:
-        """Return the sample type name"""
         return "organoid"
 
     def validate_organoid_sample(
@@ -27,9 +23,7 @@ class OrganoidValidator(BaseValidator):
         validate_relationships: bool = True,
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganoidSample], Dict[str, List[str]]]:
-        """
-        Validate a single organoid sample - maintains original function signature
-        """
+
         model, errors = self.validate_single_sample(data, validate_relationships)
         return model, errors
 
@@ -40,9 +34,7 @@ class OrganoidValidator(BaseValidator):
         all_samples: Dict[str, List[Dict]] = None,
         validate_ontology_text: bool = True,
     ) -> Dict[str, Any]:
-        """
-        Validate organoids using pydantic - maintains original function signature
-        """
+
         return self.validate_samples(
             organoids,
             validate_relationships=validate_relationships,
@@ -50,6 +42,7 @@ class OrganoidValidator(BaseValidator):
             validate_ontology_text=validate_ontology_text
         )
 
+    # validate organoids with relationship and ontology validation
     def validate_samples(
         self,
         samples: List[Dict[str, Any]],
@@ -58,27 +51,26 @@ class OrganoidValidator(BaseValidator):
         validate_ontology_text: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
-        """Validate organoid samples with relationship and ontology validation"""
 
-        # Get base validation results
+        # base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
-        # Add relationship validation
+        # relationship validation
         if validate_relationships and all_samples:
             relationship_errors = self.validate_derived_from_relationships(samples, all_samples)
 
-            # Add relationship errors to valid organoids
+            # relationship checks for valid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
                     org['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # Add ontology text consistency validation
+        # ontology text consistency validation
         if validate_ontology_text:
             text_consistency_errors = self.validate_ontology_text_consistency(samples)
 
-            # Add text consistency errors as warnings to valid organoids
+            # text consistency errors as warnings for valid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in text_consistency_errors:
@@ -91,7 +83,7 @@ class OrganoidValidator(BaseValidator):
 
     def validate_derived_from_relationships(self, organoids: List[Dict[str, Any]],
                                             all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
-        """Validate derived_from relationships"""
+
         ALLOWED_RELATIONSHIPS = {
             'organoid': ['specimen from organism', 'cell culture', 'cell line'],
             'organism': ['organism'],
@@ -106,7 +98,7 @@ class OrganoidValidator(BaseValidator):
         relationship_errors = {}
         relationships = {}
 
-        # Step 1: Collect all relationships and materials from flattened structure
+        # step 1: collect all relationships and materials
         if all_samples:
             for sample_type, samples in all_samples.items():
                 for sample in samples:
@@ -114,16 +106,16 @@ class OrganoidValidator(BaseValidator):
                     if sample_name:
                         relationships[sample_name] = {}
 
-                        # Extract material type from flattened structure
+                        # get material type
                         material = self._extract_material(sample)
                         relationships[sample_name]['material'] = material
 
-                        # Extract derived_from relationships from flattened structure
+                        # get derived_from relationships
                         derived_from = self._extract_derived_from(sample)
                         if derived_from:
                             relationships[sample_name]['relationships'] = derived_from
 
-        # Step 2: Validate relationships
+        # step 2: validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue
@@ -132,16 +124,15 @@ class OrganoidValidator(BaseValidator):
             print("koosum = ", current_material)
             errors = []
 
-            # Skip if restricted access
             if any('restricted access' == ref for ref in rel_info['relationships']):
                 continue
 
             for derived_from_ref in rel_info['relationships']:
-                # Check if referenced sample exists
+                # check if referenced sample exists
                 if derived_from_ref not in relationships:
                     errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
                 else:
-                    # Check material compatibility
+                    # check material compatibility
                     ref_material = relationships[derived_from_ref]['material']
                     allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
 
@@ -151,7 +142,7 @@ class OrganoidValidator(BaseValidator):
                             f"does not match condition 'should be {' or '.join(allowed_materials)}'"
                         )
 
-                    # Additional check for organism parent-child relationships
+                    # check for organism parent-child relationships
                     if current_material == 'organism' and ref_material == 'organism':
                         self._check_organism_parent_child(sample_name, rel_info,
                                                           derived_from_ref, relationships[derived_from_ref],
@@ -165,8 +156,8 @@ class OrganoidValidator(BaseValidator):
     def _check_organism_parent_child(self, current_name: str, current_info: Dict,
                                      parent_name: str, parent_info: Dict,
                                      errors: List[str], all_relationships: Dict):
-        """Check organism parent-child relationships"""
-        # Check if parent is also listing child as its parent (circular reference)
+
+        # check if parent is also listing child as its parent (circular reference)
         if 'relationships' in parent_info and current_name in parent_info['relationships']:
             errors.append(f"Relationships part: parent '{parent_name}' is listing "
                           f"the child as its parent")
@@ -178,16 +169,13 @@ class OrganoidValidator(BaseValidator):
         return sample.get('Material', '')
 
     def _extract_derived_from(self, sample: Dict) -> List[str]:
-        """Extract derived_from references from sample"""
         derived_from_refs = []
 
-        # Check for 'Derived From' in organoid samples
         if 'Derived From' in sample:
             derived_from = sample['Derived From']
             if derived_from and derived_from.strip():
                 derived_from_refs.append(derived_from.strip())
 
-        # Also check for 'Child Of' relationship (for organisms)
         if 'Child Of' in sample:
             child_of = sample['Child Of']
             if isinstance(child_of, list):
@@ -200,7 +188,6 @@ class OrganoidValidator(BaseValidator):
         return [ref for ref in derived_from_refs if ref and ref.strip()]
 
     def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-        """Validate that ontology text matches the official term labels from OLS"""
         ontology_data = self.collect_ontology_ids(organoids)
         text_consistency_errors = {}
 
@@ -208,7 +195,7 @@ class OrganoidValidator(BaseValidator):
             sample_name = organoid.get('Sample Name', f'organoid_{i}')
             errors = []
 
-            # Validate organ model text-term consistency
+            # validate organ model text-term consistency
             organ_model_text = organoid.get('Organ Model')
             organ_model_term = organoid.get('Organ Model Term Source ID')
             if organ_model_text and organ_model_term and organ_model_term != "restricted access":
@@ -218,7 +205,7 @@ class OrganoidValidator(BaseValidator):
                 if error:
                     errors.append(error)
 
-            # Validate organ part model text-term consistency
+            # validate organ part model text-term consistency
             organ_part_text = organoid.get('Organ Part Model')
             organ_part_term = organoid.get('Organ Part Model Term Source ID')
             if organ_part_text and organ_part_term and organ_part_term != "restricted access":
@@ -234,31 +221,28 @@ class OrganoidValidator(BaseValidator):
         return text_consistency_errors
 
     def collect_ontology_ids(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
-        """Collect all ontology term IDs from organoids for OLS validation"""
         ids = set()
 
         for organoid in organoids:
-            # Extract terms from organ model
+            # get terms from organ model
             organ_model_term = organoid.get('Organ Model Term Source ID')
             if organ_model_term and organ_model_term != "restricted access":
                 ids.add(organ_model_term)
 
-            # Extract terms from organ part model
+            # get terms from organ part model
             organ_part_term = organoid.get('Organ Part Model Term Source ID')
             if organ_part_term and organ_part_term != "restricted access":
                 ids.add(organ_part_term)
 
-        # Fetch ontology data from OLS
         return self.fetch_ontology_data_for_ids(ids)
 
     def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
-        """Fetch ontology data from OLS for given term IDs"""
         results = {}
 
         for term_id in ids:
             if term_id and term_id != "restricted access":
                 try:
-                    # Convert underscore to colon for OLS lookup
+                    # convert underscore to colon for OLS lookup
                     term_for_lookup = term_id.replace('_', ':', 1) if '_' in term_id else term_id
                     ols_data = self.ontology_validator.fetch_from_ols(term_for_lookup)
                     if ols_data:
@@ -271,14 +255,13 @@ class OrganoidValidator(BaseValidator):
 
     def _check_text_term_consistency_flattened(self, text: str, term: str,
                                                ontology_data: Dict, field_name: str) -> str:
-        """Check if text matches term label from OLS for flattened structure"""
         if not text or not term or term == "restricted access":
             return None
 
         if term not in ontology_data:
             return f"Couldn't find term '{term}' in OLS"
 
-        # Determine ontology based on term prefix
+        # determine ontology based on term prefix
         term_with_colon = term.replace('_', ':', 1) if '_' in term else term
         ontology_name = None
         if term_with_colon.startswith("UBERON:"):
@@ -286,7 +269,7 @@ class OrganoidValidator(BaseValidator):
         elif term_with_colon.startswith("BTO:"):
             ontology_name = "BTO"
 
-        # Get labels from OLS data
+        # get labels from OLS data
         term_labels = []
         for label_data in ontology_data[term]:
             if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
@@ -297,7 +280,7 @@ class OrganoidValidator(BaseValidator):
         if not term_labels:
             return f"Couldn't find label in OLS with ontology name: {ontology_name}"
 
-        # Check if provided text matches any OLS label
+        # check if provided text matches any OLS label
         if str(text).lower() not in term_labels:
             return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
                     f"for term '{term}' in field '{field_name}'")
@@ -305,7 +288,6 @@ class OrganoidValidator(BaseValidator):
         return None
 
     def export_to_biosample_format(self, model: FAANGOrganoidSample) -> Dict[str, Any]:
-        """Export organoid model to BioSamples JSON format"""
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", ""]:
