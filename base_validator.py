@@ -4,8 +4,6 @@ from abc import ABC, abstractmethod
 
 
 class BaseValidator(ABC):
-    """Base class for all FAANG sample validators"""
-
     def __init__(self):
         self.ontology_validator = None
         self.relationship_validator = None
@@ -13,17 +11,14 @@ class BaseValidator(ABC):
 
     @abstractmethod
     def _initialize_validators(self):
-        """Initialize specific validators needed for this sample type"""
         pass
 
     @abstractmethod
     def get_model_class(self) -> Type[BaseModel]:
-        """Return the Pydantic model class for this validator"""
         pass
 
     @abstractmethod
     def get_sample_type_name(self) -> str:
-        """Return the name of the sample type (e.g., 'organism', 'organoid')"""
         pass
 
     def get_recommended_fields(self, model_class) -> List[str]:
@@ -51,7 +46,7 @@ class BaseValidator(ABC):
 
         model_class = self.get_model_class()
 
-        # Pydantic validation
+        # pydantic validation
         try:
             model_instance = model_class(**data)
         except ValidationError as e:
@@ -69,7 +64,7 @@ class BaseValidator(ABC):
             errors_dict['errors'].append(str(e))
             return None, errors_dict
 
-        # Check recommended fields
+        # recommended fields
         recommended_fields = self.get_recommended_fields(model_class)
         for field in recommended_fields:
             if getattr(model_instance, field, None) is None:
@@ -88,7 +83,6 @@ class BaseValidator(ABC):
         all_samples: Dict[str, List[Dict]] = None,
         **kwargs
     ) -> Dict[str, Any]:
-        """Validate a list of samples - can be overridden for specific validation logic"""
         sample_type = self.get_sample_type_name()
 
         results = {
@@ -103,7 +97,6 @@ class BaseValidator(ABC):
             }
         }
 
-        # Validate individual samples
         for i, sample_data in enumerate(samples):
             sample_name = sample_data.get('Sample Name', f'{sample_type}_{i}')
 
@@ -133,7 +126,6 @@ class BaseValidator(ABC):
         return results
 
     def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
-        """Generate a human-readable validation report"""
         sample_type = self.get_sample_type_name()
         sample_type_title = sample_type.title()
 
@@ -145,7 +137,7 @@ class BaseValidator(ABC):
         report.append(f"Invalid {sample_type}s: {validation_results['summary']['invalid']}")
         report.append(f"{sample_type_title}s with warnings: {validation_results['summary']['warnings']}")
 
-        # Validation errors
+        # validation errors
         if validation_results[f'invalid_{sample_type}s']:
             report.append("\n\nValidation Errors:")
             report.append("-" * 20)
@@ -158,7 +150,7 @@ class BaseValidator(ABC):
                     if not any(error.startswith(field) for field in sample['errors'].get('field_errors', {})):
                         report.append(f"  ERROR: {error}")
 
-        # Warnings and relationship issues
+        # warnings and relationship issues
         if validation_results[f'valid_{sample_type}s']:
             warnings_found = False
             for sample in validation_results[f'valid_{sample_type}s']:
