@@ -73,7 +73,7 @@
                 "Pregnancy Length Unit": "",
                 "Delivery Timing": "",
                 "Delivery Ease": "",
-                "Child Of": ["ECA_UKY_H11", ""],
+                "Child Of": ["ECA_UKY_H11", "ECA_UKY_H1"],
                 "Pedigree": ""
             }
         ],

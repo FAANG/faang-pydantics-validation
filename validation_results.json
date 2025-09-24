@@ -9,7 +9,7 @@
       "valid_samples": 4,
       "invalid_samples": 0,
       "warnings": 2,
-      "relationship_errors": 1
+      "relationship_errors": 2
     },
     "results_by_type": {
       "organism": {
@@ -68,7 +68,7 @@
           {
             "index": 1,
             "sample_name": "ECA_UKY_H1",
-            "model": "sample_description='Foal, 9 days old, Thoroughbred' material='organism' term_source_id='OBI_0100026' project='FAANG' secondary_project='AQUA-FAANG' availability='' same_as='' sample_name='ECA_UKY_H1' organism='Equus caballus' organism_term_source_id='NCBITaxon:9796' sex='female' sex_term_source_id='PATO_0000383' birth_date='2014-07' birth_date_unit='YYYY-MM' breed=None breed_term_source_id=None health_status=[HealthStatus(text='normal', ontology_name=None, term='PATO:0000461')] diet=None birth_location=None birth_location_latitude=None birth_location_latitude_unit=None birth_location_longitude=None birth_location_longitude_unit=None birth_weight=None birth_weight_unit=None placental_weight=None placental_weight_unit=None pregnancy_length=None pregnancy_length_unit=None delivery_timing=None delivery_ease=None child_of=['ECA_UKY_H11'] pedigree=None",
+            "model": "sample_description='Foal, 9 days old, Thoroughbred' material='organism' term_source_id='OBI_0100026' project='FAANG' secondary_project='AQUA-FAANG' availability='' same_as='' sample_name='ECA_UKY_H1' organism='Equus caballus' organism_term_source_id='NCBITaxon:9796' sex='female' sex_term_source_id='PATO_0000383' birth_date='2014-07' birth_date_unit='YYYY-MM' breed=None breed_term_source_id=None health_status=[HealthStatus(text='normal', ontology_name=None, term='PATO:0000461')] diet=None birth_location=None birth_location_latitude=None birth_location_latitude_unit=None birth_location_longitude=None birth_location_longitude_unit=None birth_weight=None birth_weight_unit=None placental_weight=None placental_weight_unit=None pregnancy_length=None pregnancy_length_unit=None delivery_timing=None delivery_ease=None child_of=['ECA_UKY_H11', 'ECA_UKY_H1'] pedigree=None",
             "data": {
               "Sample Name": "ECA_UKY_H1",
               "Sample Description": "Foal, 9 days old, Thoroughbred",
@@ -106,7 +106,7 @@
               "Delivery Ease": "",
               "Child Of": [
                 "ECA_UKY_H11",
-                ""
+                "ECA_UKY_H1"
               ],
               "Pedigree": ""
             },
@@ -114,7 +114,9 @@
               "Field 'Breed' is recommended but was not provided",
               "Field 'Breed Term Source ID' is recommended but was not provided"
             ],
-            "relationship_errors": []
+            "relationship_errors": [
+              "Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent"
+            ]
           }
         ],
         "invalid_organisms": [],
@@ -123,7 +125,7 @@
           "valid": 2,
           "invalid": 0,
           "warnings": 2,
-          "relationship_errors": 0
+          "relationship_errors": 1
         }
       },
       "organoid": {
@@ -222,7 +224,7 @@
       }
     },
     "reports_by_type": {
-      "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided",
+      "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n  RELATIONSHIP: Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent",
       "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found"
     }
   },
@@ -320,6 +322,10 @@
             {
               "type": "child of",
               "target": "ECA_UKY_H11"
+            },
+            {
+              "type": "child of",
+              "target": "ECA_UKY_H1"
             }
           ]
         }
