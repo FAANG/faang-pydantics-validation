@@ -4,10 +4,10 @@ from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, BreedSpeciesValidator, RelationshipValidator
 from rulesets_pydantics.organism_ruleset import FAANGOrganismSample
 import json
+import asyncio
 
 
 class OrganismValidator(BaseValidator):
-
     def _initialize_validators(self):
         self.ontology_validator = OntologyValidator(cache_enabled=True)
         self.breed_validator = BreedSpeciesValidator(self.ontology_validator)
@@ -35,9 +35,9 @@ class OrganismValidator(BaseValidator):
         validate_relationships: bool = True,
     ) -> Dict[str, Any]:
 
-        return self.validate_samples(organisms, validate_relationships=validate_relationships)
+        return asyncio.run(self.validate_samples(organisms, validate_relationships=validate_relationships))
 
-    def validate_samples(
+    async def validate_samples(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,
@@ -46,12 +46,12 @@ class OrganismValidator(BaseValidator):
     ) -> Dict[str, Any]:
 
         # base validation results
-        results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
+        results = await super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
         # relationship validation for organisms
         if validate_relationships and results['valid_organisms']:
             valid_organism_data = [org['data'] for org in results['valid_organisms']]
-            relationship_errors = self.relationship_validator.validate_relationships(
+            relationship_errors = await self.relationship_validator.validate_relationships(
                 valid_organism_data
             )
 

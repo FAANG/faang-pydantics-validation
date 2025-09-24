@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict, Any, Tuple, Optional, Type
 from pydantic import ValidationError, BaseModel
 from abc import ABC, abstractmethod
@@ -76,7 +77,7 @@ class BaseValidator(ABC):
 
         return model_instance, errors_dict
 
-    def validate_samples(
+    async def validate_samples(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,

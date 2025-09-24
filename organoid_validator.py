@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict, Any, Type, Optional, Tuple
 from pydantic import BaseModel
 from base_validator import BaseValidator
@@ -7,7 +8,6 @@ import json
 
 
 class OrganoidValidator(BaseValidator):
-
     def _initialize_validators(self):
         self.ontology_validator = OntologyValidator(cache_enabled=True)
 
@@ -35,15 +35,15 @@ class OrganoidValidator(BaseValidator):
         validate_ontology_text: bool = True,
     ) -> Dict[str, Any]:
 
-        return self.validate_samples(
+        return asyncio.run(self.validate_samples(
             organoids,
             validate_relationships=validate_relationships,
             all_samples=all_samples,
             validate_ontology_text=validate_ontology_text
-        )
+        ))
 
     # validate organoids with relationship and ontology validation
-    def validate_samples(
+    async def validate_samples(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,
@@ -53,12 +53,13 @@ class OrganoidValidator(BaseValidator):
     ) -> Dict[str, Any]:
 
         # base validation results
-        results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
+        results = await super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
         # relationship validation
+        async_tasks = []
+
         if validate_relationships and all_samples:
             relationship_errors = self.validate_derived_from_relationships(samples, all_samples)
-
             # relationship checks for valid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
@@ -66,18 +67,29 @@ class OrganoidValidator(BaseValidator):
                     org['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # ontology text consistency validation
         if validate_ontology_text:
-            text_consistency_errors = self.validate_ontology_text_consistency(samples)
+            async_tasks.append(('ontology', self.validate_ontology_text_consistency_async(samples)))
 
-            # text consistency errors as warnings for valid organoids
-            for org in results['valid_organoids']:
-                sample_name = org['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in org:
-                        org['ontology_warnings'] = []
-                    org['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += 1
+        if async_tasks:
+            # Run async tasks
+            task_results = await asyncio.gather(*[task for _, task in async_tasks], return_exceptions=True)
+
+            # process results
+            for (task_type, _), result in zip(async_tasks, task_results):
+                if isinstance(result, Exception):
+                    print(f"Error in {task_type} validation: {result}")
+                    continue
+
+                if task_type == 'ontology':
+                    text_consistency_errors = result
+                    # text consistency errors as warnings for valid organoids
+                    for org in results['valid_organoids']:
+                        sample_name = org['sample_name']
+                        if sample_name in text_consistency_errors:
+                            if 'ontology_warnings' not in org:
+                                org['ontology_warnings'] = []
+                            org['ontology_warnings'].extend(text_consistency_errors[sample_name])
+                            results['summary']['warnings'] += 1
 
         return results
 
@@ -121,7 +133,6 @@ class OrganoidValidator(BaseValidator):
                 continue
 
             current_material = rel_info['material']
-            print("koosum = ", current_material)
             errors = []
 
             if any('restricted access' == ref for ref in rel_info['relationships']):
@@ -142,40 +153,13 @@ class OrganoidValidator(BaseValidator):
                             f"does not match condition 'should be {' or '.join(allowed_materials)}'"
                         )
 
-
             if errors:
                 relationship_errors[sample_name] = errors
 
         return relationship_errors
 
-
-    def _extract_sample_name(self, sample: Dict) -> str:
-        return sample.get('Sample Name', '')
-
-    def _extract_material(self, sample: Dict) -> str:
-        return sample.get('Material', '')
-
-    def _extract_derived_from(self, sample: Dict) -> List[str]:
-        derived_from_refs = []
-
-        if 'Derived From' in sample:
-            derived_from = sample['Derived From']
-            if derived_from and derived_from.strip():
-                derived_from_refs.append(derived_from.strip())
-
-        if 'Child Of' in sample:
-            child_of = sample['Child Of']
-            if isinstance(child_of, list):
-                for parent in child_of:
-                    if parent and parent.strip():
-                        derived_from_refs.append(parent.strip())
-            elif child_of and child_of.strip():
-                derived_from_refs.append(child_of.strip())
-
-        return [ref for ref in derived_from_refs if ref and ref.strip()]
-
-    def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-        ontology_data = self.collect_ontology_ids(organoids)
+    async def validate_ontology_text_consistency_async(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        ontology_data = await self.collect_ontology_ids_async(organoids)
         text_consistency_errors = {}
 
         for i, organoid in enumerate(organoids):
@@ -207,41 +191,54 @@ class OrganoidValidator(BaseValidator):
 
         return text_consistency_errors
 
-    def collect_ontology_ids(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
+    async def collect_ontology_ids_async(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
         ids = set()
 
         for organoid in organoids:
             # get terms from organ model
             organ_model_term = organoid.get('Organ Model Term Source ID')
-            if organ_model_term and organ_model_term != "restricted access":
+            if organ_model_term and organ_model_term != "restricted access" and isinstance(organ_model_term, str):
                 ids.add(organ_model_term)
 
             # get terms from organ part model
             organ_part_term = organoid.get('Organ Part Model Term Source ID')
-            if organ_part_term and organ_part_term != "restricted access":
+            if organ_part_term and organ_part_term != "restricted access" and isinstance(organ_part_term, str):
                 ids.add(organ_part_term)
 
-        return self.fetch_ontology_data_for_ids(ids)
+        id_list = list(ids)
+        if not id_list:
+            return {}
 
-    def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
-        results = {}
+        return await self.ontology_validator.fetch_multiple_from_ols(id_list)
 
-        for term_id in ids:
-            if term_id and term_id != "restricted access":
-                try:
-                    # convert underscore to colon for OLS lookup
-                    term_for_lookup = term_id.replace('_', ':', 1) if '_' in term_id else term_id
-                    ols_data = self.ontology_validator.fetch_from_ols(term_for_lookup)
-                    if ols_data:
-                        results[term_id] = ols_data
-                except Exception as e:
-                    print(f"Error fetching ontology data for {term_id}: {e}")
-                    results[term_id] = []
+    def _extract_sample_name(self, sample: Dict) -> str:
+        return sample.get('Sample Name', '')
 
-        return results
+    def _extract_material(self, sample: Dict) -> str:
+        return sample.get('Material', '')
+
+    def _extract_derived_from(self, sample: Dict) -> List[str]:
+        derived_from_refs = []
+
+        if 'Derived From' in sample:
+            derived_from = sample['Derived From']
+            if derived_from and derived_from.strip():
+                derived_from_refs.append(derived_from.strip())
+
+        if 'Child Of' in sample:
+            child_of = sample['Child Of']
+            if isinstance(child_of, list):
+                for parent in child_of:
+                    if parent and parent.strip():
+                        derived_from_refs.append(parent.strip())
+            elif child_of and child_of.strip():
+                derived_from_refs.append(child_of.strip())
+
+        return [ref for ref in derived_from_refs if ref and ref.strip()]
 
     def _check_text_term_consistency_flattened(self, text: str, term: str,
                                                ontology_data: Dict, field_name: str) -> str:
+        """Check text term consistency"""
         if not text or not term or term == "restricted access":
             return None
 

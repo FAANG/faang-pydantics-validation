@@ -1,3 +1,4 @@
+import asyncio
 from typing import Dict, List, Any, Optional
 import json
 from organism_validator import OrganismValidator
@@ -10,27 +11,17 @@ class UnifiedFAANGValidator:
             'organism': OrganismValidator(),
             'organoid': OrganoidValidator(),
             # Add more sample types here as needed
-            # 'specimen_from_organism': SpecimenValidator(),
-            # 'cell_culture': CellCultureValidator(),
         }
         self.supported_sample_types = set(self.validators.keys())
 
-    def validate_all_samples(
+    async def validate_all_samples(
         self,
         data: Dict[str, List[Dict[str, Any]]],
         validate_relationships: bool = True,
         validate_ontology_text: bool = True
     ) -> Dict[str, Any]:
         """
-        Validate all sample types in the provided data
-
-        Args:
-            data: Dictionary with sample type keys and lists of samples
-            validate_relationships: Whether to validate cross-sample relationships
-            validate_ontology_text: Whether to validate ontology text consistency
-
-        Returns:
-            Dictionary containing validation results for all sample types
+        Async validate all sample types with concurrent processing
         """
         all_results = {
             'sample_types_processed': [],
@@ -45,7 +36,10 @@ class UnifiedFAANGValidator:
             'reports_by_type': {}
         }
 
-        # Process each sample type
+        # Create tasks for concurrent processing of different sample types
+        validation_tasks = []
+        sample_types_to_process = []
+
         for sample_type, samples in data.items():
             if sample_type not in self.supported_sample_types:
                 print(f"Warning: Sample type '{sample_type}' is not supported. Skipping.")
@@ -69,23 +63,43 @@ class UnifiedFAANGValidator:
             if sample_type == 'organoid':
                 validation_kwargs['validate_ontology_text'] = validate_ontology_text
 
-            results = validator.validate_samples(samples, **validation_kwargs)
+            # Create async task for this sample type
+            task = validator.validate_samples(samples, **validation_kwargs)
+            validation_tasks.append((sample_type, task))
+            sample_types_to_process.append(sample_type)
 
-            # Store results
-            all_results['sample_types_processed'].append(sample_type)
-            all_results['results_by_type'][sample_type] = results
+        # Run all sample type validations concurrently
+        if validation_tasks:
+            print("Running validation for all sample types concurrently...")
 
-            # Generate report
-            report = validator.generate_validation_report(results)
-            all_results['reports_by_type'][sample_type] = report
+            # Execute all validation tasks concurrently
+            task_results = await asyncio.gather(
+                *[task for _, task in validation_tasks],
+                return_exceptions=True
+            )
 
-            # Update total summary
-            summary = results['summary']
-            all_results['total_summary']['total_samples'] += summary['total']
-            all_results['total_summary']['valid_samples'] += summary['valid']
-            all_results['total_summary']['invalid_samples'] += summary['invalid']
-            all_results['total_summary']['warnings'] += summary['warnings']
-            all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
+            # Process results
+            for (sample_type, _), result in zip(validation_tasks, task_results):
+                if isinstance(result, Exception):
+                    print(f"Error validating {sample_type}: {result}")
+                    continue
+
+                # Store results
+                all_results['sample_types_processed'].append(sample_type)
+                all_results['results_by_type'][sample_type] = result
+
+                # Generate report (synchronous operation)
+                validator = self.validators[sample_type]
+                report = validator.generate_validation_report(result)
+                all_results['reports_by_type'][sample_type] = report
+
+                # Update total summary
+                summary = result['summary']
+                all_results['total_summary']['total_samples'] += summary['total']
+                all_results['total_summary']['valid_samples'] += summary['valid']
+                all_results['total_summary']['invalid_samples'] += summary['invalid']
+                all_results['total_summary']['warnings'] += summary['warnings']
+                all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
 
         return all_results
 
@@ -164,6 +178,21 @@ class UnifiedFAANGValidator:
             'overall': validation_results['total_summary'],
             'by_type': summary_by_type
         }
+
+    async def validate_sample_file(self, file_path: str, **kwargs) -> Dict[str, Any]:
+        """Async validate samples from a JSON file"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+
+            return await self.validate_all_samples(data, **kwargs)
+
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Sample file not found: {file_path}")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in file {file_path}: {e}")
+        except Exception as e:
+            raise Exception(f"Error validating file {file_path}: {e}")
 
     def add_validator(self, sample_type: str, validator_instance):
         """Add a new validator for a sample type"""
