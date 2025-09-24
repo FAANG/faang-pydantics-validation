@@ -165,21 +165,6 @@ class UnifiedFAANGValidator:
             'by_type': summary_by_type
         }
 
-    def validate_sample_file(self, file_path: str, **kwargs) -> Dict[str, Any]:
-        """Validate samples from a JSON file"""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-
-            return self.validate_all_samples(data, **kwargs)
-
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Sample file not found: {file_path}")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in file {file_path}: {e}")
-        except Exception as e:
-            raise Exception(f"Error validating file {file_path}: {e}")
-
     def add_validator(self, sample_type: str, validator_instance):
         """Add a new validator for a sample type"""
         self.validators[sample_type] = validator_instance
