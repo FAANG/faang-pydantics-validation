@@ -2,14 +2,15 @@
   "validation_results": {
     "sample_types_processed": [
       "organism",
-      "organoid"
+      "organoid",
+      "specimen_from_organism"
     ],
     "total_summary": {
-      "total_samples": 4,
+      "total_samples": 5,
       "valid_samples": 4,
-      "invalid_samples": 0,
+      "invalid_samples": 1,
       "warnings": 2,
-      "relationship_errors": 2
+      "relationship_errors": 3
     },
     "results_by_type": {
       "organism": {
@@ -168,7 +169,9 @@
               "Derived From": "OCU_INRAE_PND18_S1"
             },
             "warnings": [],
-            "relationship_errors": []
+            "relationship_errors": [
+              "Relationships part: no entity 'OCU_INRAE_PND18_S1' found"
+            ]
           },
           {
             "index": 1,
@@ -219,13 +222,107 @@
           "valid": 2,
           "invalid": 0,
           "warnings": 0,
-          "relationship_errors": 1
+          "relationship_errors": 2
+        }
+      },
+      "specimen_from_organism": {
+        "valid_specimen_from_organisms": [],
+        "invalid_specimen_from_organisms": [
+          {
+            "index": 0,
+            "sample_name": "specimen_from_organism_0",
+            "data": {
+              "samples_core": {
+                "sample_description": {
+                  "value": "Adipose Tissue, H1"
+                },
+                "material": {
+                  "text": "specimen from organism",
+                  "term": "OBI:0001479"
+                },
+                "project": {
+                  "value": "FAANG"
+                }
+              },
+              "specimen_collection_date": {
+                "value": "2005-05",
+                "units": "YYYY-MM"
+              },
+              "geographic_location": {
+                "value": "Denmark"
+              },
+              "animal_age_at_collection": {
+                "value": 23.5,
+                "units": "month"
+              },
+              "developmental_stage": {
+                "text": "adult",
+                "term": "EFO:0001272"
+              },
+              "health_status_at_collection": [
+                {
+                  "text": "normal",
+                  "term": "PATO:0000461"
+                }
+              ],
+              "organism_part": {
+                "text": "adipose tissue",
+                "term": "UBERON:0001013"
+              },
+              "specimen_collection_protocol": {
+                "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+              },
+              "derived_from": {
+                "value": "OCU_INRAE_PND18"
+              },
+              "custom": {
+                "sample_name": {
+                  "value": "OCU_INRAE_PND18_S1"
+                }
+              }
+            },
+            "errors": {
+              "errors": [
+                "Material: Field required",
+                "Term Source ID: Field required",
+                "Project: Field required",
+                "samples_core: Extra inputs are not permitted",
+                "custom: Extra inputs are not permitted"
+              ],
+              "warnings": [],
+              "field_errors": {
+                "Material": [
+                  "Field required"
+                ],
+                "Term Source ID": [
+                  "Field required"
+                ],
+                "Project": [
+                  "Field required"
+                ],
+                "samples_core": [
+                  "Extra inputs are not permitted"
+                ],
+                "custom": [
+                  "Extra inputs are not permitted"
+                ]
+              }
+            }
+          }
+        ],
+        "summary": {
+          "total": 1,
+          "valid": 0,
+          "invalid": 1,
+          "warnings": 0,
+          "relationship_errors": 0
         }
       }
     },
     "reports_by_type": {
       "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n  RELATIONSHIP: Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent",
-      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found"
+      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S1' found\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
+      "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 0\nInvalid specimen_from_organisms: 1\nSpecimen_From_Organisms with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nSpecimen_From_Organism: specimen_from_organism_0 (index: 0)\n  ERROR in Material: Field required\n  ERROR in Term Source ID: Field required\n  ERROR in Project: Field required\n  ERROR in samples_core: Extra inputs are not permitted\n  ERROR in custom: Extra inputs are not permitted"
     }
   },
   "biosample_exports": {

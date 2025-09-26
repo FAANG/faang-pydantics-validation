@@ -54,6 +54,36 @@ class SpecimenValidator(BaseValidator):
         # Base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
+        # Check recommended fields for valid specimens
+        for specimen in results['valid_specimen_from_organisms']:
+            recommended_warnings = self._check_recommended_fields_warnings(specimen['data'])
+            if recommended_warnings:
+                if 'warnings' not in specimen:
+                    specimen['warnings'] = []
+                specimen['warnings'].extend(recommended_warnings)
+                results['summary']['warnings'] += len(recommended_warnings)
+
+            # Check missing value appropriateness
+            missing_value_issues = self._check_missing_value_appropriateness(specimen['data'])
+            if missing_value_issues['errors']:
+                if 'field_errors' not in specimen:
+                    specimen['field_errors'] = {}
+                specimen['field_errors'].update(missing_value_issues['errors'])
+                results['summary']['invalid'] += len(missing_value_issues['errors'])
+            if missing_value_issues['warnings']:
+                if 'warnings' not in specimen:
+                    specimen['warnings'] = []
+                specimen['warnings'].extend(missing_value_issues['warnings'])
+                results['summary']['warnings'] += len(missing_value_issues['warnings'])
+
+            # Check date-unit consistency
+            date_unit_errors = self._check_date_unit_consistency(specimen['data'])
+            if date_unit_errors:
+                if 'field_errors' not in specimen:
+                    specimen['field_errors'] = {}
+                specimen['field_errors'].update(date_unit_errors)
+                results['summary']['invalid'] += len(date_unit_errors)
+
         # Relationship validation
         if validate_relationships and all_samples:
             relationship_errors = self.validate_derived_from_relationships(samples, all_samples)
@@ -76,7 +106,7 @@ class SpecimenValidator(BaseValidator):
                     if 'ontology_warnings' not in specimen:
                         specimen['ontology_warnings'] = []
                     specimen['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += 1
+                    results['summary']['warnings'] += len(text_consistency_errors[sample_name])
 
         return results
 
@@ -329,40 +359,86 @@ class SpecimenValidator(BaseValidator):
     def _check_text_term_consistency(self, text: str, term: str,
                                      ontology_data: Dict, field_name: str) -> str:
         """
-        Check if text matches term label from OLS
+        Check if text matches term label from OLS with enhanced validation
+        Based on Django's WarningsAndAdditionalChecks.check_ols()
         """
         if not text or not term or term in ["restricted access", "not applicable", "not collected", "not provided"]:
             return None
 
+    def _validate_biosample_id_format(self, sample_id: str) -> bool:
+        """
+        Validate BioSample ID format
+        Based on Django's update_utils.check_biosampleid()
+        """
+        import re
+
+        if not sample_id:
+            return False
+
+        # BioSample accessions: SAM[AED][AG]?\d+
+        pattern = r"^SAM[AED][AG]?\d+$"
+        return bool(re.search(pattern, sample_id.upper()))
+
+    def _check_biosample_references(self, sample_data: Dict[str, Any]) -> List[str]:
+        """
+        Check if BioSample ID references are valid format
+        This is used when derived_from contains BioSample IDs
+        """
+        errors = []
+
+        # Check derived_from field for BioSample IDs
+        derived_from = sample_data.get('derived_from', {})
+        if isinstance(derived_from, dict) and 'value' in derived_from:
+            value = derived_from['value']
+            if value and 'SAM' in value.upper():
+                if not self._validate_biosample_id_format(value):
+                    errors.append(f"Invalid BioSample ID format: {value}")
+
+        return errors
+
+        # Convert term format for lookup
+        term_with_colon = term.replace('_', ':', 1) if '_' in term else term
+
         if term not in ontology_data:
             return f"Couldn't find term '{term}' in OLS"
 
-        # Determine ontology based on term prefix
-        term_with_colon = term.replace('_', ':', 1) if '_' in term else term
-        ontology_name = None
+        # Determine expected ontology based on term prefix and field
+        expected_ontologies = []
         if term_with_colon.startswith("EFO:"):
-            ontology_name = "EFO"
+            expected_ontologies = ["efo"]
         elif term_with_colon.startswith("UBERON:"):
-            ontology_name = "UBERON"
+            expected_ontologies = ["uberon"]
         elif term_with_colon.startswith("BTO:"):
-            ontology_name = "BTO"
+            expected_ontologies = ["bto"]
         elif term_with_colon.startswith("PATO:"):
-            ontology_name = "PATO"
+            expected_ontologies = ["pato"]
 
-        # Get labels from OLS data
+        # Additional field-specific ontology expectations
+        if field_name == 'developmental_stage':
+            expected_ontologies = ["efo", "uberon"]
+        elif field_name == 'organism_part':
+            expected_ontologies = ["uberon", "bto"]
+        elif 'health_status' in field_name:
+            expected_ontologies = ["pato", "efo"]
+
+        # Get labels from OLS data matching expected ontologies
         term_labels = []
         for label_data in ontology_data[term]:
-            if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
-                term_labels.append(label_data.get('label', '').lower())
-            elif not ontology_name:
-                term_labels.append(label_data.get('label', '').lower())
+            ontology_name = label_data.get('ontology_name', '').lower()
+            if not expected_ontologies or ontology_name in expected_ontologies:
+                label = label_data.get('label', '').lower()
+                if label:  # Only add non-empty labels
+                    term_labels.append(label)
 
         if not term_labels:
-            return f"Couldn't find label in OLS with ontology name: {ontology_name}"
+            ontology_list = ', '.join(expected_ontologies) if expected_ontologies else 'any'
+            return f"Couldn't find label in OLS with ontology name(s): {ontology_list}"
 
-        # Check if provided text matches any OLS label
-        if str(text).lower() not in term_labels:
-            return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
+        # Check if provided text matches any OLS label (case-insensitive)
+        text_lower = str(text).lower()
+        if text_lower not in term_labels:
+            best_match = term_labels[0] if term_labels else 'unknown'
+            return (f"Provided value '{text}' doesn't precisely match '{best_match}' "
                     f"for term '{term}' in field '{field_name}'")
 
         return None
@@ -500,3 +576,126 @@ class SpecimenValidator(BaseValidator):
         }]
 
         return biosample_data
+
+    def _check_recommended_fields_warnings(self, sample_data: Dict[str, Any]) -> List[str]:
+        """
+        Check for missing recommended fields and return warnings
+        Based on Django's WarningsAndAdditionalChecks.check_recommended_fields()
+        """
+        warnings = []
+
+        # Check if health_status_at_collection is missing (it's recommended)
+        if 'health_status_at_collection' not in sample_data or not sample_data['health_status_at_collection']:
+            warnings.append("Field 'health_status_at_collection' is recommended but was not provided")
+
+        return warnings
+
+    def _check_missing_value_appropriateness(self, sample_data: Dict[str, Any]) -> Dict[str, List[str]]:
+        """
+        Check if missing values are appropriate for field types
+        Based on Django's WarningsAndAdditionalChecks.check_missing_values()
+        """
+        # Missing values configuration from Django constants.py
+        MISSING_VALUES = {
+            'mandatory': {
+                'errors': ["not applicable", "not collected", "not provided"],
+                "warnings": ["restricted access"]
+            },
+            'recommended': {
+                'errors': [],
+                'warnings': ["not collected", "not provided"]
+            },
+            'optional': {
+                'errors': [],
+                'warnings': []
+            }
+        }
+
+        # Field classification (based on JSON schema)
+        MANDATORY_FIELDS = [
+            'specimen_collection_date', 'geographic_location', 'animal_age_at_collection',
+            'developmental_stage', 'organism_part', 'specimen_collection_protocol', 'derived_from'
+        ]
+        RECOMMENDED_FIELDS = ['health_status_at_collection']
+
+        issues = {'errors': {}, 'warnings': []}
+
+        def check_field_value(field_name, field_data, field_type):
+            if isinstance(field_data, dict):
+                for key, value in field_data.items():
+                    if isinstance(value, str):
+                        missing_config = MISSING_VALUES[field_type]
+                        if value in missing_config['errors']:
+                            error_msg = f"Field '{key}' of '{field_name}' contains missing value that is not appropriate for this field"
+                            if field_name not in issues['errors']:
+                                issues['errors'][field_name] = []
+                            issues['errors'][field_name].append(error_msg)
+                        elif value in missing_config['warnings']:
+                            warning_msg = f"Field '{key}' of '{field_name}' contains missing value that is not appropriate for this field"
+                            issues['warnings'].append(warning_msg)
+            elif isinstance(field_data, list):
+                for item in field_data:
+                    check_field_value(field_name, item, field_type)
+
+        # Check all fields
+        for field_name, field_value in sample_data.items():
+            if field_name in MANDATORY_FIELDS:
+                check_field_value(field_name, field_value, 'mandatory')
+            elif field_name in RECOMMENDED_FIELDS:
+                check_field_value(field_name, field_value, 'recommended')
+            else:
+                check_field_value(field_name, field_value, 'optional')
+
+        return issues
+
+    def _check_date_unit_consistency(self, sample_data: Dict[str, Any]) -> Dict[str, List[str]]:
+        """
+        Check that date values are consistent with their units
+        Based on Django's WarningsAndAdditionalChecks.check_date_units()
+        """
+        import datetime
+
+        errors = {}
+
+        def validate_date_field(field_name, field_data):
+            if isinstance(field_data, dict) and 'value' in field_data and 'units' in field_data:
+                if 'date' in field_name.lower():  # Only check date-related fields
+                    value = field_data['value']
+                    units = field_data['units']
+
+                    if value == "restricted access" or units == "restricted access":
+                        return
+
+                    # Map units to datetime format
+                    unit_formats = {
+                        'YYYY-MM-DD': '%Y-%m-%d',
+                        'YYYY-MM': '%Y-%m',
+                        'YYYY': '%Y'
+                    }
+
+                    if units in unit_formats:
+                        try:
+                            datetime.datetime.strptime(value, unit_formats[units])
+                        except ValueError:
+                            error_msg = f"Date units: {units} should be consistent with date value: {value}"
+                            if field_name not in errors:
+                                errors[field_name] = []
+                            errors[field_name].append(error_msg)
+
+        # Check all fields for date consistency
+        for field_name, field_value in sample_data.items():
+            validate_date_field(field_name, field_value)
+
+        return errors
+
+    def get_recommended_fields(self, model_class) -> List[str]:
+        """Extract recommended fields from pydantic model using metadata"""
+        recommended_fields = []
+
+        for field_name, field_info in model_class.model_fields.items():
+            if (field_info.json_schema_extra and
+                isinstance(field_info.json_schema_extra, dict) and
+                field_info.json_schema_extra.get("recommended", False)):
+                recommended_fields.append(field_name)
+
+        return recommended_fields

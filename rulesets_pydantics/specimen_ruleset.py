@@ -356,7 +356,7 @@ class DerivedFrom(BaseModel):
 
 
 class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
-    # required nested fields from JSON schema
+    # Required nested fields from JSON schema
     specimen_collection_date: SpecimenCollectionDate
     geographic_location: GeographicLocation
     animal_age_at_collection: AnimalAgeAtCollection
@@ -365,7 +365,7 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
     specimen_collection_protocol: SpecimenCollectionProtocol
     derived_from: DerivedFrom
 
-    # Recommended fields
+    # Recommended fields (items within are recommended)
     health_status_at_collection: Optional[List[HealthStatusAtCollection]] = Field(
         None, json_schema_extra={"recommended": True}
     )
@@ -392,11 +392,15 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             if isinstance(sample_desc, dict) and 'value' in sample_desc:
                 data['sample_name'] = sample_desc['value']
 
-        # Extract custom sample_name if present
+        # Extract custom sample_name if present (priority over samples_core)
         if 'custom' in data and 'sample_name' in data['custom']:
             sample_name_data = data['custom']['sample_name']
             if isinstance(sample_name_data, dict) and 'value' in sample_name_data:
                 data['sample_name'] = sample_name_data['value']
+
+        # Ensure we have a sample name from somewhere
+        if 'sample_name' not in data or not data['sample_name']:
+            raise ValueError("Sample name is required but could not be extracted from data structure")
 
         super().__init__(**data)
 
