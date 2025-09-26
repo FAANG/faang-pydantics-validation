@@ -214,17 +214,8 @@ class RelationshipValidator:
         """
         Validate derived_from relationships across all sample types
         This method handles both 'Derived From' and 'Child Of' relationships
+        Uses ALLOWED_RELATIONSHIPS from constants.py
         """
-        ALLOWED_RELATIONSHIPS = {
-            'organoid': ['specimen from organism', 'cell culture', 'cell line'],
-            'organism': ['organism'],
-            'specimen from organism': ['organism'],
-            'cell culture': ['specimen from organism', 'organism'],
-            'cell line': ['specimen from organism', 'organism'],
-            'cell specimen': ['specimen from organism', 'organism'],
-            'single cell specimen': ['specimen from organism', 'organism'],
-            'pool of specimens': ['specimen from organism', 'organism']
-        }
 
         relationship_errors = {}
         relationships = {}
