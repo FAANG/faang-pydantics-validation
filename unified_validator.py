@@ -2,6 +2,7 @@ from typing import Dict, List, Any, Optional
 import json
 from organism_validator import OrganismValidator
 from organoid_validator import OrganoidValidator
+from specimen_validator import SpecimenValidator
 
 
 class UnifiedFAANGValidator:
@@ -9,9 +10,10 @@ class UnifiedFAANGValidator:
         self.validators = {
             'organism': OrganismValidator(),
             'organoid': OrganoidValidator(),
+            'specimen_from_organism': SpecimenValidator(),
             # Add more sample types here as needed
-            # 'specimen_from_organism': SpecimenValidator(),
             # 'cell_culture': CellCultureValidator(),
+            # 'cell_line': CellLineValidator(),
         }
         self.supported_sample_types = set(self.validators.keys())
 
@@ -66,7 +68,7 @@ class UnifiedFAANGValidator:
             }
 
             # Add specific parameters for different sample types
-            if sample_type == 'organoid':
+            if sample_type in ['organoid', 'specimen_from_organism']:
                 validation_kwargs['validate_ontology_text'] = validate_ontology_text
 
             results = validator.validate_samples(samples, **validation_kwargs)
