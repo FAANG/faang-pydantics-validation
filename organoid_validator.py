@@ -121,7 +121,6 @@ class OrganoidValidator(BaseValidator):
                 continue
 
             current_material = rel_info['material']
-            print("koosum = ", current_material)
             errors = []
 
             if any('restricted access' == ref for ref in rel_info['relationships']):
