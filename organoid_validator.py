@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Type, Optional, Tuple
 from pydantic import BaseModel
 from base_validator import BaseValidator
-from generic_validator_classes import OntologyValidator
+from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.organoid_ruleset import FAANGOrganoidSample
 import json
 
@@ -10,6 +10,7 @@ class OrganoidValidator(BaseValidator):
 
     def _initialize_validators(self):
         self.ontology_validator = OntologyValidator(cache_enabled=True)
+        self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGOrganoidSample
@@ -55,9 +56,9 @@ class OrganoidValidator(BaseValidator):
         # base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
-        # relationship validation
+        # relationship validation using the generic method
         if validate_relationships and all_samples:
-            relationship_errors = self.validate_derived_from_relationships(all_samples)
+            relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
             # relationship checks for valid organoids
             for org in results['valid_organoids']:
@@ -80,97 +81,6 @@ class OrganoidValidator(BaseValidator):
                     results['summary']['warnings'] += 1
 
         return results
-
-    def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
-
-        ALLOWED_RELATIONSHIPS = {
-            'organoid': ['specimen from organism', 'cell culture', 'cell line'],
-            'organism': ['organism'],
-            'specimen from organism': ['organism'],
-            'cell culture': ['specimen from organism', 'organism'],
-            'cell line': ['specimen from organism', 'organism'],
-            'cell specimen': ['specimen from organism', 'organism'],
-            'single cell specimen': ['specimen from organism', 'organism'],
-            'pool of specimens': ['specimen from organism', 'organism']
-        }
-
-        relationship_errors = {}
-        relationships = {}
-
-        # step 1: collect all relationships and materials
-        if all_samples:
-            for sample_type, samples in all_samples.items():
-                for sample in samples:
-                    sample_name = self._extract_sample_name(sample)
-                    if sample_name:
-                        relationships[sample_name] = {}
-
-                        # get material type
-                        material = self._extract_material(sample)
-                        relationships[sample_name]['material'] = material
-
-                        # get derived_from relationships
-                        derived_from = self._extract_derived_from(sample)
-                        if derived_from:
-                            relationships[sample_name]['relationships'] = derived_from
-
-        # step 2: validate relationships
-        for sample_name, rel_info in relationships.items():
-            if 'relationships' not in rel_info:
-                continue
-
-            current_material = rel_info['material']
-            errors = []
-
-            if any('restricted access' == ref for ref in rel_info['relationships']):
-                continue
-
-            for derived_from_ref in rel_info['relationships']:
-                # check if referenced sample exists
-                if derived_from_ref not in relationships:
-                    errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
-                else:
-                    # check material compatibility
-                    ref_material = relationships[derived_from_ref]['material']
-                    allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
-
-                    if ref_material not in allowed_materials:
-                        errors.append(
-                            f"Relationships part: referenced entity '{derived_from_ref}' "
-                            f"does not match condition 'should be {' or '.join(allowed_materials)}'"
-                        )
-
-
-            if errors:
-                relationship_errors[sample_name] = errors
-
-        return relationship_errors
-
-
-    def _extract_sample_name(self, sample: Dict) -> str:
-        return sample.get('Sample Name', '')
-
-    def _extract_material(self, sample: Dict) -> str:
-        return sample.get('Material', '')
-
-    def _extract_derived_from(self, sample: Dict) -> List[str]:
-        derived_from_refs = []
-
-        if 'Derived From' in sample:
-            derived_from = sample['Derived From']
-            if derived_from and derived_from.strip():
-                derived_from_refs.append(derived_from.strip())
-
-        if 'Child Of' in sample:
-            child_of = sample['Child Of']
-            if isinstance(child_of, list):
-                for parent in child_of:
-                    if parent and parent.strip():
-                        derived_from_refs.append(parent.strip())
-            elif child_of and child_of.strip():
-                derived_from_refs.append(child_of.strip())
-
-        return [ref for ref in derived_from_refs if ref and ref.strip()]
 
     def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
         ontology_data = self.collect_ontology_ids(organoids)

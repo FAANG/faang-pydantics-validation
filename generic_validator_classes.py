@@ -273,6 +273,73 @@ class RelationshipValidator:
 
         return graph
 
+    def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
+        """
+        Validate derived_from relationships across all sample types
+        This method handles both 'Derived From' and 'Child Of' relationships
+        """
+        ALLOWED_RELATIONSHIPS = {
+            'organoid': ['specimen from organism', 'cell culture', 'cell line'],
+            'organism': ['organism'],
+            'specimen from organism': ['organism'],
+            'cell culture': ['specimen from organism', 'organism'],
+            'cell line': ['specimen from organism', 'organism'],
+            'cell specimen': ['specimen from organism', 'organism'],
+            'single cell specimen': ['specimen from organism', 'organism'],
+            'pool of specimens': ['specimen from organism', 'organism']
+        }
+
+        relationship_errors = {}
+        relationships = {}
+
+        # step 1: collect all relationships and materials
+        if all_samples:
+            for sample_type, samples in all_samples.items():
+                for sample in samples:
+                    sample_name = self._extract_sample_name(sample)
+                    if sample_name:
+                        relationships[sample_name] = {}
+
+                        # get material type
+                        material = self._extract_material(sample, sample_type)
+                        relationships[sample_name]['material'] = material
+
+                        # get derived_from relationships
+                        derived_from = self._extract_derived_from(sample, sample_type)
+                        if derived_from:
+                            relationships[sample_name]['relationships'] = derived_from
+
+        # step 2: validate relationships
+        for sample_name, rel_info in relationships.items():
+            if 'relationships' not in rel_info:
+                continue
+
+            current_material = rel_info['material']
+            errors = []
+
+            if any('restricted access' == ref for ref in rel_info['relationships']):
+                continue
+
+            for derived_from_ref in rel_info['relationships']:
+                # check if referenced sample exists
+                if derived_from_ref not in relationships:
+                    errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
+                else:
+                    # check material compatibility
+                    ref_material = relationships[derived_from_ref]['material']
+                    allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
+
+                    if ref_material not in allowed_materials:
+                        errors.append(
+                            f"Relationships part: referenced entity '{derived_from_ref}' "
+                            f"does not match condition 'should be {' or '.join(allowed_materials)}'"
+                        )
+
+            if errors:
+                relationship_errors[sample_name] = errors
+
+        return relationship_errors
+
     def _extract_sample_name(self, sample: Dict) -> str:
         """Extract sample name from flattened structures - updated for all sample types"""
         # All sample types now use the same flat structure
