@@ -78,66 +78,6 @@ class OntologyValidator:
             print(f"Error fetching from OLS: {e}")
             return []
 
-    def validate_text_term_consistency(self, text: str, term: str, field_name: str,
-                                       expected_ontologies: List[str] = None) -> List[str]:
-        """
-        Enhanced text-term consistency validation with field-specific ontology expectations
-        """
-        warnings = []
-
-        if not text or not term or term in ["restricted access", "not applicable", "not collected", "not provided"]:
-            return warnings
-
-        ols_data = self.fetch_from_ols(term)
-        if not ols_data:
-            warnings.append(f"Couldn't find term '{term}' in OLS")
-            return warnings
-
-        # Determine expected ontologies based on field and term prefix
-        if not expected_ontologies:
-            term_with_colon = term.replace('_', ':', 1) if '_' in term else term
-            if term_with_colon.startswith("EFO:"):
-                expected_ontologies = ["efo"]
-            elif term_with_colon.startswith("UBERON:"):
-                expected_ontologies = ["uberon"]
-            elif term_with_colon.startswith("BTO:"):
-                expected_ontologies = ["bto"]
-            elif term_with_colon.startswith("PATO:"):
-                expected_ontologies = ["pato"]
-
-        # Field-specific ontology expectations
-        if field_name == 'developmental_stage':
-            expected_ontologies = ["efo", "uberon"]
-        elif field_name == 'organism_part':
-            expected_ontologies = ["uberon", "bto"]
-        elif 'health_status' in field_name:
-            expected_ontologies = ["pato", "efo"]
-
-        # Get labels matching expected ontologies
-        term_labels = []
-        for label_data in ols_data:
-            ontology_name = label_data.get('ontology_name', '').lower()
-            if not expected_ontologies or ontology_name in expected_ontologies:
-                label = label_data.get('label', '').lower()
-                if label:
-                    term_labels.append(label)
-
-        if not term_labels:
-            ontology_list = ', '.join(expected_ontologies) if expected_ontologies else 'any'
-            warnings.append(f"Couldn't find label in OLS with ontology name(s): {ontology_list}")
-            return warnings
-
-        # Check text match
-        if str(text).lower() not in term_labels:
-            best_match = term_labels[0] if term_labels else 'unknown'
-            warnings.append(
-                f"Provided value '{text}' doesn't precisely match '{best_match}' "
-                f"for term '{term}' in field '{field_name}'"
-            )
-
-        return warnings
-
-
 class BreedSpeciesValidator:
 
     def __init__(self, ontology_validator):
@@ -166,7 +106,6 @@ class BreedSpeciesValidator:
 
 
 class RelationshipValidator:
-    """Enhanced relationship validator with support for all sample types"""
 
     def __init__(self, config: ValidationConfig = None):
         self.config = config or ValidationConfig()

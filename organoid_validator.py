@@ -57,7 +57,7 @@ class OrganoidValidator(BaseValidator):
 
         # relationship validation
         if validate_relationships and all_samples:
-            relationship_errors = self.validate_derived_from_relationships(samples, all_samples)
+            relationship_errors = self.validate_derived_from_relationships(all_samples)
 
             # relationship checks for valid organoids
             for org in results['valid_organoids']:
@@ -81,8 +81,7 @@ class OrganoidValidator(BaseValidator):
 
         return results
 
-    def validate_derived_from_relationships(self, organoids: List[Dict[str, Any]],
-                                            all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
+    def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
 
         ALLOWED_RELATIONSHIPS = {
             'organoid': ['specimen from organism', 'cell culture', 'cell line'],

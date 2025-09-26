@@ -7,8 +7,8 @@
     ],
     "total_summary": {
       "total_samples": 5,
-      "valid_samples": 4,
-      "invalid_samples": 1,
+      "valid_samples": 5,
+      "invalid_samples": 0,
       "warnings": 2,
       "relationship_errors": 3
     },
@@ -169,9 +169,7 @@
               "Derived From": "OCU_INRAE_PND18_S1"
             },
             "warnings": [],
-            "relationship_errors": [
-              "Relationships part: no entity 'OCU_INRAE_PND18_S1' found"
-            ]
+            "relationship_errors": []
           },
           {
             "index": 1,
@@ -222,107 +220,82 @@
           "valid": 2,
           "invalid": 0,
           "warnings": 0,
-          "relationship_errors": 2
+          "relationship_errors": 1
         }
       },
       "specimen_from_organism": {
-        "valid_specimen_from_organisms": [],
-        "invalid_specimen_from_organisms": [
+        "valid_specimen_from_organisms": [
           {
             "index": 0,
-            "sample_name": "specimen_from_organism_0",
+            "sample_name": "OCU_INRAE_PND18_S1",
+            "model": "sample_description='Adipose Tissue, H1' material='specimen from organism' term_source_id='OBI_0001479' project='FAANG' secondary_project=None availability='' same_as='' sample_name='OCU_INRAE_PND18_S1' specimen_collection_date='2005-05' specimen_collection_date_unit='YYYY-MM' geographic_location='Denmark' animal_age_at_collection=23.5 animal_age_at_collection_unit='month' developmental_stage='adult' developmental_stage_term_source_id='EFO_0001272' organism_part='adipose tissue' organism_part_term_source_id='UBERON_0001013' specimen_collection_protocol='ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf' derived_from='OCU_INRAE_PND18' health_status=[HealthStatus(text='normal', term='PATO:0000461')] fasted_status=None number_of_pieces=None number_of_pieces_unit=None specimen_volume=None specimen_volume_unit=None specimen_size=None specimen_size_unit=None specimen_weight=None specimen_weight_unit=None specimen_picture_url=None gestational_age_at_sample_collection=None gestational_age_at_sample_collection_unit=None average_incubation_temperature=None average_incubation_temperature_unit=None average_incubation_humidity=None average_incubation_humidity_unit=None embryonic_stage=None embryonic_stage_unit=None",
             "data": {
-              "samples_core": {
-                "sample_description": {
-                  "value": "Adipose Tissue, H1"
-                },
-                "material": {
-                  "text": "specimen from organism",
-                  "term": "OBI:0001479"
-                },
-                "project": {
-                  "value": "FAANG"
-                }
-              },
-              "specimen_collection_date": {
-                "value": "2005-05",
-                "units": "YYYY-MM"
-              },
-              "geographic_location": {
-                "value": "Denmark"
-              },
-              "animal_age_at_collection": {
-                "value": 23.5,
-                "units": "month"
-              },
-              "developmental_stage": {
-                "text": "adult",
-                "term": "EFO:0001272"
-              },
-              "health_status_at_collection": [
+              "Health Status": [
                 {
                   "text": "normal",
                   "term": "PATO:0000461"
                 }
               ],
-              "organism_part": {
-                "text": "adipose tissue",
-                "term": "UBERON:0001013"
-              },
-              "specimen_collection_protocol": {
-                "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
-              },
-              "derived_from": {
-                "value": "OCU_INRAE_PND18"
-              },
-              "custom": {
-                "sample_name": {
-                  "value": "OCU_INRAE_PND18_S1"
-                }
-              }
-            },
-            "errors": {
-              "errors": [
-                "Material: Field required",
-                "Term Source ID: Field required",
-                "Project: Field required",
-                "samples_core: Extra inputs are not permitted",
-                "custom: Extra inputs are not permitted"
+              "Sample Name": "OCU_INRAE_PND18_S1",
+              "Sample Description": "Adipose Tissue, H1",
+              "Material": "specimen from organism",
+              "Term Source ID": "OBI_0001479",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Specimen Collection Date": "2005-05",
+              "Unit": "YYYY-MM",
+              "Geographic Location": "Denmark",
+              "Animal Age At Collection": "23.5",
+              "Animal Age At Collection Unit": "month",
+              "Developmental Stage": "adult",
+              "Developmental Stage Term Source ID": "EFO_0001272",
+              "Organism Part": "adipose tissue",
+              "Organism Part Term Source ID": "UBERON_0001013",
+              "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+              "Fasted Status": "",
+              "Number of Pieces": "",
+              "Number of Pieces Unit": "",
+              "Specimen Volume": "",
+              "Specimen Volume Unit": "",
+              "Specimen Size": "",
+              "Specimen Size Unit": "",
+              "Specimen Weight": "",
+              "Specimen Weight Unit": "",
+              "Specimen Picture URL": [
+                ""
               ],
-              "warnings": [],
-              "field_errors": {
-                "Material": [
-                  "Field required"
-                ],
-                "Term Source ID": [
-                  "Field required"
-                ],
-                "Project": [
-                  "Field required"
-                ],
-                "samples_core": [
-                  "Extra inputs are not permitted"
-                ],
-                "custom": [
-                  "Extra inputs are not permitted"
-                ]
-              }
-            }
+              "Gestational Age At Sample Collection": "",
+              "Gestational Age At Sample Collection Unit": "",
+              "Average Incubation temperature": "",
+              "Average Incubation temperature Unit": "",
+              "Average Incubation Humidity": "",
+              "Average Incubation Humidity Unit": "",
+              "Embryonic Stage": "",
+              "Embryonic Stage Unit": "",
+              "Derived From": "OCU_INRAE_PND18"
+            },
+            "warnings": [],
+            "relationship_errors": [
+              "Relationships part: no entity 'OCU_INRAE_PND18' found"
+            ]
           }
         ],
+        "invalid_specimen_from_organisms": [],
         "summary": {
           "total": 1,
-          "valid": 0,
-          "invalid": 1,
+          "valid": 1,
+          "invalid": 0,
           "warnings": 0,
-          "relationship_errors": 0
+          "relationship_errors": 1
         }
       }
     },
     "reports_by_type": {
       "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n  RELATIONSHIP: Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent",
-      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S1' found\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
-      "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 0\nInvalid specimen_from_organisms: 1\nSpecimen_From_Organisms with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nSpecimen_From_Organism: specimen_from_organism_0 (index: 0)\n  ERROR in Material: Field required\n  ERROR in Term Source ID: Field required\n  ERROR in Project: Field required\n  ERROR in samples_core: Extra inputs are not permitted\n  ERROR in custom: Extra inputs are not permitted"
+      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
+      "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nSpecimen_From_Organism: OCU_INRAE_PND18_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found"
     }
   },
   "biosample_exports": {
@@ -541,6 +514,75 @@
             {
               "type": "derived from",
               "target": "OCU_INRAE_PND18_S19"
+            }
+          ]
+        }
+      }
+    ],
+    "specimen_from_organism": [
+      {
+        "sample_name": "OCU_INRAE_PND18_S1",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "specimen from organism",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/OBI_0001479"
+                ]
+              }
+            ],
+            "specimen collection date": [
+              {
+                "text": "2005-05",
+                "unit": "YYYY-MM"
+              }
+            ],
+            "geographic location": [
+              {
+                "text": "Denmark"
+              }
+            ],
+            "animal age at collection": [
+              {
+                "text": "23.5",
+                "unit": "month"
+              }
+            ],
+            "developmental stage": [
+              {
+                "text": "adult",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/EFO_0001272"
+                ]
+              }
+            ],
+            "organism part": [
+              {
+                "text": "adipose tissue",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0001013"
+                ]
+              }
+            ],
+            "specimen collection protocol": [
+              {
+                "text": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+              }
+            ],
+            "health status at collection": [
+              {
+                "text": "normal",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000461"
+                ]
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "derived from",
+              "target": "OCU_INRAE_PND18"
             }
           ]
         }

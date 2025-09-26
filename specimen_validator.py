@@ -104,19 +104,6 @@ class SpecimenValidator(BaseValidator):
                     specimen['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # Enhanced ontology text consistency validation
-        if validate_ontology_text and self.config.enable_ols_text_validation:
-            text_consistency_errors = self._validate_ontology_text_consistency(samples)
-
-            # Add text consistency errors as warnings for valid specimens
-            for specimen in results['valid_specimen_from_organisms']:
-                sample_name = specimen['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in specimen:
-                        specimen['ontology_warnings'] = []
-                    specimen['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += len(text_consistency_errors[sample_name])
-
         return results
 
     def _check_recommended_fields(self, sample_data: Dict[str, Any]) -> List[str]:
@@ -164,55 +151,6 @@ class SpecimenValidator(BaseValidator):
                     ]
 
         return errors
-
-    def _validate_ontology_text_consistency(self, samples: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-        """Validate ontology text consistency using enhanced OLS validation - updated for flattened structure"""
-        text_consistency_errors = {}
-
-        for i, sample in enumerate(samples):
-            sample_name = self._extract_sample_name(sample)
-            if not sample_name:
-                sample_name = f'specimen_{i}'
-
-            errors = []
-
-            # Validate developmental stage text-term consistency (now flat fields)
-            dev_stage_text = sample.get('Developmental Stage')
-            dev_stage_term = sample.get('Developmental Stage Term Source ID')
-            if dev_stage_text and dev_stage_term and dev_stage_term != "restricted access":
-                warnings = self.ontology_validator.validate_text_term_consistency(
-                    dev_stage_text, dev_stage_term, 'developmental_stage'
-                )
-                errors.extend(warnings)
-
-            # Validate organism part text-term consistency (now flat fields)
-            organism_part_text = sample.get('Organism Part')
-            organism_part_term = sample.get('Organism Part Term Source ID')
-            if organism_part_text and organism_part_term and organism_part_term != "restricted access":
-                warnings = self.ontology_validator.validate_text_term_consistency(
-                    organism_part_text, organism_part_term, 'organism_part'
-                )
-                errors.extend(warnings)
-
-            # Validate health status text-term consistency (now flat list structure)
-            health_status = sample.get('Health Status', [])
-            if isinstance(health_status, list):
-                for j, status in enumerate(health_status):
-                    if isinstance(status, dict):
-                        status_text = status.get('text')
-                        status_term = status.get('term')
-                        if (status_text and status_term and
-                            status_term not in ["not applicable", "not collected", "not provided",
-                                                "restricted access"]):
-                            warnings = self.ontology_validator.validate_text_term_consistency(
-                                status_text, status_term, f'health_status[{j}]'
-                            )
-                            errors.extend(warnings)
-
-            if errors:
-                text_consistency_errors[sample_name] = errors
-
-        return text_consistency_errors
 
     def _extract_sample_name(self, sample: Dict) -> str:
         """Extract sample name from flattened structure"""

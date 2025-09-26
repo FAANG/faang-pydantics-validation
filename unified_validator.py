@@ -67,7 +67,7 @@ class UnifiedFAANGValidator:
                 'all_samples': data
             }
 
-            # Add specific parameters for different sample types
+            # Add specific parameters for sample types that support ontology text validation
             if sample_type in ['organoid', 'specimen_from_organism']:
                 validation_kwargs['validate_ontology_text'] = validate_ontology_text
 
@@ -175,3 +175,32 @@ class UnifiedFAANGValidator:
     def get_supported_types(self) -> List[str]:
         """Get list of supported sample types"""
         return list(self.supported_sample_types)
+
+    def configure_validation(self, **config_options):
+        """Configure validation options for all validators"""
+        for validator in self.validators.values():
+            if hasattr(validator, 'config'):
+                for key, value in config_options.items():
+                    if hasattr(validator.config, key):
+                        setattr(validator.config, key, value)
+
+    def get_validation_config_summary(self) -> Dict[str, Any]:
+        """Get summary of current validation configuration"""
+        config_summary = {}
+
+        for sample_type, validator in self.validators.items():
+            if hasattr(validator, 'config'):
+                config_summary[sample_type] = {
+                    'external_biosample_validation': getattr(validator.config, 'enable_external_biosample_validation',
+                                                             False),
+                    'relationship_chain_validation': getattr(validator.config, 'enable_relationship_chain_validation',
+                                                             False),
+                    'circular_reference_detection': getattr(validator.config, 'enable_circular_reference_detection',
+                                                            False),
+                    'ols_text_validation': getattr(validator.config, 'enable_ols_text_validation', False),
+                    'max_relationship_depth': getattr(validator.config, 'max_relationship_depth', 10),
+                }
+            else:
+                config_summary[sample_type] = {'basic_validation_only': True}
+
+        return config_summary
