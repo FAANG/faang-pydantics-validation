@@ -110,7 +110,6 @@ class RelationshipValidator:
     def __init__(self, config: ValidationConfig = None):
         self.config = config or ValidationConfig()
         self.biosamples_cache: Dict[str, Dict] = {}
-        self.relationship_graph: Dict[str, Dict] = {}
 
     def validate_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
         """Original organism validation - kept for backward compatibility"""
@@ -211,68 +210,6 @@ class RelationshipValidator:
 
         return results
 
-    def validate_all_relationships(self, all_samples: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
-        """
-        Validate relationships across all sample types with advanced features
-        """
-        # Build comprehensive relationship graph
-        self.relationship_graph = self._build_relationship_graph(all_samples)
-
-        # Collect all BioSample IDs
-        if self.config.enable_external_biosample_validation:
-            biosample_ids = self._collect_biosample_ids(all_samples)
-            if biosample_ids:
-                self.fetch_biosample_data(list(biosample_ids))
-
-        validation_errors = {}
-
-        # Validate each sample type
-        for sample_type, samples in all_samples.items():
-            for sample in samples:
-                sample_name = self._extract_sample_name(sample)
-                if not sample_name:
-                    continue
-
-                errors = []
-
-                # Basic relationship validation
-                basic_errors = self._validate_basic_relationships(sample, sample_type)
-                errors.extend(basic_errors)
-
-                # Circular reference detection
-                if self.config.enable_circular_reference_detection:
-                    circular_errors = self._detect_circular_references(sample_name)
-                    errors.extend(circular_errors)
-
-                # Relationship chain validation
-                if self.config.enable_relationship_chain_validation:
-                    chain_errors = self._validate_relationship_chains(sample_name)
-                    errors.extend(chain_errors)
-
-                if errors:
-                    validation_errors[sample_name] = errors
-
-        return validation_errors
-
-    def _build_relationship_graph(self, all_samples: Dict[str, List[Dict]]) -> Dict[str, Dict]:
-        """Build comprehensive relationship graph"""
-        graph = {}
-
-        for sample_type, samples in all_samples.items():
-            for sample in samples:
-                sample_name = self._extract_sample_name(sample)
-                if not sample_name:
-                    continue
-
-                graph[sample_name] = {
-                    'material': self._extract_material(sample, sample_type),
-                    'relationships': self._extract_derived_from(sample, sample_type),
-                    'sample_type': sample_type,
-                    'organism': self._extract_organism(sample)
-                }
-
-        return graph
-
     def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         """
         Validate derived_from relationships across all sample types
@@ -292,7 +229,7 @@ class RelationshipValidator:
         relationship_errors = {}
         relationships = {}
 
-        # step 1: collect all relationships and materials
+        # Step 1: collect all relationships and materials
         if all_samples:
             for sample_type, samples in all_samples.items():
                 for sample in samples:
@@ -309,7 +246,7 @@ class RelationshipValidator:
                         if derived_from:
                             relationships[sample_name]['relationships'] = derived_from
 
-        # step 2: validate relationships
+        # Step 2: validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue
@@ -376,135 +313,6 @@ class RelationshipValidator:
                 refs.append(child_of.strip())
 
         return [ref for ref in refs if ref and ref.strip()]
-
-    def _extract_organism(self, sample: Dict) -> str:
-        """Extract organism information - updated for flattened structure"""
-        # All sample types now use flat structure
-        return sample.get('Organism', '')
-
-    def _collect_biosample_ids(self, all_samples: Dict[str, List[Dict]]) -> Set[str]:
-        """Collect all BioSample IDs for batch fetching - updated for flattened structures"""
-        biosample_ids = set()
-
-        for sample_type, samples in all_samples.items():
-            for sample in samples:
-                refs = self._extract_derived_from(sample, sample_type)
-                for ref in refs:
-                    if ref and 'SAM' in ref.upper():
-                        biosample_ids.add(ref.upper())
-
-        return biosample_ids
-
-    def _validate_basic_relationships(self, sample: Dict, sample_type: str) -> List[str]:
-        """Basic relationship validation (material compatibility, existence) - updated for flattened structures"""
-        errors = []
-        sample_name = self._extract_sample_name(sample)
-        refs = self._extract_derived_from(sample, sample_type)
-
-        for ref in refs:
-            if ref == "restricted access":
-                continue
-
-            # Check if reference exists
-            if ref not in self.relationship_graph and ref not in self.biosamples_cache:
-                if ref.upper().startswith('SAM') and not self.config.treat_missing_biosamples_as_errors:
-                    continue  # Skip missing BioSamples if configured to do so
-                errors.append(f"Relationships part: no entity '{ref}' found")
-                continue
-
-            # Material compatibility
-            current_material = self._extract_material(sample, sample_type)
-            if ref in self.relationship_graph:
-                ref_material = self.relationship_graph[ref]['material']
-            else:
-                ref_material = self.biosamples_cache.get(ref, {}).get('material', '').lower()
-
-            allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
-            if ref_material and ref_material not in allowed_materials:
-                errors.append(
-                    f"Relationships part: referenced entity '{ref}' "
-                    f"does not match condition 'should be {' or '.join(allowed_materials)}'"
-                )
-
-        return errors
-
-    def _detect_circular_references(self, sample_name: str) -> List[str]:
-        """Detect circular references using simple graph traversal"""
-        errors = []
-
-        def has_cycle(current: str, visited: Set[str], path: List[str]) -> Optional[List[str]]:
-            if current in visited:
-                # Find the cycle
-                try:
-                    cycle_start = path.index(current)
-                    return path[cycle_start:] + [current]
-                except ValueError:
-                    return [current]  # Self-reference
-
-            if current not in self.relationship_graph:
-                return None
-
-            visited.add(current)
-            path.append(current)
-
-            relationships = self.relationship_graph[current].get('relationships', [])
-            for ref in relationships:
-                if ref != "restricted access":
-                    cycle = has_cycle(ref, visited.copy(), path.copy())
-                    if cycle:
-                        return cycle
-
-            return None
-
-        cycle = has_cycle(sample_name, set(), [])
-        if cycle:
-            cycle_description = " -> ".join(cycle)
-            errors.append(f"Circular reference detected: {cycle_description}")
-
-        return errors
-
-    def _validate_relationship_chains(self, sample_name: str) -> List[str]:
-        """Validate relationship chains with depth limits"""
-        errors = []
-
-        def validate_chain(current: str, depth: int = 0) -> List[str]:
-            chain_errors = []
-
-            if depth > self.config.max_relationship_depth:
-                chain_errors.append(f"Relationship chain depth exceeds maximum ({self.config.max_relationship_depth})")
-                return chain_errors
-
-            if current not in self.relationship_graph:
-                return chain_errors
-
-            current_data = self.relationship_graph[current]
-            relationships = current_data.get('relationships', [])
-
-            for ref in relationships:
-                if ref == "restricted access":
-                    continue
-
-                # Validate species consistency for organism chains
-                if (current_data.get('sample_type') == 'organism' and
-                    ref in self.relationship_graph and
-                    self.relationship_graph[ref].get('sample_type') == 'organism'):
-
-                    current_organism = current_data.get('organism', '')
-                    ref_organism = self.relationship_graph[ref].get('organism', '')
-
-                    if current_organism and ref_organism and current_organism != ref_organism:
-                        chain_errors.append(
-                            f"Species mismatch: child '{current}' ({current_organism}) "
-                            f"has different species than parent '{ref}' ({ref_organism})"
-                        )
-
-                # Recursive validation
-                deeper_errors = validate_chain(ref, depth + 1)
-                chain_errors.extend(deeper_errors)
-
-            return chain_errors
-
-        return validate_chain(sample_name)
 
     def get_organism_identifier(self, organism: Dict) -> str:
         sample_name = organism.get('Sample Name', '')
