@@ -1,42 +1,25 @@
-from pydantic import BaseModel, Field, field_validator, HttpUrl
+from pydantic import BaseModel, Field, field_validator, model_validator
 from generic_validator_classes import OntologyValidator
 from typing import List, Optional, Union, Literal
 import re
-from datetime import datetime
 
 from .standard_ruleset import SampleCoreMetadata
 
 
-class SpecimenCollectionDate(BaseModel):
-    value: Union[str, Literal["restricted access"]]
-    units: Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]
-    mandatory: Literal["mandatory"] = "mandatory"
-
-    @field_validator('value')
-    def validate_date_format(cls, v, info):
-        if v == "restricted access":
-            return v
-
-        values = info.data
-        unit = values.get('units')
-
-        if unit == "YYYY-MM-DD":
-            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
-        elif unit == "YYYY-MM":
-            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])$'
-        elif unit == "YYYY":
-            pattern = r'^[12]\d{3}$'
-        else:
-            return v
-
-        if not re.match(pattern, v):
-            raise ValueError(f"Invalid date format: {v}. Must match {unit} pattern")
-
-        return v
+class HealthStatus(BaseModel):
+    text: str
+    term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
 
 
-class GeographicLocation(BaseModel):
-    value: Literal[
+class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
+    # Required fields from flattened JSON - corrected mapping
+    sample_name: str = Field(..., alias="Sample Name")
+
+    specimen_collection_date: Union[str, Literal["restricted access"]] = Field(..., alias="Specimen Collection Date")
+    specimen_collection_date_unit: Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"] = Field(...,
+                                                                                                         alias="Unit")
+
+    geographic_location: Literal[
         "Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla",
         "Antarctica", "Antigua and Barbuda", "Arctic Ocean", "Argentina", "Armenia", "Aruba",
         "Ashmore and Cartier Islands", "Atlantic Ocean", "Australia", "Austria", "Azerbaijan", "Bahamas",
@@ -81,36 +64,102 @@ class GeographicLocation(BaseModel):
         "Former Yugoslav Republic of Macedonia", "Korea", "Macedonia", "Micronesia", "Netherlands Antilles",
         "Serbia and Montenegro", "Siam", "Swaziland", "The former Yugoslav Republic of Macedonia", "USSR",
         "Yugoslavia", "Zaire", "restricted access"
-    ]
-    mandatory: Literal["mandatory"] = "mandatory"
+    ] = Field(..., alias="Geographic Location")
 
-
-class AnimalAgeAtCollection(BaseModel):
-    value: Union[float, Literal["restricted access"]]
-    units: Literal[
+    animal_age_at_collection: Union[float, Literal["restricted access"]] = Field(..., alias="Animal Age At Collection")
+    animal_age_at_collection_unit: Literal[
         "minutes", "hours", "month", "year", "days", "weeks", "months", "years",
         "minute", "hour", "day", "week", "restricted access"
-    ]
-    mandatory: Literal["mandatory"] = "mandatory"
+    ] = Field(..., alias="Animal Age At Collection Unit")
 
-    @field_validator('value')
-    def validate_age_value(cls, v):
-        if v == "restricted access":
+    developmental_stage: str = Field(..., alias="Developmental Stage")
+    developmental_stage_term_source_id: Union[str, Literal["restricted access"]] = Field(...,
+                                                                                         alias="Developmental Stage Term Source ID")
+
+    organism_part: str = Field(..., alias="Organism Part")
+    organism_part_term_source_id: Union[str, Literal["restricted access"]] = Field(...,
+                                                                                   alias="Organism Part Term Source ID")
+
+    specimen_collection_protocol: Union[str, Literal["restricted access"]] = Field(...,
+                                                                                   alias="Specimen Collection Protocol")
+    derived_from: str = Field(..., alias="Derived From")
+
+    # Recommended fields
+    health_status: Optional[List[HealthStatus]] = Field(None, alias="Health Status",
+                                                        json_schema_extra={"recommended": True})
+
+    # Optional fields
+    fasted_status: Optional[Literal["fed", "fasted", "unknown"]] = Field(None, alias="Fasted Status")
+
+    number_of_pieces: Optional[float] = Field(None, alias="Number of Pieces")
+    number_of_pieces_unit: Optional[Literal["count"]] = Field("count", alias="Number of Pieces Unit")
+
+    specimen_volume: Optional[float] = Field(None, alias="Specimen Volume")
+    specimen_volume_unit: Optional[Literal["square centimeters", "liters", "milliliters"]] = Field(None,
+                                                                                                   alias="Specimen Volume Unit")
+
+    specimen_size: Optional[float] = Field(None, alias="Specimen Size")
+    specimen_size_unit: Optional[Literal[
+        "meters", "centimeters", "millimeters",
+        "square meters", "square centimeters", "square millimeters"
+    ]] = Field(None, alias="Specimen Size Unit")
+
+    specimen_weight: Optional[float] = Field(None, alias="Specimen Weight")
+    specimen_weight_unit: Optional[Literal["grams", "kilograms"]] = Field(None, alias="Specimen Weight Unit")
+
+    specimen_picture_url: Optional[List[str]] = Field(None, alias="Specimen Picture URL")
+
+    gestational_age_at_sample_collection: Optional[float] = Field(None, alias="Gestational Age At Sample Collection")
+    gestational_age_at_sample_collection_unit: Optional[Literal["days", "weeks", "day", "week"]] = Field(None,
+                                                                                                         alias="Gestational Age At Sample Collection Unit")
+
+    average_incubation_temperature: Optional[float] = Field(None, alias="Average Incubation temperature")
+    average_incubation_temperature_unit: Optional[Literal["degrees celsius"]] = Field("degrees celsius",
+                                                                                      alias="Average Incubation temperature Unit")
+
+    average_incubation_humidity: Optional[float] = Field(None, alias="Average Incubation Humidity")
+    average_incubation_humidity_unit: Optional[Literal["%"]] = Field("%", alias="Average Incubation Humidity Unit")
+
+    embryonic_stage: Optional[Literal[
+        "Early cleavage", "During cleavage", "Late cleavage",
+        "1", "2", "3", "4", "5", "6", "7", "7 to 8-", "8", "9",
+        "9+ to 10-", "10", "11", "12", "13", "13+ to 14-", "14",
+        "14+ to 15-", "15", "16", "17", "18", "19", "20", "21", "22", "23",
+        "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+        "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"
+    ]] = Field(None, alias="Embryonic Stage")
+    embryonic_stage_unit: Optional[Literal["stage Hamburger Hamilton"]] = Field("stage Hamburger Hamilton",
+                                                                                alias="Embryonic Stage Unit")
+
+    @field_validator('sample_name')
+    def validate_sample_name(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("Sample Name is required and cannot be empty")
+        return v.strip()
+
+    @field_validator('specimen_collection_date')
+    def validate_specimen_collection_date_format(cls, v, info):
+        if not v or v in ["not applicable", "not collected", "not provided", "restricted access", ""]:
             return v
 
-        if isinstance(v, (int, float)) and v < 0:
-            raise ValueError("Age must be non-negative")
+        values = info.data
+        unit = values.get('Unit') or values.get('specimen_collection_date_unit')
+
+        if unit == "YYYY-MM-DD":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
+        elif unit == "YYYY-MM":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])$'
+        elif unit == "YYYY":
+            pattern = r'^[12]\d{3}$'
+        else:
+            return v
+
+        if not re.match(pattern, v):
+            raise ValueError(f"Invalid specimen collection date format: {v}. Must match {unit} pattern")
 
         return v
 
-
-class DevelopmentalStage(BaseModel):
-    text: str
-    term: Union[str, Literal["restricted access"]]
-    mandatory: Literal["mandatory"] = "mandatory"
-    ontology_name: Optional[Literal["EFO", "UBERON"]] = None
-
-    @field_validator('term')
+    @field_validator('developmental_stage_term_source_id')
     def validate_developmental_stage_term(cls, v, info):
         if v == "restricted access":
             return v
@@ -118,74 +167,29 @@ class DevelopmentalStage(BaseModel):
         # Convert underscore to colon if needed
         term_with_colon = v.replace('_', ':', 1) if '_' in v else v
 
-        # Determine ontology based on term prefix or ontology_name
-        values = info.data
-        ontology_name = values.get('ontology_name')
-
+        # Determine ontology based on term prefix
         if term_with_colon.startswith("EFO:"):
             ontology_name = "EFO"
+            allowed_classes = ["EFO:0000399"]
         elif term_with_colon.startswith("UBERON:"):
             ontology_name = "UBERON"
-        elif not ontology_name:
-            # Default to EFO if no clear indication
-            ontology_name = "EFO"
+            allowed_classes = ["UBERON:0000105"]
+        else:
+            raise ValueError(f"Developmental stage term '{v}' should be from EFO or UBERON ontology")
 
         # Ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name=ontology_name,
-            allowed_classes=["EFO:0000399", "UBERON:0000105"]
+            allowed_classes=allowed_classes
         )
         if res.errors:
             raise ValueError(f"Developmental stage term invalid: {res.errors}")
 
         return v
 
-
-class HealthStatusAtCollection(BaseModel):
-    text: str
-    term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
-    mandatory: Literal["recommended"] = "recommended"
-    ontology_name: Optional[Literal["PATO", "EFO"]] = None
-
-    @field_validator('term')
-    def validate_health_status_term(cls, v, info):
-        if v in ["not applicable", "not collected", "not provided", "restricted access"]:
-            return v
-
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1) if '_' in v else v
-
-        # Determine ontology based on term prefix
-        values = info.data
-        ontology_name = values.get('ontology_name', "PATO")
-
-        if term_with_colon.startswith("PATO:"):
-            ontology_name = "PATO"
-        elif term_with_colon.startswith("EFO:"):
-            ontology_name = "EFO"
-
-        # Ontology validation
-        ov = OntologyValidator(cache_enabled=True)
-        res = ov.validate_ontology_term(
-            term=term_with_colon,
-            ontology_name=ontology_name,
-            allowed_classes=["PATO:0000461", "EFO:0000408"]
-        )
-        if res.errors:
-            raise ValueError(f"Health status term invalid: {res.errors}")
-
-        return v
-
-
-class OrganismPart(BaseModel):
-    text: str
-    term: Union[str, Literal["restricted access"]]
-    mandatory: Literal["mandatory"] = "mandatory"
-    ontology_name: Optional[Literal["UBERON", "BTO"]] = None
-
-    @field_validator('term')
+    @field_validator('organism_part_term_source_id')
     def validate_organism_part_term(cls, v, info):
         if v == "restricted access":
             return v
@@ -194,221 +198,144 @@ class OrganismPart(BaseModel):
         term_with_colon = v.replace('_', ':', 1) if '_' in v else v
 
         # Determine ontology based on term prefix
-        values = info.data
-        ontology_name = values.get('ontology_name')
-
         if term_with_colon.startswith("UBERON:"):
             ontology_name = "UBERON"
+            allowed_classes = ["UBERON:0001062"]
         elif term_with_colon.startswith("BTO:"):
             ontology_name = "BTO"
-        elif not ontology_name:
-            # Default to UBERON if no clear indication
-            ontology_name = "UBERON"
+            allowed_classes = ["BTO:0000042"]
+        else:
+            raise ValueError(f"Organism part term '{v}' should be from UBERON or BTO ontology")
 
         # Ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name=ontology_name,
-            allowed_classes=["UBERON:0001062", "BTO:0000042"]
+            allowed_classes=allowed_classes
         )
         if res.errors:
             raise ValueError(f"Organism part term invalid: {res.errors}")
 
         return v
 
-
-class SpecimenCollectionProtocol(BaseModel):
-    value: Union[str, Literal["restricted access"]]
-    mandatory: Literal["mandatory"] = "mandatory"
-
-    @field_validator('value')
+    @field_validator('specimen_collection_protocol')
     def validate_protocol_url(cls, v):
-        if v == "restricted access":
+        if not v or v == "restricted access":
             return v
 
-        # Validate URL format
         if not (v.startswith('http://') or v.startswith('https://') or v.startswith('ftp://')):
             raise ValueError("Protocol must be a valid URL starting with http://, https://, or ftp://")
 
         return v
 
+    @field_validator('animal_age_at_collection', mode='before')
+    def validate_animal_age(cls, v):
+        if v == "restricted access" or v == "":
+            return v
 
-class FastedStatus(BaseModel):
-    value: Literal["fed", "fasted", "unknown"]
-    mandatory: Literal["optional"] = "optional"
+        try:
+            age_val = float(v)
+            if age_val < 0:
+                raise ValueError("Animal age must be non-negative")
+            return age_val
+        except ValueError as e:
+            if "non-negative" in str(e):
+                raise
+            raise ValueError(f"Animal age must be a valid number, got '{v}'")
 
-
-class NumberOfPieces(BaseModel):
-    value: float
-    units: Literal["count"] = "count"
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_count(cls, v):
-        if v < 0:
-            raise ValueError("Number of pieces must be non-negative")
-        return v
-
-
-class SpecimenVolume(BaseModel):
-    value: float
-    units: Literal["square centimeters", "liters", "milliliters"]
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_volume(cls, v):
-        if v < 0:
-            raise ValueError("Volume must be non-negative")
-        return v
-
-
-class SpecimenSize(BaseModel):
-    value: float
-    units: Literal[
-        "meters", "centimeters", "millimeters",
-        "square meters", "square centimeters", "square millimeters"
-    ]
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_size(cls, v):
-        if v < 0:
-            raise ValueError("Size must be non-negative")
-        return v
-
-
-class SpecimenWeight(BaseModel):
-    value: float
-    units: Literal["grams", "kilograms"]
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_weight(cls, v):
-        if v < 0:
-            raise ValueError("Weight must be non-negative")
-        return v
-
-
-class SpecimenPictureUrl(BaseModel):
-    value: str
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_picture_url(cls, v):
-        if not (v.startswith('http://') or v.startswith('https://')):
-            raise ValueError("Picture URL must be a valid URL starting with http:// or https://")
-        return v
-
-
-class GestationalAgeAtSampleCollection(BaseModel):
-    value: float
-    units: Literal["days", "weeks", "day", "week"]
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_gestational_age(cls, v):
-        if v < 0:
-            raise ValueError("Gestational age must be non-negative")
-        return v
-
-
-class AverageIncubationTemperature(BaseModel):
-    value: float
-    units: Literal["degrees celsius"] = "degrees celsius"
-    mandatory: Literal["optional"] = "optional"
-
-
-class AverageIncubationHumidity(BaseModel):
-    value: float
-    units: Literal["%"] = "%"
-    mandatory: Literal["optional"] = "optional"
-
-    @field_validator('value')
-    def validate_humidity(cls, v):
-        if not (0 <= v <= 100):
-            raise ValueError("Humidity must be between 0 and 100 percent")
-        return v
-
-
-class EmbryonicStage(BaseModel):
-    value: Literal[
-        "Early cleavage", "During cleavage", "Late cleavage",
-        "1", "2", "3", "4", "5", "6", "7", "7 to 8-", "8", "9",
-        "9+ to 10-", "10", "11", "12", "13", "13+ to 14-", "14",
-        "14+ to 15-", "15", "16", "17", "18", "19", "20", "21", "22", "23",
-        "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
-        "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46"
-    ]
-    units: Literal["stage Hamburger Hamilton"] = "stage Hamburger Hamilton"
-    mandatory: Literal["optional"] = "optional"
-
-
-class DerivedFrom(BaseModel):
-    value: str
-    mandatory: Literal["mandatory"] = "mandatory"
-
-    @field_validator('value')
-    def validate_derived_from(cls, v):
+    @field_validator('derived_from')
+    def validate_derived_from_value(cls, v):
         if not v or v.strip() == "":
             raise ValueError("Derived from value is required and cannot be empty")
         return v.strip()
 
+    @field_validator('health_status')
+    def validate_health_status_terms(cls, v):
+        if not v:
+            return v
 
-class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
-    # Required nested fields from JSON schema
-    specimen_collection_date: SpecimenCollectionDate
-    geographic_location: GeographicLocation
-    animal_age_at_collection: AnimalAgeAtCollection
-    developmental_stage: DevelopmentalStage
-    organism_part: OrganismPart
-    specimen_collection_protocol: SpecimenCollectionProtocol
-    derived_from: DerivedFrom
+        ov = OntologyValidator(cache_enabled=True)
 
-    # Recommended fields (items within are recommended)
-    health_status_at_collection: Optional[List[HealthStatusAtCollection]] = Field(
-        None, json_schema_extra={"recommended": True}
+        for status in v:
+            if status.term in ["not applicable", "not collected", "not provided", "restricted access"]:
+                continue
+
+            # Convert underscore to colon if needed
+            term_with_colon = status.term.replace('_', ':', 1) if '_' in status.term else status.term
+
+            # Determine ontology based on term prefix
+            if term_with_colon.startswith("PATO:"):
+                ontology_name = "PATO"
+                allowed_classes = ["PATO:0000461"]
+            elif term_with_colon.startswith("EFO:"):
+                ontology_name = "EFO"
+                allowed_classes = ["EFO:0000408"]
+            else:
+                raise ValueError(f"Health status term '{status.term}' should be from PATO or EFO ontology")
+
+            # Ontology validation
+            res = ov.validate_ontology_term(
+                term=term_with_colon,
+                ontology_name=ontology_name,
+                allowed_classes=allowed_classes
+            )
+            if res.errors:
+                raise ValueError(f"Health status term invalid: {res.errors}")
+
+        return v
+
+    # Validate numeric fields
+    @field_validator('number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
+                     'gestational_age_at_sample_collection', 'average_incubation_temperature',
+                     'average_incubation_humidity', mode='before')
+    def validate_numeric_fields(cls, v):
+        if not v or v == "" or v == "restricted access":
+            return None
+
+        try:
+            numeric_val = float(v)
+            if numeric_val < 0:
+                raise ValueError("Numeric value must be non-negative")
+            return numeric_val
+        except ValueError as e:
+            if "non-negative" in str(e):
+                raise
+            raise ValueError(f"Value must be a valid number, got '{v}'")
+
+    @field_validator('average_incubation_humidity')
+    def validate_humidity_range(cls, v):
+        if v is None:
+            return v
+
+        if not (0 <= v <= 100):
+            raise ValueError("Humidity must be between 0 and 100 percent")
+        return v
+
+    @field_validator('specimen_picture_url')
+    def validate_picture_urls(cls, v):
+        if not v:
+            return v
+
+        validated_urls = []
+        for url in v:
+            if url and url.strip():
+                if not (url.startswith('http://') or url.startswith('https://')):
+                    raise ValueError("Picture URL must be a valid URL starting with http:// or https://")
+                validated_urls.append(url.strip())
+
+        return validated_urls if validated_urls else None
+
+    # Helper method to convert empty strings to None for optional fields
+    @field_validator(
+        'fasted_status', 'number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
+        'gestational_age_at_sample_collection', 'average_incubation_temperature', 'average_incubation_humidity',
+        'embryonic_stage', 'specimen_picture_url', mode='before'
     )
-
-    # Optional fields
-    fasted_status: Optional[FastedStatus] = None
-    number_of_pieces: Optional[NumberOfPieces] = None
-    specimen_volume: Optional[SpecimenVolume] = None
-    specimen_size: Optional[SpecimenSize] = None
-    specimen_weight: Optional[SpecimenWeight] = None
-    specimen_picture_url: Optional[List[SpecimenPictureUrl]] = None
-    gestational_age_at_sample_collection: Optional[GestationalAgeAtSampleCollection] = None
-    average_incubation_temperature: Optional[AverageIncubationTemperature] = None
-    average_incubation_humidity: Optional[AverageIncubationHumidity] = None
-    embryonic_stage: Optional[EmbryonicStage] = None
-
-    # Custom field to extract sample name from samples_core
-    sample_name: Optional[str] = Field(None, exclude=True)
-
-    def __init__(self, **data):
-        # Extract sample name from samples_core if present
-        if 'samples_core' in data and 'sample_description' in data['samples_core']:
-            sample_desc = data['samples_core']['sample_description']
-            if isinstance(sample_desc, dict) and 'value' in sample_desc:
-                data['sample_name'] = sample_desc['value']
-
-        # Extract custom sample_name if present (priority over samples_core)
-        if 'custom' in data and 'sample_name' in data['custom']:
-            sample_name_data = data['custom']['sample_name']
-            if isinstance(sample_name_data, dict) and 'value' in sample_name_data:
-                data['sample_name'] = sample_name_data['value']
-
-        # Ensure we have a sample name from somewhere
-        if 'sample_name' not in data or not data['sample_name']:
-            raise ValueError("Sample name is required but could not be extracted from data structure")
-
-        super().__init__(**data)
-
-    @field_validator('sample_name')
-    def validate_sample_name(cls, v):
-        if not v or v.strip() == "":
-            raise ValueError("Sample Name is required and cannot be empty")
-        return v.strip()
+    def convert_empty_strings_to_none(cls, v):
+        if v is not None and (v == "" or (isinstance(v, list) and all(item == "" for item in v))):
+            return None
+        return v
 
     class Config:
         populate_by_name = True
