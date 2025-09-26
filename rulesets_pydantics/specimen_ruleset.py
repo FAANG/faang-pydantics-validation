@@ -330,7 +330,10 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
     @field_validator(
         'fasted_status', 'number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
         'gestational_age_at_sample_collection', 'average_incubation_temperature', 'average_incubation_humidity',
-        'embryonic_stage', 'specimen_picture_url', mode='before'
+        'embryonic_stage', 'specimen_picture_url',
+        'number_of_pieces_unit', 'specimen_volume_unit', 'specimen_size_unit', 'specimen_weight_unit',
+        'gestational_age_at_sample_collection_unit', 'average_incubation_temperature_unit',
+        'average_incubation_humidity_unit', 'embryonic_stage_unit', mode='before'
     )
     def convert_empty_strings_to_none(cls, v):
         if v is not None and (v == "" or (isinstance(v, list) and all(item == "" for item in v))):
