@@ -220,6 +220,14 @@ class RelationshipValidator:
         relationship_errors = {}
         relationships = {}
 
+        print("=== DEBUG: Available samples ===")
+        if all_samples:
+            for sample_type, samples in all_samples.items():
+                sample_names = [s.get('Sample Name') for s in samples]
+                print(f"{sample_type}: {sample_names}")
+        else:
+            print("all_samples is None!")
+        print("================================")
         # Step 1: collect all relationships and materials
         if all_samples:
             for sample_type, samples in all_samples.items():

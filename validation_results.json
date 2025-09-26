@@ -10,7 +10,7 @@
       "valid_samples": 5,
       "invalid_samples": 0,
       "warnings": 2,
-      "relationship_errors": 3
+      "relationship_errors": 2
     },
     "results_by_type": {
       "organism": {
@@ -174,7 +174,7 @@
           {
             "index": 1,
             "sample_name": "OCU_INRAE_S2",
-            "model": "sample_description='Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)' material='organoid' term_source_id='NCIT_C172259' project='FAANG' secondary_project=None availability=None same_as=None sample_name='OCU_INRAE_S2' organ_model='Caecum' organ_model_term_source_id='UBERON:0001153' freezing_method='fresh' organoid_passage=2.0 organoid_passage_unit='passages' organoid_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' type_of_organoid_culture='2D' growth_environment='matrigel' growth_environment_unit='1' derived_from='OCU_INRAE_PND18_S19' organ_part_model='Caecum epithelium' organ_part_model_term_source_id='UBERON:0005636' freezing_date='restricted access' freezing_date_unit='restricted access' freezing_protocol='restricted access' number_of_frozen_cells=None number_of_frozen_cells_unit=None organoid_culture_and_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' organoid_morphology=None stored_oxygen_level=None stored_oxygen_level_unit=None incubation_temperature=None incubation_temperature_unit=None",
+            "model": "sample_description='Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)' material='organoid' term_source_id='NCIT_C172259' project='FAANG' secondary_project=None availability=None same_as=None sample_name='OCU_INRAE_S2' organ_model='Caecum' organ_model_term_source_id='UBERON:0001153' freezing_method='fresh' organoid_passage=2.0 organoid_passage_unit='passages' organoid_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' type_of_organoid_culture='2D' growth_environment='matrigel' growth_environment_unit='1' derived_from='OCU_INRAE_PND18_S1' organ_part_model='Caecum epithelium' organ_part_model_term_source_id='UBERON:0005636' freezing_date='restricted access' freezing_date_unit='restricted access' freezing_protocol='restricted access' number_of_frozen_cells=None number_of_frozen_cells_unit=None organoid_culture_and_passage_protocol='https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf' organoid_morphology=None stored_oxygen_level=None stored_oxygen_level_unit=None incubation_temperature=None incubation_temperature_unit=None",
             "data": {
               "Sample Name": "OCU_INRAE_S2",
               "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
@@ -206,12 +206,10 @@
               "Stored Oxygen Level Unit": "",
               "Incubation Temperature": "",
               "Incubation Temperature Unit": "",
-              "Derived From": "OCU_INRAE_PND18_S19"
+              "Derived From": "OCU_INRAE_PND18_S1"
             },
             "warnings": [],
-            "relationship_errors": [
-              "Relationships part: no entity 'OCU_INRAE_PND18_S19' found"
-            ]
+            "relationship_errors": []
           }
         ],
         "invalid_organoids": [],
@@ -220,7 +218,7 @@
           "valid": 2,
           "invalid": 0,
           "warnings": 0,
-          "relationship_errors": 1
+          "relationship_errors": 0
         }
       },
       "specimen_from_organism": {
@@ -294,7 +292,7 @@
     },
     "reports_by_type": {
       "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 2\nInvalid organisms: 0\nOrganisms with warnings: 2\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n  RELATIONSHIP: Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent",
-      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
+      "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 2\nInvalid organoids: 0\nOrganoids with warnings: 0",
       "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nSpecimen_From_Organism: OCU_INRAE_PND18_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found"
     }
   },
@@ -513,7 +511,7 @@
           "relationships": [
             {
               "type": "derived from",
-              "target": "OCU_INRAE_PND18_S19"
+              "target": "OCU_INRAE_PND18_S1"
             }
           ]
         }

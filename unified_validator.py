@@ -48,6 +48,7 @@ class UnifiedFAANGValidator:
         }
 
         # Process each sample type
+        print("Sample types in data:", list(data.keys()))
         for sample_type, samples in data.items():
             if sample_type not in self.supported_sample_types:
                 print(f"Warning: Sample type '{sample_type}' is not supported. Skipping.")
