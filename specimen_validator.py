@@ -93,9 +93,9 @@ class SpecimenValidator(BaseValidator):
                 specimen['field_errors'].update(date_unit_errors)
                 results['summary']['invalid'] += len(date_unit_errors)
 
-        # Advanced relationship validation
+        # Simplified relationship validation using the generic method
         if validate_relationships and all_samples:
-            relationship_errors = self.relationship_validator.validate_all_relationships(all_samples)
+            relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
             # Add relationship errors to specimens
             for specimen in results['valid_specimen_from_organisms']:
@@ -151,11 +151,6 @@ class SpecimenValidator(BaseValidator):
                     ]
 
         return errors
-
-    def _extract_sample_name(self, sample: Dict) -> str:
-        """Extract sample name from flattened structure"""
-        # For flattened structure, sample name is directly available
-        return sample.get('Sample Name', '')
 
     def export_to_biosample_format(self, model: FAANGSpecimenFromOrganismSample) -> Dict[str, Any]:
         """Export specimen model to BioSamples JSON format - updated for flattened model"""
