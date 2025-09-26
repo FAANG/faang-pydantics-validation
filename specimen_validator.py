@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Type, Optional, Tuple
 from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import (
-    OntologyValidator, EnhancedRelationshipValidator,
+    OntologyValidator, RelationshipValidator,
     AdvancedValidationHelper, ValidationConfig
 )
 from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
@@ -13,7 +13,7 @@ class SpecimenValidator(BaseValidator):
     def _initialize_validators(self):
         self.config = ValidationConfig()
         self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.relationship_validator = EnhancedRelationshipValidator(self.config)
+        self.relationship_validator = RelationshipValidator(self.config)
         self.validation_helper = AdvancedValidationHelper()
 
     def get_model_class(self) -> Type[BaseModel]:
