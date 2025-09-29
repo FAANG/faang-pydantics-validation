@@ -112,7 +112,6 @@ class RelationshipValidator:
         self.biosamples_cache: Dict[str, Dict] = {}
 
     def validate_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
-        """Original organism validation - kept for backward compatibility"""
         results = {}
 
         organism_map = {}
@@ -133,7 +132,7 @@ class RelationshipValidator:
                 if parent_id and parent_id.strip() and parent_id.startswith('SAM'):
                     biosample_ids.add(parent_id.strip())
 
-        if biosample_ids and self.config.enable_external_biosample_validation:
+        if biosample_ids:
             self.fetch_biosample_data(list(biosample_ids))
 
         # organism relationships
@@ -210,13 +209,9 @@ class RelationshipValidator:
 
         return results
 
+    # handles both 'Derived From' and 'Child Of' relationships
+    # Uses ALLOWED_RELATIONSHIPS from constants.py
     def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
-        """
-        Validate derived_from relationships across all sample types
-        This method handles both 'Derived From' and 'Child Of' relationships
-        Uses ALLOWED_RELATIONSHIPS from constants.py
-        """
-
         relationship_errors = {}
         relationships = {}
 
@@ -320,7 +315,6 @@ class RelationshipValidator:
         return 'unknown'
 
     def fetch_biosample_data(self, biosample_ids: List[str]):
-        """Fetch BioSample data synchronously with proper error handling"""
         for sample_id in biosample_ids:
             if sample_id in self.biosamples_cache:
                 continue
@@ -330,33 +324,29 @@ class RelationshipValidator:
                 response = requests.get(url, timeout=self.config.api_timeout)
                 if response.status_code == 200:
                     data = response.json()
-                    if 'error' not in data:
-                        cache_entry = self._parse_biosample_response(data, sample_id)
-                        self.biosamples_cache[sample_id] = cache_entry
+
+                    cache_entry = {}
+
+                    characteristics = data.get('characteristics', {})
+                    if 'organism' in characteristics:
+                        cache_entry['organism'] = characteristics['organism'][0].get('text', '')
+
+                    if 'material' in characteristics:
+                        cache_entry['material'] = characteristics['material'][0].get('text', '')
+
+                    # relationships
+                    relationships = []
+                    for rel in data.get('relationships', []):
+                        if rel['source'] == sample_id and rel['type'] in ['child of', 'derived from']:
+                            relationships.append(rel['target'])
+                    cache_entry['relationships'] = relationships
+
+                    self.biosamples_cache[sample_id] = cache_entry
                 else:
                     print(f"BioSample {sample_id} returned status {response.status_code}")
             except Exception as e:
                 print(f"Error fetching BioSample {sample_id}: {e}")
 
-    def _parse_biosample_response(self, data: Dict, sample_id: str) -> Dict:
-        """Parse BioSample API response"""
-        cache_entry = {}
-
-        characteristics = data.get('characteristics', {})
-        if 'organism' in characteristics:
-            cache_entry['organism'] = characteristics['organism'][0].get('text', '')
-
-        if 'material' in characteristics:
-            cache_entry['material'] = characteristics['material'][0].get('text', '')
-
-        # relationships
-        relationships = []
-        for rel in data.get('relationships', []):
-            if rel['source'] == sample_id and rel['type'] in ['child of', 'derived from']:
-                relationships.append(rel['target'])
-        cache_entry['relationships'] = relationships
-
-        return cache_entry
 
 
 class AdvancedValidationHelper:
