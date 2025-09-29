@@ -7,7 +7,6 @@ from .standard_ruleset import SampleCoreMetadata
 
 class HealthStatus(BaseModel):
     text: str
-    ontology_name: Optional[Literal["PATO", "EFO"]] = None
     term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
 
     @field_validator('term')
@@ -15,13 +14,18 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        # determine which ontology to use (PATO or EFO)
+        # determine ontology to use (PATO or EFO)
+        if v.startswith("EFO:"):
+            ontology_name = "EFO"
+        else:
+            ontology_name = "PATO"
+
+
         ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name', "PATO")
+
         res = ov.validate_ontology_term(
             term=v,
-            ontology_name=ont,
+            ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"]
         )
         if res.errors:
@@ -310,7 +314,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
         return v
 
-    # Helper method to convert empty strings to None for optional fields
+    # convert empty strings to None for optional fields
     @field_validator(
         'birth_date_unit', 'birth_location_latitude_unit', 'birth_location_longitude_unit',
         'birth_weight_unit', 'placental_weight_unit', 'pregnancy_length_unit',

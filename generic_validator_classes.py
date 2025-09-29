@@ -94,7 +94,6 @@ class BreedSpeciesValidator:
 
 
 class RelationshipValidator:
-
     def __init__(self):
         self.biosamples_cache: Dict[str, Dict] = {}
 
