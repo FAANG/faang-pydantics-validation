@@ -8,16 +8,11 @@ from .standard_ruleset import SampleCoreMetadata
 
 
 class FAANGOrganoidSample(SampleCoreMetadata):
-    # Required core fields from flattened JSON
+    # required fields
     sample_name: str = Field(..., alias="Sample Name")
-    material: Literal["organoid"] = Field(..., alias="Material")
-    # term_source_id: Union[str, Literal["restricted access"]] = Field(..., alias="Term Source ID") koosum can be removed
-
-    # Required organoid-specific fields - now flattened
     organ_model: str = Field(..., alias="Organ Model")
     organ_model_term_source_id: Union[str, Literal["restricted access"]] = Field(...,
                                                                                  alias="Organ Model Term Source ID")
-
     freezing_method: Literal[
         "ambient temperature", "cut slide", "fresh", "frozen, -70 freezer",
         "frozen, -150 freezer", "frozen, liquid nitrogen", "frozen, vapor phase",
@@ -33,28 +28,27 @@ class FAANGOrganoidSample(SampleCoreMetadata):
     growth_environment_unit: Optional[str] = Field(None, alias="Growth Environment Unit")
     derived_from: str = Field(..., alias="Derived From")
 
-    # Optional organoid fields - now flattened
+    # Optional fields
     organ_part_model: Optional[str] = Field(None, alias="Organ Part Model")
     organ_part_model_term_source_id: Optional[Union[str, Literal["restricted access"]]] = Field(None,
                                                                                                 alias="Organ Part Model Term Source ID")
-
-    # Conditional fields (required if freezing_method != "fresh")
-    freezing_date: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Date")
-    freezing_date_unit: Optional[Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]] = Field(None,
-                                                                                                        alias="Unit")
-    freezing_protocol: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Protocol")
-
-    # Additional optional fields
     number_of_frozen_cells: Optional[float] = Field(None, alias="Number Of Frozen Cells")
     number_of_frozen_cells_unit: Optional[Literal["organoids"]] = Field("organoids", alias="Number Of Frozen Cells Unit")
     organoid_culture_and_passage_protocol: Optional[Union[str, Literal["restricted access"]]] = Field(None,
                                                                                                       alias="Organoid Culture And Passage Protocol")
     organoid_morphology: Optional[str] = Field(None, alias="Organoid Morphology")
 
-    stored_oxygen_level: Optional[str] = Field(None, alias="Stored Oxygen Level")
-    stored_oxygen_level_unit: Optional[str] = Field(None, alias="Stored Oxygen Level Unit")
-    incubation_temperature: Optional[str] = Field(None, alias="Incubation Temperature")
-    incubation_temperature_unit: Optional[str] = Field(None, alias="Incubation Temperature Unit")
+    # stored_oxygen_level: Optional[str] = Field(None, alias="Stored Oxygen Level")
+    # stored_oxygen_level_unit: Optional[str] = Field(None, alias="Stored Oxygen Level Unit")
+    # incubation_temperature: Optional[str] = Field(None, alias="Incubation Temperature")
+    # incubation_temperature_unit: Optional[str] = Field(None, alias="Incubation Temperature Unit")
+
+    # conditional fields (required if freezing_method != "fresh")
+    freezing_date: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Date")
+    freezing_date_unit: Optional[Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]] = Field(None,
+                                                                                                        alias="Unit")
+    freezing_protocol: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Protocol")
+
 
     @field_validator('sample_name')
     def validate_sample_name(cls, v):
@@ -216,9 +210,7 @@ class FAANGOrganoidSample(SampleCoreMetadata):
         'secondary_project', 'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
         'freezing_date', 'freezing_date_unit', 'freezing_protocol', 'number_of_frozen_cells_unit',
         'organoid_culture_and_passage_protocol', 'organoid_morphology',
-        'growth_environment_unit', 'stored_oxygen_level', 'stored_oxygen_level_unit',
-        'incubation_temperature', 'incubation_temperature_unit', mode='before'
-    )
+        'growth_environment_unit', mode='before')
     def convert_empty_strings_to_none(cls, v):
         if v is not None and v.strip() == "":
             return None
