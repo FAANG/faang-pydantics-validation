@@ -1,7 +1,6 @@
 from typing import List, Dict, Any, Optional, Set
 from pydantic import BaseModel, Field
 import requests
-import datetime
 
 from constants import ELIXIR_VALIDATOR_URL, SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS
 
@@ -11,17 +10,6 @@ class ValidationResult(BaseModel):
     warnings: List[str] = Field(default_factory=list)
     field_path: str
     value: Any = None
-
-
-class ValidationConfig(BaseModel):
-    """Configuration for validation behavior"""
-    enable_external_biosample_validation: bool = True
-    enable_relationship_chain_validation: bool = True
-    enable_circular_reference_detection: bool = True
-    enable_ols_text_validation: bool = True
-    max_relationship_depth: int = 10
-    api_timeout: int = 10
-    treat_missing_biosamples_as_errors: bool = True
 
 
 class OntologyValidator:
@@ -107,8 +95,7 @@ class BreedSpeciesValidator:
 
 class RelationshipValidator:
 
-    def __init__(self, config: ValidationConfig = None):
-        self.config = config or ValidationConfig()
+    def __init__(self):
         self.biosamples_cache: Dict[str, Dict] = {}
 
     def validate_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
@@ -321,7 +308,7 @@ class RelationshipValidator:
 
             try:
                 url = f"https://www.ebi.ac.uk/biosamples/samples/{sample_id}"
-                response = requests.get(url, timeout=self.config.api_timeout)
+                response = requests.get(url, timeout=10)
                 if response.status_code == 200:
                     data = response.json()
 

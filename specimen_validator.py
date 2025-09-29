@@ -1,19 +1,15 @@
 from typing import List, Dict, Any, Type, Optional, Tuple
 from pydantic import BaseModel
 from base_validator import BaseValidator
-from generic_validator_classes import (
-    OntologyValidator, RelationshipValidator,
-    ValidationConfig
-)
+from generic_validator_classes import (OntologyValidator, RelationshipValidator)
 from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
 
 
 class SpecimenValidator(BaseValidator):
 
     def _initialize_validators(self):
-        self.config = ValidationConfig()
         self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.relationship_validator = RelationshipValidator(self.config)
+        self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGSpecimenFromOrganismSample
@@ -57,40 +53,6 @@ class SpecimenValidator(BaseValidator):
 
         # Base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
-
-        # Enhanced validation for valid specimens
-        for specimen in results['valid_specimen_from_organisms']:
-            sample_name = specimen['sample_name']
-            sample_data = specimen['data']
-
-            # Check recommended fields
-            recommended_warnings = self._check_recommended_fields(sample_data)
-            if recommended_warnings:
-                if 'warnings' not in specimen:
-                    specimen['warnings'] = []
-                specimen['warnings'].extend(recommended_warnings)
-                results['summary']['warnings'] += len(recommended_warnings)
-
-            # Check missing value appropriateness
-            missing_value_issues = self._check_missing_value_appropriateness(sample_data)
-            if missing_value_issues['errors']:
-                if 'field_errors' not in specimen:
-                    specimen['field_errors'] = {}
-                specimen['field_errors'].update(missing_value_issues['errors'])
-                results['summary']['invalid'] += len(missing_value_issues['errors'])
-            if missing_value_issues['warnings']:
-                if 'warnings' not in specimen:
-                    specimen['warnings'] = []
-                specimen['warnings'].extend(missing_value_issues['warnings'])
-                results['summary']['warnings'] += len(missing_value_issues['warnings'])
-
-            # Check date-unit consistency
-            date_unit_errors = self._check_date_unit_consistency(sample_data)
-            if date_unit_errors:
-                if 'field_errors' not in specimen:
-                    specimen['field_errors'] = {}
-                specimen['field_errors'].update(date_unit_errors)
-                results['summary']['invalid'] += len(date_unit_errors)
 
         # Simplified relationship validation using the generic method
         if validate_relationships and all_samples:
