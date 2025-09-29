@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import (
     OntologyValidator, RelationshipValidator,
-    AdvancedValidationHelper, ValidationConfig
+    ValidationConfig
 )
 from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
 
@@ -14,7 +14,6 @@ class SpecimenValidator(BaseValidator):
         self.config = ValidationConfig()
         self.ontology_validator = OntologyValidator(cache_enabled=True)
         self.relationship_validator = RelationshipValidator(self.config)
-        self.validation_helper = AdvancedValidationHelper()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGSpecimenFromOrganismSample
@@ -106,51 +105,6 @@ class SpecimenValidator(BaseValidator):
 
         return results
 
-    def _check_recommended_fields(self, sample_data: Dict[str, Any]) -> List[str]:
-        """Check for missing recommended fields - updated for flattened structure"""
-        recommended_fields = ['Health Status']  # Using the flat JSON field name
-        return self.validation_helper.check_recommended_fields(sample_data, recommended_fields)
-
-    def _check_missing_value_appropriateness(self, sample_data: Dict[str, Any]) -> Dict[str, List[str]]:
-        """Check if missing values are appropriate for field types - updated for flattened structure"""
-        field_classifications = {
-            'Specimen Collection Date': 'mandatory',
-            'Geographic Location': 'mandatory',
-            'Animal Age At Collection': 'mandatory',
-            'Developmental Stage': 'mandatory',
-            'Organism Part': 'mandatory',
-            'Specimen Collection Protocol': 'mandatory',
-            'Derived From': 'mandatory',
-            'Health Status': 'recommended',
-        }
-        return self.validation_helper.check_missing_value_appropriateness(sample_data, field_classifications)
-
-    def _check_date_unit_consistency(self, sample_data: Dict[str, Any]) -> Dict[str, List[str]]:
-        """Check date-unit consistency - updated for flattened structure"""
-        import datetime
-
-        errors = {}
-
-        # Check specimen collection date consistency
-        specimen_date = sample_data.get('Specimen Collection Date', '')
-        specimen_unit = sample_data.get('Unit', '')
-
-        if specimen_date and specimen_unit and specimen_date != "restricted access" and specimen_unit != "restricted access":
-            unit_formats = {
-                'YYYY-MM-DD': '%Y-%m-%d',
-                'YYYY-MM': '%Y-%m',
-                'YYYY': '%Y'
-            }
-
-            if specimen_unit in unit_formats:
-                try:
-                    datetime.datetime.strptime(specimen_date, unit_formats[specimen_unit])
-                except ValueError:
-                    errors['Specimen Collection Date'] = [
-                        f"Date units '{specimen_unit}' should be consistent with date value '{specimen_date}'"
-                    ]
-
-        return errors
 
     def export_to_biosample_format(self, model: FAANGSpecimenFromOrganismSample) -> Dict[str, Any]:
         """Export specimen model to BioSamples JSON format - updated for flattened model"""
