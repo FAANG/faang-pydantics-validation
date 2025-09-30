@@ -38,10 +38,10 @@ class FAANGOrganoidSample(SampleCoreMetadata):
                                                                                                       alias="Organoid Culture And Passage Protocol")
     organoid_morphology: Optional[str] = Field(None, alias="Organoid Morphology")
 
-    # stored_oxygen_level: Optional[str] = Field(None, alias="Stored Oxygen Level")
-    # stored_oxygen_level_unit: Optional[str] = Field(None, alias="Stored Oxygen Level Unit")
-    # incubation_temperature: Optional[str] = Field(None, alias="Incubation Temperature")
-    # incubation_temperature_unit: Optional[str] = Field(None, alias="Incubation Temperature Unit")
+    stored_oxygen_level: Optional[str] = Field(None, alias="Stored Oxygen Level")
+    stored_oxygen_level_unit: Optional[str] = Field(None, alias="Stored Oxygen Level Unit")
+    incubation_temperature: Optional[str] = Field(None, alias="Incubation Temperature")
+    incubation_temperature_unit: Optional[str] = Field(None, alias="Incubation Temperature Unit")
 
     # conditional fields (required if freezing_method != "fresh")
     freezing_date: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Date")
@@ -210,7 +210,9 @@ class FAANGOrganoidSample(SampleCoreMetadata):
         'secondary_project', 'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
         'freezing_date', 'freezing_date_unit', 'freezing_protocol', 'number_of_frozen_cells_unit',
         'organoid_culture_and_passage_protocol', 'organoid_morphology',
-        'growth_environment_unit', mode='before')
+        'growth_environment_unit', 'stored_oxygen_level', 'stored_oxygen_level_unit',
+        'incubation_temperature', 'incubation_temperature_unit', mode='before'
+    )
     def convert_empty_strings_to_none(cls, v):
         if v is not None and v.strip() == "":
             return None

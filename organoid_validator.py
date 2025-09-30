@@ -60,11 +60,19 @@ class OrganoidValidator(BaseValidator):
         if validate_relationships and all_samples:
             relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
-            # relationship checks for valid organoids
+            # add relationship errors to BOTH valid AND invalid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
                     org['relationship_errors'] = relationship_errors[sample_name]
+                    results['summary']['relationship_errors'] += 1
+
+            for org in results['invalid_organoids']:
+                sample_name = org['sample_name']
+                if sample_name in relationship_errors:
+                    if 'relationship_errors' not in org['errors']:
+                        org['errors']['relationship_errors'] = []
+                    org['errors']['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
         # ontology text consistency validation
@@ -79,6 +87,14 @@ class OrganoidValidator(BaseValidator):
                         org['ontology_warnings'] = []
                     org['ontology_warnings'].extend(text_consistency_errors[sample_name])
                     results['summary']['warnings'] += 1
+
+            # add ontology warnings to invalid organoids
+            for org in results['invalid_organoids']:
+                sample_name = org['sample_name']
+                if sample_name in text_consistency_errors:
+                    if 'ontology_warnings' not in org['errors']:
+                        org['errors']['ontology_warnings'] = []
+                    org['errors']['ontology_warnings'].extend(text_consistency_errors[sample_name])
 
         return results
 

@@ -48,18 +48,25 @@ class OrganismValidator(BaseValidator):
         # base validation results
         results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
 
-        # relationship validation for organisms
-        if validate_relationships and results['valid_organisms']:
-            valid_organism_data = [org['data'] for org in results['valid_organisms']]
-            relationship_errors = self.relationship_validator.validate_relationships(
-                valid_organism_data
-            )
+        # FIXED: relationship validation should check against ALL organisms, not just valid or invalid subsets
+        if validate_relationships and samples:
+            relationship_errors = self.relationship_validator.validate_relationships(samples)
 
-            # add relationship errors to results
+            # add relationship errors to valid organisms
             for org in results['valid_organisms']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
                     org['relationship_errors'] = relationship_errors[sample_name].errors
+                    if relationship_errors[sample_name].errors:
+                        results['summary']['relationship_errors'] += 1
+
+            # add relationship errors to invalid organisms
+            for org in results['invalid_organisms']:
+                sample_name = org['sample_name']
+                if sample_name in relationship_errors:
+                    if 'relationship_errors' not in org['errors']:
+                        org['errors']['relationship_errors'] = []
+                    org['errors']['relationship_errors'] = relationship_errors[sample_name].errors
                     if relationship_errors[sample_name].errors:
                         results['summary']['relationship_errors'] += 1
 

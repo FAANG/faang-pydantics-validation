@@ -102,19 +102,19 @@ class UnifiedFAANGValidator:
         report_lines.append("=" * 60)
 
         # Overall summary
-        summary = validation_results['total_summary']
-        report_lines.append(f"\nOVERALL SUMMARY:")
-        report_lines.append(f"Sample types processed: {', '.join(validation_results['sample_types_processed'])}")
-        report_lines.append(f"Total samples: {summary['total_samples']}")
-        report_lines.append(f"Valid samples: {summary['valid_samples']}")
-        report_lines.append(f"Invalid samples: {summary['invalid_samples']}")
-        report_lines.append(f"Samples with warnings: {summary['warnings']}")
-        report_lines.append(f"Samples with relationship errors: {summary['relationship_errors']}")
+        # summary = validation_results['total_summary']
+        # report_lines.append(f"\nOVERALL SUMMARY:")
+        # report_lines.append(f"Sample types processed: {', '.join(validation_results['sample_types_processed'])}")
+        # report_lines.append(f"Total samples: {summary['total_samples']}")
+        # report_lines.append(f"Valid samples: {summary['valid_samples']}")
+        # report_lines.append(f"Invalid samples: {summary['invalid_samples']}")
+        # report_lines.append(f"Samples with warnings: {summary['warnings']}")
+        # report_lines.append(f"Samples with relationship errors: {summary['relationship_errors']}")
 
-        # Success rate
-        if summary['total_samples'] > 0:
-            success_rate = (summary['valid_samples'] / summary['total_samples']) * 100
-            report_lines.append(f"Success rate: {success_rate:.1f}%")
+        # # Success rate
+        # if summary['total_samples'] > 0:
+        #     success_rate = (summary['valid_samples'] / summary['total_samples']) * 100
+        #     report_lines.append(f"Success rate: {success_rate:.1f}%")
 
         report_lines.append("\n" + "=" * 60)
 
