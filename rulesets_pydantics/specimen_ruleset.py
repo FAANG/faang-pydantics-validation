@@ -12,13 +12,12 @@ class HealthStatus(BaseModel):
 
 
 class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
-    # Required fields from flattened JSON - corrected mapping
+    # required fields
     sample_name: str = Field(..., alias="Sample Name")
 
     specimen_collection_date: Union[str, Literal["restricted access"]] = Field(..., alias="Specimen Collection Date")
     specimen_collection_date_unit: Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"] = Field(...,
                                                                                                          alias="Unit")
-
     geographic_location: Literal[
         "Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla",
         "Antarctica", "Antigua and Barbuda", "Arctic Ocean", "Argentina", "Armenia", "Aruba",
@@ -84,11 +83,11 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
                                                                                    alias="Specimen Collection Protocol")
     derived_from: str = Field(..., alias="Derived From")
 
-    # Recommended fields
+    # recommended fields
     health_status: Optional[List[HealthStatus]] = Field(None, alias="Health Status",
                                                         json_schema_extra={"recommended": True})
 
-    # Optional fields
+    # optional fields
     fasted_status: Optional[Literal["fed", "fasted", "unknown"]] = Field(None, alias="Fasted Status")
 
     number_of_pieces: Optional[float] = Field(None, alias="Number of Pieces")
@@ -164,23 +163,22 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
         if v == "restricted access":
             return v
 
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1) if '_' in v else v
+        term = v.replace('_', ':', 1) if '_' in v else v
 
         # Determine ontology based on term prefix
-        if term_with_colon.startswith("EFO:"):
+        if term.startswith("EFO:"):
             ontology_name = "EFO"
             allowed_classes = ["EFO:0000399"]
-        elif term_with_colon.startswith("UBERON:"):
+        elif term.startswith("UBERON:"):
             ontology_name = "UBERON"
             allowed_classes = ["UBERON:0000105"]
         else:
             raise ValueError(f"Developmental stage term '{v}' should be from EFO or UBERON ontology")
 
-        # Ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes
         )
@@ -194,23 +192,21 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
         if v == "restricted access":
             return v
 
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1) if '_' in v else v
+        term = v.replace('_', ':', 1) if '_' in v else v
 
-        # Determine ontology based on term prefix
-        if term_with_colon.startswith("UBERON:"):
+        if term.startswith("UBERON:"):
             ontology_name = "UBERON"
             allowed_classes = ["UBERON:0001062"]
-        elif term_with_colon.startswith("BTO:"):
+        elif term.startswith("BTO:"):
             ontology_name = "BTO"
             allowed_classes = ["BTO:0000042"]
         else:
             raise ValueError(f"Organism part term '{v}' should be from UBERON or BTO ontology")
 
-        # Ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes
         )
@@ -261,14 +257,13 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             if status.term in ["not applicable", "not collected", "not provided", "restricted access"]:
                 continue
 
-            # Convert underscore to colon if needed
-            term_with_colon = status.term.replace('_', ':', 1) if '_' in status.term else status.term
+            term = status.term.replace('_', ':', 1) if '_' in status.term else status.term
 
             # Determine ontology based on term prefix
-            if term_with_colon.startswith("PATO:"):
+            if term.startswith("PATO:"):
                 ontology_name = "PATO"
                 allowed_classes = ["PATO:0000461"]
-            elif term_with_colon.startswith("EFO:"):
+            elif term.startswith("EFO:"):
                 ontology_name = "EFO"
                 allowed_classes = ["EFO:0000408"]
             else:
@@ -276,7 +271,7 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
             # Ontology validation
             res = ov.validate_ontology_term(
-                term=term_with_colon,
+                term=term,
                 ontology_name=ontology_name,
                 allowed_classes=allowed_classes
             )
@@ -285,7 +280,7 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
         return v
 
-    # Validate numeric fields
+    # numeric fields
     @field_validator('number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
                      'gestational_age_at_sample_collection', 'average_incubation_temperature',
                      'average_incubation_humidity', mode='before')
@@ -326,7 +321,7 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
         return validated_urls if validated_urls else None
 
-    # Helper method to convert empty strings to None for optional fields
+    # convert empty strings to None for optional fields
     @field_validator(
         'fasted_status', 'number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
         'gestational_age_at_sample_collection', 'average_incubation_temperature', 'average_incubation_humidity',
