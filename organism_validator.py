@@ -39,18 +39,18 @@ class OrganismValidator(BaseValidator):
 
     def validate_records(
         self,
-        samples: List[Dict[str, Any]],
+        organisms: List[Dict[str, Any]],
         validate_relationships: bool = True,
         all_samples: Dict[str, List[Dict]] = None,
         **kwargs
     ) -> Dict[str, Any]:
 
         # base validation results
-        results = super().validate_records(samples, validate_relationships=False, all_samples=all_samples)
+        results = super().validate_records(organisms, validate_relationships=False, all_samples=all_samples)
 
         # FIXED: relationship validation should check against ALL organisms, not just valid or invalid subsets
-        if validate_relationships and samples:
-            relationship_errors = self.relationship_validator.validate_relationships(samples)
+        if validate_relationships and organisms:
+            relationship_errors = self.relationship_validator.validate_organism_relationships(organisms)
 
             # add relationship errors to valid organisms
             for org in results['valid_organisms']:

@@ -136,103 +136,143 @@ class RelationshipValidator:
     def __init__(self):
         self.biosamples_cache: Dict[str, Dict] = {}
 
-    def validate_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
+    def validate_organism_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
         results = {}
 
-        organism_map = {}
-        for org in organisms:
-            name = self.get_organism_identifier(org)
-            organism_map[name] = org
+        organism_map = {self.get_organism_identifier(org): org for org in organisms}
 
-        # BioSamples
-        biosample_ids = set()
-        for org in organisms:
-            child_of = org.get('Child Of', [])
-            if isinstance(child_of, str):
-                child_of = [child_of]
-            elif not isinstance(child_of, list):
-                child_of = []
-
-            for parent_id in child_of:
-                if parent_id and parent_id.strip() and parent_id.startswith('SAM'):
-                    biosample_ids.add(parent_id.strip())
-
+        biosample_ids = self._collect_biosample_ids(organisms)
         if biosample_ids:
             self.fetch_biosample_data(list(biosample_ids))
 
-        # organism relationships
+        # validate each organism's relationships
         for org in organisms:
-            name = self.get_organism_identifier(org)
-            result = ValidationResult(field_path=f"organism.{name}.child_of")
+            sample_name = self.get_organism_identifier(org)
+            validation_result = self._validate_single_organism_relationships(
+                org, sample_name, organism_map
+            )
 
-            child_of = org.get('Child Of', [])
-            if isinstance(child_of, str):
-                child_of = [child_of]
-            elif not isinstance(child_of, list):
-                child_of = []
-
-            for parent_id in child_of:
-                if not parent_id or not parent_id.strip():
-                    continue
-
-                parent_id = parent_id.strip()
-
-                if parent_id == 'restricted access':
-                    continue
-
-                # check if parent exists
-                if parent_id not in organism_map and parent_id not in self.biosamples_cache:
-                    result.errors.append(
-                        f"Relationships part: no entity '{parent_id}' found"
-                    )
-                    continue
-
-                # parent data
-                if parent_id in organism_map:
-                    parent_data = organism_map[parent_id]
-                    parent_species = parent_data.get('Organism', '')
-                    parent_material = 'organism'
-                else:
-                    parent_data = self.biosamples_cache.get(parent_id, {})
-                    parent_species = parent_data.get('organism', '')
-                    parent_material = parent_data.get('material', '').lower()
-
-                # species match
-                current_species = org.get('Organism', '')
-
-                if current_species and parent_species and current_species != parent_species:
-                    result.errors.append(
-                        f"Relationships part: the specie of the child '{current_species}' "
-                        f"doesn't match the specie of the parent '{parent_species}'"
-                    )
-
-                # material type
-                allowed_materials = ALLOWED_RELATIONSHIPS.get('organism', [])
-                if parent_material and parent_material not in allowed_materials:
-                    result.errors.append(
-                        f"Relationships part: referenced entity '{parent_id}' "
-                        f"does not match condition 'should be {' or '.join(allowed_materials)}'"
-                    )
-
-                # circular relationships
-                if parent_id in organism_map:
-                    parent_relationships = parent_data.get('Child Of', [])
-                    if isinstance(parent_relationships, str):
-                        parent_relationships = [parent_relationships]
-                    elif not isinstance(parent_relationships, list):
-                        parent_relationships = []
-
-                    for grandparent_id in parent_relationships:
-                        if grandparent_id and grandparent_id.strip() == name:
-                            result.errors.append(
-                                f"Relationships part: parent '{parent_id}' "
-                                f"is listing the child as its parent"
-                            )
-
-            if result.errors or result.warnings:
-                results[name] = result
+            if validation_result.errors or validation_result.warnings:
+                results[sample_name] = validation_result
 
         return results
+
+    def _collect_biosample_ids(self, organisms: List[Dict[str, Any]]) -> Set[str]:
+        biosample_ids = set()
+
+        for org in organisms:
+            for parent_id in self._normalize_child_of(org.get('Child Of')):
+                if parent_id.startswith('SAM'):
+                    biosample_ids.add(parent_id)
+
+        return biosample_ids
+
+    def _normalize_child_of(self, child_of) -> List[str]:
+        if isinstance(child_of, str):
+            child_of = [child_of]
+        elif not isinstance(child_of, list):
+            child_of = []
+
+        return [pid.strip() for pid in child_of if pid and str(pid).strip()]
+
+    def _validate_single_organism_relationships(
+        self,
+        organism: Dict[str, Any],
+        sample_name: str,
+        organism_map: Dict[str, Dict]
+    ) -> ValidationResult:
+        result = ValidationResult(field_path=f"organism.{sample_name}.child_of")
+        current_species = organism.get('Organism', '')
+
+        parent_ids = self._normalize_child_of(organism.get('Child Of'))
+
+        for parent_id in parent_ids:
+            if parent_id == 'restricted access':
+                continue
+
+            # Check parent exists
+            parent_data = self._get_parent_data(parent_id, organism_map)
+            if parent_data is None:
+                result.errors.append(f"Relationships part: no entity '{parent_id}' found")
+                continue
+
+            # Validate species match
+            self._validate_species_match(
+                current_species,
+                parent_data['species'],
+                parent_id,
+                result
+            )
+
+            # Validate material type
+            self._validate_parent_material(parent_data['material'], parent_id, result)
+
+            # Check for circular relationships
+            if parent_id in organism_map:
+                self._check_circular_relationship(
+                    sample_name,
+                    parent_id,
+                    organism_map[parent_id],
+                    result
+                )
+
+        return result
+
+    def _get_parent_data(self, parent_id: str, organism_map: Dict[str, Dict]) -> Optional[Dict]:
+        if parent_id in organism_map:
+            parent_org = organism_map[parent_id]
+            return {
+                'species': parent_org.get('Organism', ''),
+                'material': 'organism',
+                'data': parent_org
+            }
+        elif parent_id in self.biosamples_cache:
+            biosample = self.biosamples_cache[parent_id]
+            return {
+                'species': biosample.get('organism', ''),
+                'material': biosample.get('material', '').lower(),
+                'data': biosample
+            }
+
+        return None
+
+    def _validate_species_match(
+        self,
+        current_species: str,
+        parent_species: str,
+        parent_id: str,
+        result: ValidationResult
+    ):
+        if current_species and parent_species and current_species != parent_species:
+            result.errors.append(
+                f"Relationships part: the specie of the child '{current_species}' "
+                f"doesn't match the specie of the parent '{parent_species}'"
+            )
+
+    def _validate_parent_material(self, parent_material: str, parent_id: str, result: ValidationResult):
+        allowed_materials = ALLOWED_RELATIONSHIPS.get('organism', [])
+
+        if parent_material and parent_material not in allowed_materials:
+            result.errors.append(
+                f"Relationships part: referenced entity '{parent_id}' "
+                f"does not match condition 'should be {' or '.join(allowed_materials)}'"
+            )
+
+    def _check_circular_relationship(
+        self,
+        sample_name: str,
+        parent_id: str,
+        parent_data: Dict,
+        result: ValidationResult
+    ):
+        parent_child_of = self._normalize_child_of(parent_data.get('Child Of'))
+
+        if sample_name in parent_child_of:
+            result.errors.append(
+                f"Relationships part: parent '{parent_id}' "
+                f"is listing the child as its parent"
+            )
+
 
     # handles both 'Derived From' and 'Child Of' relationships
     # Uses ALLOWED_RELATIONSHIPS from constants.py
