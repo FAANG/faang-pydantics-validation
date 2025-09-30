@@ -10,6 +10,33 @@ class HealthStatus(BaseModel):
     text: str
     term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
 
+    @field_validator('term')
+    def validate_health_status(cls, v, info):
+        if v in ["not applicable", "not collected", "not provided", "restricted access"]:
+            return v
+
+        # determine ontology to use (PATO or EFO)
+        if v.startswith("EFO:"):
+            ontology_name = "EFO"
+        elif v.startswith("PATO:"):
+            ontology_name = "PATO"
+        else:
+            raise ValueError(f"Health status term '{v}' should be from PATO or EFO ontology")
+
+
+        ov = OntologyValidator(cache_enabled=True)
+        res = ov.validate_ontology_term(
+            term=v,
+            ontology_name=ontology_name,
+            allowed_classes=["PATO:0000461", "EFO:0000408"],
+            text=info.data.get('text')
+        )
+        if res.errors:
+            raise ValueError(f"HealthStatus term invalid: {res.errors}")
+
+        return v
+
+
 
 class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
     # required fields
@@ -180,7 +207,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term,
             ontology_name=ontology_name,
-            allowed_classes=allowed_classes
+            allowed_classes=allowed_classes,
+            text=info.data.get('developmental_stage')
         )
         if res.errors:
             raise ValueError(f"Developmental stage term invalid: {res.errors}")
@@ -208,7 +236,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term,
             ontology_name=ontology_name,
-            allowed_classes=allowed_classes
+            allowed_classes=allowed_classes,
+            text=info.data.get('organism_part')
         )
         if res.errors:
             raise ValueError(f"Organism part term invalid: {res.errors}")
@@ -246,39 +275,6 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             raise ValueError("Derived from value is required and cannot be empty")
         return v.strip()
 
-    @field_validator('health_status')
-    def validate_health_status_terms(cls, v):
-        if not v:
-            return v
-
-        ov = OntologyValidator(cache_enabled=True)
-
-        for status in v:
-            if status.term in ["not applicable", "not collected", "not provided", "restricted access"]:
-                continue
-
-            term = status.term.replace('_', ':', 1) if '_' in status.term else status.term
-
-            # Determine ontology based on term prefix
-            if term.startswith("PATO:"):
-                ontology_name = "PATO"
-                allowed_classes = ["PATO:0000461"]
-            elif term.startswith("EFO:"):
-                ontology_name = "EFO"
-                allowed_classes = ["EFO:0000408"]
-            else:
-                raise ValueError(f"Health status term '{status.term}' should be from PATO or EFO ontology")
-
-            # Ontology validation
-            res = ov.validate_ontology_term(
-                term=term,
-                ontology_name=ontology_name,
-                allowed_classes=allowed_classes
-            )
-            if res.errors:
-                raise ValueError(f"Health status term invalid: {res.errors}")
-
-        return v
 
     # numeric fields
     @field_validator('number_of_pieces', 'specimen_volume', 'specimen_size', 'specimen_weight',
