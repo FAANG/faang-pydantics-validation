@@ -291,10 +291,10 @@ class RelationshipValidator:
                         material = self.extract_material(sample, sample_type)
                         relationships[sample_name]['material'] = material
 
-                        # get derived_from relationships
-                        derived_from = self.extract_derived_from(sample, sample_type)
-                        if derived_from:
-                            relationships[sample_name]['relationships'] = derived_from
+                        # get derived_from/child_of relationships
+                        related_records = self.extract_related_record(sample, sample_type)
+                        if related_records:
+                            relationships[sample_name]['relationships'] = related_records
 
         # Step 2: validate relationships
         for sample_name, rel_info in relationships.items():
@@ -337,7 +337,7 @@ class RelationshipValidator:
 
         return sample_type
 
-    def extract_derived_from(self, sample: Dict, sample_type: str) -> List[str]:
+    def extract_related_record(self, sample: Dict, sample_type: str) -> List[str]:
         refs = []
 
         if 'Derived From' in sample:
