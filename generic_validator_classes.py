@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional, Set
 from pydantic import BaseModel, Field
 import requests
 
-from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS
+from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 
 
 class ValidationResult(BaseModel):
@@ -11,6 +11,45 @@ class ValidationResult(BaseModel):
     field_path: str
     value: Any = None
 
+
+def validate_term_against_classes(term_id: str, ontology_name: str,
+                                  allowed_classes: List[str]) -> List[str]:
+    errors = []
+
+    # schema for Elixir validator
+    schema = {
+        "type": "string",
+        "graph_restriction": {
+            "ontologies": [f"obo:{ontology_name.lower()}"],
+            "classes": allowed_classes,
+            "relations": ["rdfs:subClassOf"],
+            "direct": False,
+            "include_self": True
+        }
+    }
+
+    json_to_send = {
+        'schema': schema,
+        'object': term_id
+    }
+
+    try:
+        response = requests.post(ELIXIR_VALIDATOR_URL, json=json_to_send, timeout=10)
+        response.raise_for_status()
+        validation_results = response.json()
+
+        # validation errors
+        for item in validation_results:
+            for error in item.get('errors', []):
+                if error != 'should match exactly one schema in oneOf':
+                    errors.append(error)
+
+    except requests.exceptions.RequestException as e:
+        errors.append(f"Failed to connect to Elixir validator: {str(e)}")
+    except Exception as e:
+        errors.append(f"Error during validation: {str(e)}")
+
+    return errors
 
 class OntologyValidator:
     def __init__(self, cache_enabled: bool = True):
@@ -249,31 +288,23 @@ class RelationshipValidator:
         return relationship_errors
 
     def _extract_sample_name(self, sample: Dict) -> str:
-        """Extract sample name from flattened structures - updated for all sample types"""
-        # All sample types now use the same flat structure
         return sample.get('Sample Name', '')
 
     def _extract_material(self, sample: Dict, sample_type: str) -> str:
-        """Extract material from flattened structures - updated for all sample types"""
-        # All sample types now use the same flat structure
         material = sample.get('Material', '')
         if material:
             return material
 
-        # Fallback to sample type if Material field is missing
         return sample_type
 
     def _extract_derived_from(self, sample: Dict, sample_type: str) -> List[str]:
-        """Extract derived_from/child_of references - updated for flattened structures"""
         refs = []
 
-        # All specimen types now use 'Derived From' field
         if 'Derived From' in sample:
             derived_from = sample['Derived From']
             if derived_from and derived_from.strip():
                 refs.append(derived_from.strip())
 
-        # Organism samples use 'Child Of' field
         if 'Child Of' in sample:
             child_of = sample['Child Of']
             if isinstance(child_of, list):
