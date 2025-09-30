@@ -297,12 +297,12 @@ class FAANGOrganismSample(SampleCoreMetadata):
             return None
 
         # filter empty strings and None
-        cleaned = [item.strip() for item in v if item and item.strip()]
+        child_of_cleaned = [item.strip() for item in v if item and item.strip()]
 
-        if len(cleaned) > 2:
+        if len(child_of_cleaned) > 2:
             raise ValueError("Organism can have at most 2 parents")
 
-        return cleaned if cleaned else None
+        return child_of_cleaned if child_of_cleaned else None
 
     @field_validator('pedigree')
     def validate_pedigree_url(cls, v):

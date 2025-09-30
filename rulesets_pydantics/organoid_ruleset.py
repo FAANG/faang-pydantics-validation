@@ -56,43 +56,27 @@ class FAANGOrganoidSample(SampleCoreMetadata):
             raise ValueError("Sample Name is required and cannot be empty")
         return v.strip()
 
-    @field_validator('term_source_id', mode='before')
-    def validate_material_term(cls, v):
-        if v == "restricted access":
-            return v
-
-        # Convert colon to underscore if needed (for Literal compatibility)
-        if ':' in v:
-            v = v.replace(':', '_', 1)
-
-        # For organoid material, should be NCIT_C172259 (underscore format)
-        expected_term = "NCIT_C172259"
-        if v != expected_term:
-            raise ValueError(f"Term Source ID for organoid should be '{expected_term}', got '{v}'")
-        return v
 
     @field_validator('organ_model_term_source_id')
     def validate_organ_model_term(cls, v, info):
         if v == "restricted access":
             return v
 
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
-        # Determine ontology based on term prefix
-        if term_with_colon.startswith("UBERON:"):
+        if term.startswith("UBERON:"):
             ontology_name = "UBERON"
             allowed_classes = ["UBERON:0001062"]
-        elif term_with_colon.startswith("BTO:"):
+        elif term.startswith("BTO:"):
             ontology_name = "BTO"
             allowed_classes = ["BTO:0000042"]
         else:
             raise ValueError(f"Organ model term '{v}' should be from UBERON or BTO ontology")
 
-        # Ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes
         )
@@ -106,23 +90,22 @@ class FAANGOrganoidSample(SampleCoreMetadata):
         if not v or v == "restricted access":
             return v
 
-        # Convert underscore to colon if needed
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
         # Determine ontology based on term prefix
-        if term_with_colon.startswith("UBERON:"):
+        if term.startswith("UBERON:"):
             ontology_name = "UBERON"
             allowed_classes = ["UBERON:0001062"]
-        elif term_with_colon.startswith("BTO:"):
+        elif term.startswith("BTO:"):
             ontology_name = "BTO"
             allowed_classes = ["BTO:0000042"]
         else:
             raise ValueError(f"Organ part model term '{v}' should be from UBERON or BTO ontology")
 
-        # Ontology validation
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes
         )
@@ -205,7 +188,7 @@ class FAANGOrganoidSample(SampleCoreMetadata):
             raise ValueError("Derived from value is required and cannot be empty")
         return v.strip()
 
-    # Helper method to convert empty strings to None for optional fields
+    # convert empty strings to None for optional fields
     @field_validator(
         'secondary_project', 'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
         'freezing_date', 'freezing_date_unit', 'freezing_protocol', 'number_of_frozen_cells_unit',
@@ -220,17 +203,15 @@ class FAANGOrganoidSample(SampleCoreMetadata):
 
     @model_validator(mode='after')
     def validate_conditional_requirements(self):
-        """Implement the conditional logic for freezing requirements"""
         freezing_method_value = self.freezing_method
 
         if freezing_method_value and freezing_method_value != "fresh":
-            # If freezing method is not "fresh", freezing_date and freezing_protocol are required
             if not self.freezing_date:
                 raise ValueError("Freezing date is required when freezing method is not 'fresh'")
             if not self.freezing_protocol:
                 raise ValueError("Freezing protocol is required when freezing method is not 'fresh'")
 
-        # Validate organ part model consistency
+        # organ part model consistency
         if self.organ_part_model and not self.organ_part_model_term_source_id:
             raise ValueError("Organ part model term source ID is required when organ part model text is provided")
 
