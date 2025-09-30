@@ -26,7 +26,7 @@ class OrganismValidator(BaseValidator):
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
 
-        model, errors = self.validate_single_sample(data, validate_relationships)
+        model, errors = self.validate_record(data, validate_relationships)
         return model, errors
 
     def validate_with_pydantic(
@@ -35,9 +35,9 @@ class OrganismValidator(BaseValidator):
         validate_relationships: bool = True,
     ) -> Dict[str, Any]:
 
-        return self.validate_samples(organisms, validate_relationships=validate_relationships)
+        return self.validate_records(organisms, validate_relationships=validate_relationships)
 
-    def validate_samples(
+    def validate_records(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,
@@ -46,7 +46,7 @@ class OrganismValidator(BaseValidator):
     ) -> Dict[str, Any]:
 
         # base validation results
-        results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
+        results = super().validate_records(samples, validate_relationships=False, all_samples=all_samples)
 
         # FIXED: relationship validation should check against ALL organisms, not just valid or invalid subsets
         if validate_relationships and samples:

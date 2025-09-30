@@ -72,7 +72,7 @@ class UnifiedFAANGValidator:
             if sample_type in ['organoid', 'specimen_from_organism']:
                 validation_kwargs['validate_ontology_text'] = validate_ontology_text
 
-            results = validator.validate_samples(samples, **validation_kwargs)
+            results = validator.validate_records(samples, **validation_kwargs)
 
             # Store results
             all_results['sample_types_processed'].append(sample_type)

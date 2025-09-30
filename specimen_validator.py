@@ -24,7 +24,7 @@ class SpecimenValidator(BaseValidator):
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGSpecimenFromOrganismSample], Dict[str, List[str]]]:
 
-        model, errors = self.validate_single_sample(data, validate_relationships)
+        model, errors = self.validate_record(data, validate_relationships)
         return model, errors
 
     def validate_with_pydantic(
@@ -35,14 +35,14 @@ class SpecimenValidator(BaseValidator):
         validate_ontology_text: bool = True,
     ) -> Dict[str, Any]:
 
-        return self.validate_samples(
+        return self.validate_records(
             specimens,
             validate_relationships=validate_relationships,
             all_samples=all_samples,
             validate_ontology_text=validate_ontology_text
         )
 
-    def validate_samples(
+    def validate_records(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,
@@ -52,7 +52,7 @@ class SpecimenValidator(BaseValidator):
     ) -> Dict[str, Any]:
 
         # Base validation results
-        results = super().validate_samples(samples, validate_relationships=False, all_samples=all_samples)
+        results = super().validate_records(samples, validate_relationships=False, all_samples=all_samples)
 
         # Simplified relationship validation using the generic method
         if validate_relationships and all_samples:

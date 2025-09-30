@@ -32,12 +32,10 @@ class BaseValidator(ABC):
 
         return recommended_fields
 
-    def validate_single_sample(
+    def validate_record(
         self,
         data: Dict[str, Any],
-        validate_relationships: bool = True
     ) -> Tuple[Optional[Any], Dict[str, List[str]]]:
-        """Validate a single sample"""
         errors_dict = {
             'errors': [],
             'warnings': [],
@@ -76,7 +74,7 @@ class BaseValidator(ABC):
 
         return model_instance, errors_dict
 
-    def validate_samples(
+    def validate_records(
         self,
         samples: List[Dict[str, Any]],
         validate_relationships: bool = True,
@@ -100,7 +98,7 @@ class BaseValidator(ABC):
         for i, sample_data in enumerate(samples):
             sample_name = sample_data.get('Sample Name', f'{sample_type}_{i}')
 
-            model, errors = self.validate_single_sample(sample_data)
+            model, errors = self.validate_record(sample_data)
 
             if model and not errors['errors']:
                 results[f'valid_{sample_type}s'].append({
