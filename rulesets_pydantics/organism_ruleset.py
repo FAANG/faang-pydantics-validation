@@ -193,19 +193,19 @@ class FAANGOrganismSample(SampleCoreMetadata):
                         return term_id.replace('_', ':', 1)
                     return term_id
 
-                breed_validator = BreedSpeciesValidator(ov)  # Reuse the existing ontology validator
+                breed_validator = BreedSpeciesValidator(ov)
                 organism_term_colon = convert_term(organism_term)
                 breed_term_colon = convert_term(v)
 
                 breed_errors = breed_validator.validate_breed_for_species(
-                    organism_term_colon, breed_term_colon
+                    organism_term_colon, breed_term_colon, info.data.get('breed')
                 )
                 if breed_errors:
                     raise ValueError(f"Breed '{breed_text}' is not compatible with species '{organism_text}'")
 
             except Exception as e:
                 if "not compatible" in str(e):
-                    raise  # Re-raise compatibility errors as-is
+                    raise
                 raise ValueError(f"Error validating breed-species compatibility: {str(e)}")
 
         return v

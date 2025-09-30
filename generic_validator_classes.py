@@ -110,7 +110,7 @@ class BreedSpeciesValidator:
     def __init__(self, ontology_validator):
         self.ontology_validator = ontology_validator
 
-    def validate_breed_for_species(self, organism_term: str, breed_term: str) -> List[str]:
+    def validate_breed_for_species(self, organism_term: str, breed_term: str, breed_text: str) -> List[str]:
         errors = []
 
         if organism_term not in SPECIES_BREED_LINKS:
@@ -124,7 +124,7 @@ class BreedSpeciesValidator:
             term=breed_term,
             ontology_name="obo:lbo",
             allowed_classes=[SPECIES_BREED_LINKS[organism_term]],
-            text=breed_term
+            text=breed_text
         )
         if validation_result.errors:
             errors.append("Breed doesn't match the animal species")
