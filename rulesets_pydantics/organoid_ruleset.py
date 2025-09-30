@@ -78,7 +78,8 @@ class FAANGOrganoidSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term,
             ontology_name=ontology_name,
-            allowed_classes=allowed_classes
+            allowed_classes=allowed_classes,
+            text=info.data.get('organ_model')
         )
         if res.errors:
             raise ValueError(f"Organ model term invalid: {res.errors}")
@@ -107,7 +108,8 @@ class FAANGOrganoidSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term,
             ontology_name=ontology_name,
-            allowed_classes=allowed_classes
+            allowed_classes=allowed_classes,
+            text=info.data.get('organ_part_model')
         )
         if res.errors:
             raise ValueError(f"Organ part model term invalid: {res.errors}")

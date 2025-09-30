@@ -26,7 +26,8 @@ class HealthStatus(BaseModel):
         res = ov.validate_ontology_term(
             term=v,
             ontology_name=ontology_name,
-            allowed_classes=["PATO:0000461", "EFO:0000408"]
+            allowed_classes=["PATO:0000461", "EFO:0000408"],
+            text=info.data.get('text')
         )
         if res.errors:
             raise ValueError(f"HealthStatus term invalid: {res.errors}")
@@ -112,18 +113,18 @@ class FAANGOrganismSample(SampleCoreMetadata):
         if v == "restricted access":
             return v
 
-        # convert underscore to colon
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
-        if not term_with_colon.startswith("NCBITaxon:"):
+        if not term.startswith("NCBITaxon:"):
             raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
 
         # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name="NCBITaxon",
-            allowed_classes=["NCBITaxon"]
+            allowed_classes=["NCBITaxon"],
+            text=info.data.get('organism')
         )
         if res.errors:
             raise ValueError(f"Organism term invalid: {res.errors}")
@@ -146,7 +147,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name="PATO",
-            allowed_classes=["PATO:0000047"]
+            allowed_classes=["PATO:0000047"],
+            text=info.data.get('sex')
         )
         if res.errors:
             raise ValueError(f"Sex term invalid: {res.errors}")
@@ -169,7 +171,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name="LBO",
-            allowed_classes=["LBO"]
+            allowed_classes=["LBO"],
+            text=info.data.get('breed')
         )
         if res.errors:
             raise ValueError(f"Breed term invalid: {res.errors}")

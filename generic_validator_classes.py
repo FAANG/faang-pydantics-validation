@@ -11,7 +11,7 @@ class ValidationResult(BaseModel):
     field_path: str
     value: Any = None
 
-
+# for elixir validation - might need to be removed
 def validate_term_against_classes(term_id: str, ontology_name: str,
                                   allowed_classes: List[str]) -> List[str]:
     errors = []
