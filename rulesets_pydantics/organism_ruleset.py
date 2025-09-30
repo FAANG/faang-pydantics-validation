@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from organism_validator_classes import BreedSpeciesValidator, OntologyValidator
+from generic_validator_classes import BreedSpeciesValidator, OntologyValidator
 from typing import List, Optional, Union, Literal
 import re
 
@@ -7,7 +7,6 @@ from .standard_ruleset import SampleCoreMetadata
 
 class HealthStatus(BaseModel):
     text: str
-    ontology_name: Optional[Literal["PATO", "EFO"]] = None
     term: Union[str, Literal["not applicable", "not collected", "not provided", "restricted access"]]
 
     @field_validator('term')
@@ -15,14 +14,20 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        # determine which ontology to use (PATO or EFO)
+        # determine ontology to use (PATO or EFO)
+        if v.startswith("EFO:"):
+            ontology_name = "EFO"
+        else:
+            ontology_name = "PATO"
+
+
         ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name', "PATO")
+
         res = ov.validate_ontology_term(
             term=v,
-            ontology_name=ont,
-            allowed_classes=["PATO:0000461", "EFO:0000408"]
+            ontology_name=ontology_name,
+            allowed_classes=["PATO:0000461", "EFO:0000408"],
+            text=info.data.get('text')
         )
         if res.errors:
             raise ValueError(f"HealthStatus term invalid: {res.errors}")
@@ -108,18 +113,18 @@ class FAANGOrganismSample(SampleCoreMetadata):
         if v == "restricted access":
             return v
 
-        # convert underscore to colon
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
-        if not term_with_colon.startswith("NCBITaxon:"):
+        if not term.startswith("NCBITaxon:"):
             raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
 
         # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name="NCBITaxon",
-            allowed_classes=["NCBITaxon"]
+            allowed_classes=["NCBITaxon"],
+            text=info.data.get('organism')
         )
         if res.errors:
             raise ValueError(f"Organism term invalid: {res.errors}")
@@ -142,7 +147,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name="PATO",
-            allowed_classes=["PATO:0000047"]
+            allowed_classes=["PATO:0000047"],
+            text=info.data.get('sex')
         )
         if res.errors:
             raise ValueError(f"Sex term invalid: {res.errors}")
@@ -165,7 +171,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
         res = ov.validate_ontology_term(
             term=term_with_colon,
             ontology_name="LBO",
-            allowed_classes=["LBO"]
+            allowed_classes=["LBO"],
+            text=info.data.get('breed')
         )
         if res.errors:
             raise ValueError(f"Breed term invalid: {res.errors}")
@@ -186,19 +193,19 @@ class FAANGOrganismSample(SampleCoreMetadata):
                         return term_id.replace('_', ':', 1)
                     return term_id
 
-                breed_validator = BreedSpeciesValidator(ov)  # Reuse the existing ontology validator
+                breed_validator = BreedSpeciesValidator(ov)
                 organism_term_colon = convert_term(organism_term)
                 breed_term_colon = convert_term(v)
 
                 breed_errors = breed_validator.validate_breed_for_species(
-                    organism_term_colon, breed_term_colon
+                    organism_term_colon, breed_term_colon, info.data.get('breed')
                 )
                 if breed_errors:
                     raise ValueError(f"Breed '{breed_text}' is not compatible with species '{organism_text}'")
 
             except Exception as e:
                 if "not compatible" in str(e):
-                    raise  # Re-raise compatibility errors as-is
+                    raise
                 raise ValueError(f"Error validating breed-species compatibility: {str(e)}")
 
         return v
@@ -293,12 +300,12 @@ class FAANGOrganismSample(SampleCoreMetadata):
             return None
 
         # filter empty strings and None
-        cleaned = [item.strip() for item in v if item and item.strip()]
+        child_of_cleaned = [item.strip() for item in v if item and item.strip()]
 
-        if len(cleaned) > 2:
+        if len(child_of_cleaned) > 2:
             raise ValueError("Organism can have at most 2 parents")
 
-        return cleaned if cleaned else None
+        return child_of_cleaned if child_of_cleaned else None
 
     @field_validator('pedigree')
     def validate_pedigree_url(cls, v):
@@ -310,7 +317,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
 
         return v
 
-    # Helper method to convert empty strings to None for optional fields
+    # convert empty strings to None for optional fields
     @field_validator(
         'birth_date_unit', 'birth_location_latitude_unit', 'birth_location_longitude_unit',
         'birth_weight_unit', 'placental_weight_unit', 'pregnancy_length_unit',

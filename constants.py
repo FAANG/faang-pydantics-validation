@@ -138,8 +138,8 @@ ALLOWED_ANALYSES_TYPES = {
 
 ALLOWED_RELATIONSHIPS = {
     'organism': ['organism'],
-    'organoid': ['specimen_from_organism'],
-    'specimen_from_organism': ['organism'],
+    'organoid': ['specimen from organism'],
+    'specimen from organism': ['organism'],
     'teleostei_embryo': ['organism'],
     'teleostei_post-hatching': ['organism'],
     'pool_of_specimens': ['specimen_from_organism', 'teleostei_embryo',
@@ -151,6 +151,17 @@ ALLOWED_RELATIONSHIPS = {
     'cell_line': ['organism', 'specimen_from_organism', 'pool_of_specimens',
                   'cell_specimen', 'cell_culture', 'cell_line']
 }
+
+# ALLOWED_RELATIONSHIPS = {
+#     'organoid': ['specimen from organism', 'cell culture', 'cell line'],
+#     'organism': ['organism'],
+#     'specimen from organism': ['organism'],
+#     'cell culture': ['specimen from organism', 'organism'],
+#     'cell line': ['specimen from organism', 'organism'],
+#     'cell specimen': ['specimen from organism', 'organism'],
+#     'single cell specimen': ['specimen from organism', 'organism'],
+#     'pool of specimens': ['specimen from organism', 'organism']
+# }
 
 SKIP_PROPERTIES = [
     'describedBy',

@@ -79,7 +79,7 @@ class SampleCoreMetadata(BaseModel):
         return v
 
 
-    @field_validator('secondary_project')
+    @field_validator('secondary_project', mode='before')
     def validate_secondary_project(cls, v):
         if not v or v.strip() == "":
             return None

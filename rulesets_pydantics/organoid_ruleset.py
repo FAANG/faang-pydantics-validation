@@ -1,176 +1,231 @@
-from pydantic import BaseModel, Field, field_validator, AnyUrl
-from organism_validator_classes import OntologyValidator
-from typing import Optional, Union, Literal
+from pydantic import BaseModel, Field, field_validator, model_validator
+from generic_validator_classes import OntologyValidator
+from typing import List, Optional, Union, Literal
 import re
+from datetime import datetime
 
 from .standard_ruleset import SampleCoreMetadata
 
 
-class OrganModel(BaseModel):
-    ontology_name: Literal["UBERON", "BTO"]
-    text: str
-    term: Union[str, Literal["restricted access"]]
+class FAANGOrganoidSample(SampleCoreMetadata):
+    # required fields
+    sample_name: str = Field(..., alias="Sample Name")
+    organ_model: str = Field(..., alias="Organ Model")
+    organ_model_term_source_id: Union[str, Literal["restricted access"]] = Field(...,
+                                                                                 alias="Organ Model Term Source ID")
+    freezing_method: Literal[
+        "ambient temperature", "cut slide", "fresh", "frozen, -70 freezer",
+        "frozen, -150 freezer", "frozen, liquid nitrogen", "frozen, vapor phase",
+        "paraffin block", "RNAlater, frozen", "TRIzol, frozen"
+    ] = Field(..., alias="Freezing Method")
 
-    @field_validator('term')
-    def validate_organ_model(cls, v, info):
+    organoid_passage: float = Field(..., alias="Organoid Passage")
+    organoid_passage_unit: Literal["passages"] = Field("passages", alias="Organoid Passage Unit")
+    organoid_passage_protocol: Union[str, Literal["restricted access"]] = Field(..., alias="Organoid Passage Protocol")
+
+    type_of_organoid_culture: Literal["2D", "3D"] = Field(..., alias="Type Of Organoid Culture")
+    growth_environment: Literal["matrigel", "liquid suspension", "adherent"] = Field(..., alias="Growth Environment")
+    growth_environment_unit: Optional[str] = Field(None, alias="Growth Environment Unit")
+    derived_from: str = Field(..., alias="Derived From")
+
+    # Optional fields
+    organ_part_model: Optional[str] = Field(None, alias="Organ Part Model")
+    organ_part_model_term_source_id: Optional[Union[str, Literal["restricted access"]]] = Field(None,
+                                                                                                alias="Organ Part Model Term Source ID")
+    number_of_frozen_cells: Optional[float] = Field(None, alias="Number Of Frozen Cells")
+    number_of_frozen_cells_unit: Optional[Literal["organoids"]] = Field("organoids", alias="Number Of Frozen Cells Unit")
+    organoid_culture_and_passage_protocol: Optional[Union[str, Literal["restricted access"]]] = Field(None,
+                                                                                                      alias="Organoid Culture And Passage Protocol")
+    organoid_morphology: Optional[str] = Field(None, alias="Organoid Morphology")
+
+    stored_oxygen_level: Optional[str] = Field(None, alias="Stored Oxygen Level")
+    stored_oxygen_level_unit: Optional[str] = Field(None, alias="Stored Oxygen Level Unit")
+    incubation_temperature: Optional[str] = Field(None, alias="Incubation Temperature")
+    incubation_temperature_unit: Optional[str] = Field(None, alias="Incubation Temperature Unit")
+
+    # conditional fields (required if freezing_method != "fresh")
+    freezing_date: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Date")
+    freezing_date_unit: Optional[Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]] = Field(None,
+                                                                                                        alias="Unit")
+    freezing_protocol: Optional[Union[str, Literal["restricted access"]]] = Field(None, alias="Freezing Protocol")
+
+
+    @field_validator('sample_name')
+    def validate_sample_name(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("Sample Name is required and cannot be empty")
+        return v.strip()
+
+
+    @field_validator('organ_model_term_source_id')
+    def validate_organ_model_term(cls, v, info):
         if v == "restricted access":
             return v
 
-        ov = OntologyValidator(cache_enabled=True)
+        term = v.replace('_', ':', 1)
 
-        values = info.data
-        ont = values.get('ontology_name')
+        if term.startswith("UBERON:"):
+            ontology_name = "UBERON"
+            allowed_classes = ["UBERON:0001062"]
+        elif term.startswith("BTO:"):
+            ontology_name = "BTO"
+            allowed_classes = ["BTO:0000042"]
+        else:
+            raise ValueError(f"Organ model term '{v}' should be from UBERON or BTO ontology")
+
+        # ontology validation
+        ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["UBERON:0001062", "BTO:0000042"]
+            term=term,
+            ontology_name=ontology_name,
+            allowed_classes=allowed_classes,
+            text=info.data.get('organ_model')
         )
         if res.errors:
             raise ValueError(f"Organ model term invalid: {res.errors}")
+
         return v
 
-
-class OrganPartModel(BaseModel):
-    ontology_name: Literal["UBERON", "BTO"]
-    text: str
-    term: Union[str, Literal["restricted access"]]
-
-    @field_validator('term')
-    def validate_organ_part_model(cls, v, info):
-        if v == "restricted access":
+    @field_validator('organ_part_model_term_source_id')
+    def validate_organ_part_term(cls, v, info):
+        if not v or v == "restricted access":
             return v
 
+        term = v.replace('_', ':', 1)
+
+        # Determine ontology based on term prefix
+        if term.startswith("UBERON:"):
+            ontology_name = "UBERON"
+            allowed_classes = ["UBERON:0001062"]
+        elif term.startswith("BTO:"):
+            ontology_name = "BTO"
+            allowed_classes = ["BTO:0000042"]
+        else:
+            raise ValueError(f"Organ part model term '{v}' should be from UBERON or BTO ontology")
+
+        # ontology validation
         ov = OntologyValidator(cache_enabled=True)
-        values = info.data
-        ont = values.get('ontology_name')
         res = ov.validate_ontology_term(
-            term=v,
-            ontology_name=ont,
-            allowed_classes=["UBERON:0001062", "BTO:0000042"]
+            term=term,
+            ontology_name=ontology_name,
+            allowed_classes=allowed_classes,
+            text=info.data.get('organ_part_model')
         )
         if res.errors:
             raise ValueError(f"Organ part model term invalid: {res.errors}")
-        return v
-
-
-class FreezingDate(BaseModel):
-    value: Union[str, Literal["restricted access"]]
-    units: Literal["YYYY-MM-DD", "YYYY-MM", "YYYY", "restricted access"]
-
-    @field_validator('value')
-    def validate_freezing_date(cls, v, info):
-        if v == "restricted access":
-            return v
-
-        pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])|[12]\d{3}-(0[1-9]|1[0-2])|[12]\d{3}$'
-
-        if not re.match(pattern, v):
-            raise ValueError(f"Invalid freezing date format: {v}. Must match YYYY-MM-DD, YYYY-MM, or YYYY pattern")
 
         return v
-
-
-class FreezingMethod(BaseModel):
-    value: Literal[
-        "ambient temperature",
-        "cut slide",
-        "fresh",
-        "frozen, -70 freezer",
-        "frozen, -150 freezer",
-        "frozen, liquid nitrogen",
-        "frozen, vapor phase",
-        "paraffin block",
-        "RNAlater, frozen",
-        "TRIzol, frozen"
-    ]
-
-
-class FreezingProtocol(BaseModel):
-    value: Union[AnyUrl, Literal["restricted access"]]
-
-
-class NumberOfFrozenCells(BaseModel):
-    value: float
-    units: Literal["organoids"] = "organoids"
-
-
-class OrganoidPassage(BaseModel):
-    value: float
-    units: Literal["passages"] = "passages"
-
-
-class OrganoidPassageProtocol(BaseModel):
-    value: Union[AnyUrl, Literal["restricted access"]]
-
-
-class OrganoidCultureAndPassageProtocol(BaseModel):
-    value: Union[AnyUrl, Literal["restricted access"]]
-
-
-class GrowthEnvironment(BaseModel):
-    value: Literal["matrigel", "liquid suspension", "adherent"]
-
-
-class TypeOfOrganoidCulture(BaseModel):
-    value: Literal["2D", "3D"]
-
-
-class OrganoidMorphology(BaseModel):
-    value: str
-
-
-class DerivedFrom(BaseModel):
-    value: str
-
-
-class FAANGOrganoidSample(SampleCoreMetadata):
-    # required fields
-    organ_model: OrganModel = Field(...,
-                                    description="Organ for which this organoid is a model system e.g. 'heart' or 'liver'. High level organ term.")
-    freezing_method: FreezingMethod = Field(...,
-                                            description="Method of freezing of organoid. Temperatures are in celsius. 'Frozen, vapor phase' refers to storing samples above liquid nitrogen in the vapor.")
-    organoid_passage: OrganoidPassage = Field(...,
-                                              description="Number of passages. Passage 0 is the plating of cells to create the organoid")
-    organoid_passage_protocol: OrganoidPassageProtocol = Field(...,
-                                                               description="A link to the protocol for organoid passage.")
-    type_of_organoid_culture: TypeOfOrganoidCulture = Field(...,
-                                                            description="Whether the organoid culture two dimensional or three dimensional.")
-    growth_environment: GrowthEnvironment = Field(...,
-                                                  description="Growth environment in which the organoid is grown. e.g. 'matrigel', 'liquid suspension' or 'adherent'.")
-    derived_from: DerivedFrom = Field(..., description="Sample name or BioSample ID for a specimen or organoid record.")
-
-    # conditionally required based on freezing_method
-    freezing_date: Optional[FreezingDate] = Field(None, description="Date that the organoid was frozen.")
-    freezing_protocol: Optional[FreezingProtocol] = Field(None, description="A link to the protocol for freezing.")
-
-    # optional fields
-    organ_part_model: Optional[OrganPartModel] = Field(None,
-                                                       description="Organ part for which this organoid is a model system e.g. 'bone marrow' or 'islet of Langerhans'. More specific part of organ.")
-    number_of_frozen_cells: Optional[NumberOfFrozenCells] = Field(None,
-                                                                  description="Number of organoids cells that were frozen.")
-    organoid_culture_and_passage_protocol: Optional[OrganoidCultureAndPassageProtocol] = Field(None,
-                                                                                               description="Protocol for the culture and passage of organoids, growth environment (matrigel or other); incubation temperature and oxygen level are expected in this protocol")
-    organoid_morphology: Optional[OrganoidMorphology] = Field(None,
-                                                              description="General description of the organoid morphology. e.g. 'Epithelial monolayer with budding crypt-like domains' or 'Optic cup structure'. Be consistent within your project if multiple similar samples.")
 
     @field_validator('freezing_date')
-    def validate_freezing_date_required(cls, v, info):
+    def validate_freezing_date_format(cls, v, info):
+        if not v or v == "restricted access":
+            return v
+
         values = info.data
-        freezing_method = values.get('freezing_method')
-        if freezing_method and freezing_method.value != 'fresh' and v is None:
-            raise ValueError("freezing_date is required when freezing_method is not 'fresh'")
+        unit = values.get('Unit') or values.get('freezing_date_unit')
+
+        if unit == "YYYY-MM-DD":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$'
+            date_format = '%Y-%m-%d'
+        elif unit == "YYYY-MM":
+            pattern = r'^[12]\d{3}-(0[1-9]|1[0-2])$'
+            date_format = '%Y-%m'
+        elif unit == "YYYY":
+            pattern = r'^[12]\d{3}$'
+            date_format = '%Y'
+        else:
+            return v
+
+        if not re.match(pattern, v):
+            raise ValueError(f"Invalid freezing date format: {v}. Must match {unit} pattern")
+
+        try:
+            datetime.strptime(v, date_format)
+        except ValueError:
+            raise ValueError(f"Invalid date value: {v}")
+
         return v
 
-    @field_validator('freezing_protocol')
-    def validate_freezing_protocol_required(cls, v, info):
-        values = info.data
-        freezing_method = values.get('freezing_method')
-        if freezing_method and freezing_method.value != 'fresh' and v is None:
-            raise ValueError("freezing_protocol is required when freezing_method is not 'fresh'")
+    @field_validator('organoid_passage_protocol', 'organoid_culture_and_passage_protocol', 'freezing_protocol')
+    def validate_protocol_urls(cls, v):
+        if not v or v == "restricted access":
+            return v
+        if not (v.startswith('http://') or v.startswith('https://')):
+            raise ValueError("Protocol must be a valid URL starting with http:// or https://")
         return v
+
+    @field_validator('organoid_passage', mode='before')
+    def validate_organoid_passage(cls, v):
+        if v is None or (isinstance(v, str) and v.strip() == ""):
+            raise ValueError("Organoid passage is required")
+
+        try:
+            passage_val = float(v)
+            if passage_val < 0:
+                raise ValueError("Organoid passage must be non-negative")
+            return passage_val
+        except ValueError as e:
+            if "non-negative" in str(e):
+                raise
+            raise ValueError(f"Organoid passage must be a valid number, got '{v}'")
+
+    @field_validator('number_of_frozen_cells', mode='before')
+    def validate_number_of_frozen_cells(cls, v):
+        if not v or (isinstance(v, str) and v.strip() == ""):
+            return None
+
+        try:
+            cell_count = float(v)
+            if cell_count < 0:
+                raise ValueError("Number of frozen cells must be non-negative")
+            return cell_count
+        except ValueError as e:
+            if "non-negative" in str(e):
+                raise
+            raise ValueError(f"Number of frozen cells must be a valid number, got '{v}'")
+
+    @field_validator('derived_from')
+    def validate_derived_from_value(cls, v):
+        if not v or v.strip() == "":
+            raise ValueError("Derived from value is required and cannot be empty")
+        return v.strip()
+
+    # convert empty strings to None for optional fields
+    @field_validator(
+        'secondary_project', 'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
+        'freezing_date', 'freezing_date_unit', 'freezing_protocol', 'number_of_frozen_cells_unit',
+        'organoid_culture_and_passage_protocol', 'organoid_morphology',
+        'growth_environment_unit', 'stored_oxygen_level', 'stored_oxygen_level_unit',
+        'incubation_temperature', 'incubation_temperature_unit', mode='before'
+    )
+    def convert_empty_strings_to_none(cls, v):
+        if v is not None and v.strip() == "":
+            return None
+        return v
+
+    @model_validator(mode='after')
+    def validate_conditional_requirements(self):
+        freezing_method_value = self.freezing_method
+
+        if freezing_method_value and freezing_method_value != "fresh":
+            if not self.freezing_date:
+                raise ValueError("Freezing date is required when freezing method is not 'fresh'")
+            if not self.freezing_protocol:
+                raise ValueError("Freezing protocol is required when freezing method is not 'fresh'")
+
+        # organ part model consistency
+        if self.organ_part_model and not self.organ_part_model_term_source_id:
+            raise ValueError("Organ part model term source ID is required when organ part model text is provided")
+
+        if (self.organ_part_model_term_source_id and
+            self.organ_part_model_term_source_id != "restricted access" and
+            (not self.organ_part_model or not self.organ_part_model.strip())):
+            raise ValueError("Organ part model text is required when organ part model term source ID is provided")
+
+        return self
 
     class Config:
-        extra = "forbid"
-        validate_by_name = True
+        populate_by_name = True
         validate_default = True
         validate_assignment = True
+        extra = "forbid"
