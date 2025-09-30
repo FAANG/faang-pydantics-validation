@@ -26,7 +26,7 @@ class OrganismValidator(BaseValidator):
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
 
-        model, errors = self.validate_record(data, validate_relationships)
+        model, errors = self.validate_single_record(data, validate_relationships)
         return model, errors
 
     def validate_with_pydantic(
