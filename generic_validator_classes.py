@@ -283,16 +283,16 @@ class RelationshipValidator:
         if all_samples:
             for sample_type, samples in all_samples.items():
                 for sample in samples:
-                    sample_name = self._extract_sample_name(sample)
+                    sample_name = self.extract_sample_name(sample)
                     if sample_name:
                         relationships[sample_name] = {}
 
                         # get material type
-                        material = self._extract_material(sample, sample_type)
+                        material = self.extract_material(sample, sample_type)
                         relationships[sample_name]['material'] = material
 
                         # get derived_from relationships
-                        derived_from = self._extract_derived_from(sample, sample_type)
+                        derived_from = self.extract_derived_from(sample, sample_type)
                         if derived_from:
                             relationships[sample_name]['relationships'] = derived_from
 
@@ -327,17 +327,17 @@ class RelationshipValidator:
 
         return relationship_errors
 
-    def _extract_sample_name(self, sample: Dict) -> str:
+    def extract_sample_name(self, sample: Dict) -> str:
         return sample.get('Sample Name', '')
 
-    def _extract_material(self, sample: Dict, sample_type: str) -> str:
+    def extract_material(self, sample: Dict, sample_type: str) -> str:
         material = sample.get('Material', '')
         if material:
             return material
 
         return sample_type
 
-    def _extract_derived_from(self, sample: Dict, sample_type: str) -> List[str]:
+    def extract_derived_from(self, sample: Dict, sample_type: str) -> List[str]:
         refs = []
 
         if 'Derived From' in sample:
