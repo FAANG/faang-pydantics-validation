@@ -76,7 +76,7 @@ class BaseValidator(ABC):
 
     def validate_records(
         self,
-        samples: List[Dict[str, Any]],
+        sheet_records: List[Dict[str, Any]],
         validate_relationships: bool = True,
         all_samples: Dict[str, List[Dict]] = None,
         **kwargs
@@ -87,7 +87,7 @@ class BaseValidator(ABC):
             f'valid_{sample_type}s': [],
             f'invalid_{sample_type}s': [],
             'summary': {
-                'total': len(samples),
+                'total': len(sheet_records),
                 'valid': 0,
                 'invalid': 0,
                 'warnings': 0,
@@ -95,17 +95,17 @@ class BaseValidator(ABC):
             }
         }
 
-        for i, sample_data in enumerate(samples):
-            sample_name = sample_data.get('Sample Name', f'{sample_type}_{i}')
+        for i, record in enumerate(sheet_records):
+            sample_name = record.get('Sample Name', f'{sample_type}_{i}')
 
-            model, errors = self.validate_single_record(sample_data)
+            model, errors = self.validate_single_record(record)
 
             if model and not errors['errors']:
                 results[f'valid_{sample_type}s'].append({
                     'index': i,
                     'sample_name': sample_name,
                     'model': model,
-                    'data': sample_data,
+                    'data': record,
                     'warnings': errors['warnings'],
                     'relationship_errors': []
                 })
@@ -116,7 +116,7 @@ class BaseValidator(ABC):
                 results[f'invalid_{sample_type}s'].append({
                     'index': i,
                     'sample_name': sample_name,
-                    'data': sample_data,
+                    'data': record,
                     'errors': errors
                 })
                 results['summary']['invalid'] += 1

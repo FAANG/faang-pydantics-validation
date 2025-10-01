@@ -44,7 +44,7 @@ class SpecimenValidator(BaseValidator):
 
     def validate_records(
         self,
-        samples: List[Dict[str, Any]],
+        sheet_records: List[Dict[str, Any]],
         validate_relationships: bool = True,
         all_samples: Dict[str, List[Dict]] = None,
         validate_ontology_text: bool = True,
@@ -52,7 +52,7 @@ class SpecimenValidator(BaseValidator):
     ) -> Dict[str, Any]:
 
         # Base validation results
-        results = super().validate_records(samples, validate_relationships=False, all_samples=all_samples)
+        results = super().validate_records(sheet_records, validate_relationships=False, all_samples=all_samples)
 
         # Simplified relationship validation using the generic method
         if validate_relationships and all_samples:

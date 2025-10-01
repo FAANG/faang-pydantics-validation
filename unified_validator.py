@@ -93,30 +93,7 @@ class UnifiedFAANGValidator:
         return all_results
 
     def generate_unified_report(self, validation_results: Dict[str, Any]) -> str:
-        """Generate a unified validation report for all sample types"""
         report_lines = []
-
-        # Header
-        report_lines.append("=" * 60)
-        report_lines.append("FAANG UNIFIED VALIDATION REPORT")
-        report_lines.append("=" * 60)
-
-        # Overall summary
-        # summary = validation_results['total_summary']
-        # report_lines.append(f"\nOVERALL SUMMARY:")
-        # report_lines.append(f"Sample types processed: {', '.join(validation_results['sample_types_processed'])}")
-        # report_lines.append(f"Total samples: {summary['total_samples']}")
-        # report_lines.append(f"Valid samples: {summary['valid_samples']}")
-        # report_lines.append(f"Invalid samples: {summary['invalid_samples']}")
-        # report_lines.append(f"Samples with warnings: {summary['warnings']}")
-        # report_lines.append(f"Samples with relationship errors: {summary['relationship_errors']}")
-
-        # # Success rate
-        # if summary['total_samples'] > 0:
-        #     success_rate = (summary['valid_samples'] / summary['total_samples']) * 100
-        #     report_lines.append(f"Success rate: {success_rate:.1f}%")
-
-        report_lines.append("\n" + "=" * 60)
 
         # Individual reports by type
         for sample_type in validation_results['sample_types_processed']:
@@ -126,7 +103,6 @@ class UnifiedFAANGValidator:
         return "\n".join(report_lines)
 
     def export_valid_samples_to_biosample(self, validation_results: Dict[str, Any]) -> Dict[str, List[Dict]]:
-        """Export all valid samples to BioSample format"""
         biosample_exports = {}
 
         for sample_type in validation_results['sample_types_processed']:
@@ -143,65 +119,8 @@ class UnifiedFAANGValidator:
                         'sample_name': valid_sample['sample_name'],
                         'biosample_format': biosample_data
                     })
-
         return biosample_exports
 
-    def get_validation_summary(self, validation_results: Dict[str, Any]) -> Dict[str, Any]:
-        """Get a concise validation summary"""
-        summary_by_type = {}
-
-        for sample_type in validation_results['sample_types_processed']:
-            results = validation_results['results_by_type'][sample_type]
-            summary = results['summary']
-
-            summary_by_type[sample_type] = {
-                'total': summary['total'],
-                'valid': summary['valid'],
-                'invalid': summary['invalid'],
-                'success_rate': f"{(summary['valid'] / summary['total'] * 100):.1f}%" if summary['total'] > 0 else "0%",
-                'has_warnings': summary['warnings'] > 0,
-                'has_relationship_errors': summary['relationship_errors'] > 0
-            }
-
-        return {
-            'overall': validation_results['total_summary'],
-            'by_type': summary_by_type
-        }
-
-    def add_validator(self, sample_type: str, validator_instance):
-        """Add a new validator for a sample type"""
-        self.validators[sample_type] = validator_instance
-        self.supported_sample_types.add(sample_type)
 
     def get_supported_types(self) -> List[str]:
-        """Get list of supported sample types"""
         return list(self.supported_sample_types)
-
-    def configure_validation(self, **config_options):
-        """Configure validation options for all validators"""
-        for validator in self.validators.values():
-            if hasattr(validator, 'config'):
-                for key, value in config_options.items():
-                    if hasattr(validator.config, key):
-                        setattr(validator.config, key, value)
-
-    def get_validation_config_summary(self) -> Dict[str, Any]:
-        """Get summary of current validation configuration"""
-        config_summary = {}
-
-        for sample_type, validator in self.validators.items():
-            if hasattr(validator, 'config'):
-                config_summary[sample_type] = {
-                    'external_biosample_validation': getattr(validator.config, 'enable_external_biosample_validation',
-                                                             False),
-                    'relationship_chain_validation': getattr(validator.config, 'enable_relationship_chain_validation',
-                                                             False),
-                    'circular_reference_detection': getattr(validator.config, 'enable_circular_reference_detection',
-                                                            False),
-                    'ols_text_validation': getattr(validator.config, 'enable_ols_text_validation', False),
-                    'max_relationship_depth': getattr(validator.config, 'max_relationship_depth', 10),
-                }
-            else:
-                config_summary[sample_type] = {'basic_validation_only': True}
-
-        return config_summary

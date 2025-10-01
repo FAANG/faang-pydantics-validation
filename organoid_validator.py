@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.organoid_ruleset import FAANGOrganoidSample
-import json
 
 
 class OrganoidValidator(BaseValidator):
@@ -22,7 +21,6 @@ class OrganoidValidator(BaseValidator):
         self,
         data: Dict[str, Any],
         validate_relationships: bool = True,
-        validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganoidSample], Dict[str, List[str]]]:
 
         model, errors = self.validate_single_record(data, validate_relationships)
