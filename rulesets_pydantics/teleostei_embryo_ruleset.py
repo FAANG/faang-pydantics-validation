@@ -5,6 +5,8 @@ from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
 
 class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
     # required fields
+    sample_name: str = Field(..., alias="Sample Name")
+
     origin: Literal[
         "Domesticated diploid",
         "Domesticated Double-haploid",
