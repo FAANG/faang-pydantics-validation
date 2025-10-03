@@ -77,7 +77,7 @@ class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
         ..., alias="Photoperiod"
     )
 
-    # Optional/recommended field
+    # optional/recommended field
     generations_from_wild: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
     ]]] = Field(None, alias="Generations From Wild", json_schema_extra={"recommended": True})
