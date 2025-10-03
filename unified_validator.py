@@ -1,5 +1,5 @@
-from typing import Dict, List, Any, Optional
-import json
+from typing import Dict, List, Any
+from teleostei_embryo_validator import TeleosteiEmbryoValidator
 from organism_validator import OrganismValidator
 from organoid_validator import OrganoidValidator
 from specimen_validator import SpecimenValidator
@@ -11,7 +11,7 @@ class UnifiedFAANGValidator:
             'organism': OrganismValidator(),
             'organoid': OrganoidValidator(),
             'specimen_from_organism': SpecimenValidator(),
-            # Add more sample types here as needed
+            'teleostei_embryo': TeleosteiEmbryoValidator(),
             # 'cell_culture': CellCultureValidator(),
             # 'cell_line': CellLineValidator(),
         }

@@ -108,7 +108,7 @@ class OrganoidValidator(BaseValidator):
             organ_model_text = organoid.get('Organ Model')
             organ_model_term = organoid.get('Organ Model Term Source ID')
             if organ_model_text and organ_model_term and organ_model_term != "restricted access":
-                error = self._check_text_term_consistency_flattened(
+                error = self.check_text_term_consistency(
                     organ_model_text, organ_model_term, ontology_data, 'organ_model'
                 )
                 if error:
@@ -118,7 +118,7 @@ class OrganoidValidator(BaseValidator):
             organ_part_text = organoid.get('Organ Part Model')
             organ_part_term = organoid.get('Organ Part Model Term Source ID')
             if organ_part_text and organ_part_term and organ_part_term != "restricted access":
-                error = self._check_text_term_consistency_flattened(
+                error = self.check_text_term_consistency(
                     organ_part_text, organ_part_term, ontology_data, 'organ_part_model'
                 )
                 if error:
@@ -162,8 +162,8 @@ class OrganoidValidator(BaseValidator):
 
         return results
 
-    def _check_text_term_consistency_flattened(self, text: str, term: str,
-                                               ontology_data: Dict, field_name: str) -> str:
+    def check_text_term_consistency(self, text: str, term: str,
+                                    ontology_data: Dict, field_name: str) -> str:
         if not text or not term or term == "restricted access":
             return None
 

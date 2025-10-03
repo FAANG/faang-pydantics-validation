@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Type, Optional, Tuple
 from pydantic import BaseModel
 from base_validator import BaseValidator
-from generic_validator_classes import (OntologyValidator, RelationshipValidator)
+from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
 
 
@@ -24,7 +24,7 @@ class SpecimenValidator(BaseValidator):
         validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGSpecimenFromOrganismSample], Dict[str, List[str]]]:
 
-        model, errors = self.validate_single_record(data, validate_relationships)
+        model, errors = self.validate_single_record(data)
         return model, errors
 
     def validate_with_pydantic(
@@ -54,7 +54,7 @@ class SpecimenValidator(BaseValidator):
         # Base validation results
         results = super().validate_records(sheet_records, validate_relationships=False, all_samples=all_samples)
 
-        # Simplified relationship validation using the generic method
+        # relationship validation
         if validate_relationships and all_samples:
             relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
