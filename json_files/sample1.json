@@ -1,195 +1,537 @@
 {
-    "organism": [
-            {
-                "Sample Name": "ECA_UKY_H11",
-                "Sample Description": "Foal",
-                "Material": "organism",
-                "Term Source ID": "OBI_0100026",
-                "Project": "FAANG",
-                "Secondary Project": "AQUA-FAANGx",
-                "Availability": "",
-                "Same as": "",
-                "Organism": "Equus caballus",
-                "Organism Term Source ID": "NCBITaxon:9796",
-                "Sex": "male",
-                "Sex Term Source ID": "PATO_0000384",
-                "Birth Date": "2013-02",
-                "Unit": "YYYY-MM",
-                "Health Status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "Diet": "",
-                "Birth Location": "",
-                "Birth Location Latitude": "",
-                "Birth Location Latitude Unit": "",
-                "Birth Location Longitude": "",
-                "Birth Location Longitude Unit": "",
-                "Birth Weight": "",
-                "Birth Weight Unit": "",
-                "Placental Weight": "",
-                "Placental Weight Unit": "",
-                "Pregnancy Length": "",
-                "Pregnancy Length Unit": "",
-                "Delivery Timing": "",
-                "Delivery Ease": "",
-                "Child Of": ["", ""],
-                "Pedigree": ""
-            },
-            {
-                "Sample Name": "ECA_UKY_H1",
-                "Sample Description": "Foal, 9 days old, Thoroughbred",
-                "Material": "organism",
-                "Term Source ID": "OBI_0100026",
-                "Project": "FAANG",
-                "Secondary Project": "AQUA-FAANG",
-                "Availability": "",
-                "Same as": "",
-                "Organism": "Equus caballus",
-                "Organism Term Source ID": "NCBITaxon:9796",
-                "Sex": "female",
-                "Sex Term Source ID": "PATO_0000383",
-                "Birth Date": "2014-07",
-                "Unit": "YYYY-MM",
-                "Health Status": [
-                    {
-                        "text": "normal",
-                        "term": "PATO:0000461"
-                    }
-                ],
-                "Diet": "",
-                "Birth Location": "",
-                "Birth Location Latitude": "",
-                "Birth Location Latitude Unit": "",
-                "Birth Location Longitude": "",
-                "Birth Location Longitude Unit": "",
-                "Birth Weight": "",
-                "Birth Weight Unit": "",
-                "Placental Weight": "",
-                "Placental Weight Unit": "",
-                "Pregnancy Length": "",
-                "Pregnancy Length Unit": "",
-                "Delivery Timing": "",
-                "Delivery Ease": "",
-                "Child Of": ["ECA_UKY_H11", "ECA_UKY_H1"],
-                "Pedigree": ""
-            }
-        ],
-    "organoid": [
+  "organism": [
+    {
+      "Sample Name": "ECA_UKY_H11",
+      "Sample Description": "Foal",
+      "Material": "organism",
+      "Term Source ID": "OBI_0100026",
+      "Project": "FAANG",
+      "Secondary Project": "AQUA-FAANGx",
+      "Availability": "",
+      "Same as": "",
+      "Organism": "Equus caballus",
+      "Organism Term Source ID": "NCBITaxon:9796",
+      "Sex": "male",
+      "Sex Term Source ID": "PATO_0000384",
+      "Birth Date": "2013-02",
+      "Unit": "YYYY-MM",
+      "Health Status": [
         {
-            "Sample Name": "OCU_INRAE_S1",
-            "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)",
-            "Material": "organoid",
-            "Term Source ID": "NCIT_C172259",
-            "Project": "FAANG",
-            "Secondary Project": "",
-            "Availability": "",
-            "Same as": "",
-            "Organ Model": "Caecum",
-            "Organ Model Term Source ID": "UBERON:0001153",
-            "Organ Part Model": "Caecum epithelium",
-            "Organ Part Model Term Source ID": "UBERON:0005636",
-            "Freezing Date": "restricted access",
-            "Unit": "restricted access",
-            "Freezing Method": "fresh",
-            "Freezing Protocol": "restricted access",
-            "Number Of Frozen Cells": "",
-            "Number Of Frozen Cells Unit": "",
-            "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
-            "Organoid Passage": "2",
-            "Organoid Passage Unit": "passages",
-            "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
-            "Type Of Organoid Culture": "2D",
-            "Organoid Morphology": "",
-            "Growth Environment": "matrigel",
-            "Growth Environment Unit": "1",
-            "Stored Oxygen Level": "",
-            "Stored Oxygen Level Unit": "",
-            "Incubation Temperature": "",
-            "Incubation Temperature Unit": "",
-            "Derived From": "OCU_INRAE_PND18_S1"
+          "text": "normal",
+          "term": "PATO:0000461"
+        }
+      ],
+      "Diet": "",
+      "Birth Location": "",
+      "Birth Location Latitude": "",
+      "Birth Location Latitude Unit": "",
+      "Birth Location Longitude": "",
+      "Birth Location Longitude Unit": "",
+      "Birth Weight": "",
+      "Birth Weight Unit": "",
+      "Placental Weight": "",
+      "Placental Weight Unit": "",
+      "Pregnancy Length": "",
+      "Pregnancy Length Unit": "",
+      "Delivery Timing": "",
+      "Delivery Ease": "",
+      "Child Of": [
+        "",
+        ""
+      ],
+      "Pedigree": ""
+    },
+    {
+      "Sample Name": "ECA_UKY_H1",
+      "Sample Description": "Foal, 9 days old, Thoroughbred",
+      "Material": "organism",
+      "Term Source ID": "OBI_0100026",
+      "Project": "FAANG",
+      "Secondary Project": "AQUA-FAANG",
+      "Availability": "",
+      "Same as": "",
+      "Organism": "Equus caballus",
+      "Organism Term Source ID": "NCBITaxon:9796",
+      "Sex": "female",
+      "Sex Term Source ID": "PATO_0000383",
+      "Birth Date": "2014-07",
+      "Unit": "YYYY-MM",
+      "Health Status": [
+        {
+          "text": "normal",
+          "term": "PATO:0000461"
+        }
+      ],
+      "Diet": "",
+      "Birth Location": "",
+      "Birth Location Latitude": "",
+      "Birth Location Latitude Unit": "",
+      "Birth Location Longitude": "",
+      "Birth Location Longitude Unit": "",
+      "Birth Weight": "",
+      "Birth Weight Unit": "",
+      "Placental Weight": "",
+      "Placental Weight Unit": "",
+      "Pregnancy Length": "",
+      "Pregnancy Length Unit": "",
+      "Delivery Timing": "",
+      "Delivery Ease": "",
+      "Child Of": [
+        "ECA_UKY_H11",
+        "ECA_UKY_H1"
+      ],
+      "Pedigree": ""
+    }
+  ],
+  "organoid": [
+    {
+      "Sample Name": "OCU_INRAE_S1",
+      "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 1 (immerged condition)",
+      "Material": "organoid",
+      "Term Source ID": "NCIT_C172259",
+      "Project": "FAANG",
+      "Secondary Project": "",
+      "Availability": "",
+      "Same as": "",
+      "Organ Model": "Caecum",
+      "Organ Model Term Source ID": "UBERON:0001153",
+      "Organ Part Model": "Caecum epithelium",
+      "Organ Part Model Term Source ID": "UBERON:0005636",
+      "Freezing Date": "restricted access",
+      "Unit": "restricted access",
+      "Freezing Method": "fresh",
+      "Freezing Protocol": "restricted access",
+      "Number Of Frozen Cells": "",
+      "Number Of Frozen Cells Unit": "",
+      "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+      "Organoid Passage": "2",
+      "Organoid Passage Unit": "passages",
+      "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+      "Type Of Organoid Culture": "2D",
+      "Organoid Morphology": "",
+      "Growth Environment": "matrigel",
+      "Growth Environment Unit": "1",
+      "Stored Oxygen Level": "",
+      "Stored Oxygen Level Unit": "",
+      "Incubation Temperature": "",
+      "Incubation Temperature Unit": "",
+      "Derived From": "OCU_INRAE_PND18_S1"
+    },
+    {
+      "Sample Name": "OCU_INRAE_S2",
+      "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
+      "Material": "organoid",
+      "Term Source ID": "NCIT_C172259",
+      "Project": "FAANG",
+      "Secondary Project": "",
+      "Availability": "",
+      "Same as": "",
+      "Organ Model": "Caecum",
+      "Organ Model Term Source ID": "UBERONx:0001153",
+      "Organ Part Model": "Caecum epithelium",
+      "Organ Part Model Term Source ID": "UBERON:0005636",
+      "Freezing Date": "restricted access",
+      "Unit": "restricted access",
+      "Freezing Method": "fresh",
+      "Freezing Protocol": "restricted access",
+      "Number Of Frozen Cells": "",
+      "Number Of Frozen Cells Unit": "",
+      "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+      "Organoid Passage": "2",
+      "Organoid Passage Unit": "passages",
+      "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
+      "Type Of Organoid Culture": "2D",
+      "Organoid Morphology": "",
+      "Growth Environment": "matrigel",
+      "Growth Environment Unit": "1",
+      "Stored Oxygen Level": "",
+      "Stored Oxygen Level Unit": "",
+      "Incubation Temperature": "",
+      "Incubation Temperature Unit": "",
+      "Derived From": "OCU_INRAE_PND18_S19"
+    }
+  ],
+  "specimen_from_organism": [
+    {
+      "Health Status": [
+        {
+          "text": "normal",
+          "term": "PATO:0000461"
+        }
+      ],
+      "Sample Name": "OCU_INRAE_PND18_S1",
+      "Sample Description": "Adipose Tissue, H1",
+      "Material": "specimen from organism",
+      "Term Source ID": "OBI_0001479",
+      "Project": "FAANG",
+      "Secondary Project": "",
+      "Availability": "",
+      "Same as": "",
+      "Specimen Collection Date": "2005-05",
+      "Unit": "YYYY-MM",
+      "Geographic Location": "Denmark",
+      "Animal Age At Collection": "23.5",
+      "Animal Age At Collection Unit": "month",
+      "Developmental Stage": "adult",
+      "Developmental Stage Term Source ID": "EFO_0001272",
+      "Organism Part": "adipose tissue",
+      "Organism Part Term Source ID": "UBERON_0001013",
+      "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+      "Fasted Status": "",
+      "Number of Pieces": "",
+      "Number of Pieces Unit": "",
+      "Specimen Volume": "",
+      "Specimen Volume Unit": "",
+      "Specimen Size": "",
+      "Specimen Size Unit": "",
+      "Specimen Weight": "",
+      "Specimen Weight Unit": "",
+      "Specimen Picture URL": [
+        ""
+      ],
+      "Gestational Age At Sample Collection": "",
+      "Gestational Age At Sample Collection Unit": "",
+      "Average Incubation temperature": "",
+      "Average Incubation temperature Unit": "",
+      "Average Incubation Humidity": "",
+      "Average Incubation Humidity Unit": "",
+      "Embryonic Stage": "",
+      "Embryonic Stage Unit": "",
+      "Derived From": "OCU_INRAE_PND18"
+    }
+  ],
+  "teleostei_embryo_old_version": [
+    {
+      "samples_core": {
+        "sample_description": {
+          "value": "Sample_description for teleostei_embryo_1"
         },
-        {
-            "Sample Name": "OCU_INRAE_S2",
-            "Sample Description": "Rabbit caecum organoid cell monolayer, cell culture insert 2 (immerged condition)",
-            "Material": "organoid",
-            "Term Source ID": "NCIT_C172259",
-            "Project": "FAANG",
-            "Secondary Project": "",
-            "Availability": "",
-            "Same as": "",
-            "Organ Model": "Caecum",
-            "Organ Model Term Source ID": "UBERONx:0001153",
-            "Organ Part Model": "Caecum epithelium",
-            "Organ Part Model Term Source ID": "UBERON:0005636",
-            "Freezing Date": "restricted access",
-            "Unit": "restricted access",
-            "Freezing Method": "fresh",
-            "Freezing Protocol": "restricted access",
-            "Number Of Frozen Cells": "",
-            "Number Of Frozen Cells Unit": "",
-            "Organoid Culture And Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
-            "Organoid Passage": "2",
-            "Organoid Passage Unit": "passages",
-            "Organoid Passage Protocol": "https://api.faang.org/files/protocols/samples/INRAE_SOP_METABOWEAN_20250206.pdf",
-            "Type Of Organoid Culture": "2D",
-            "Organoid Morphology": "",
-            "Growth Environment": "matrigel",
-            "Growth Environment Unit": "1",
-            "Stored Oxygen Level": "",
-            "Stored Oxygen Level Unit": "",
-            "Incubation Temperature": "",
-            "Incubation Temperature Unit": "",
-            "Derived From": "OCU_INRAE_PND18_S19"
+        "material": {
+          "text": "specimen from organism",
+          "term": "OBI:0001479"
+        },
+        "project": {
+          "value": "FAANG"
         }
-    ],
-    "specimen_from_organism": [
+      },
+      "specimen_collection_date": {
+        "value": "2005-05",
+        "units": "YYYY-MM"
+      },
+      "geographic_location": {
+        "value": "Denmark"
+      },
+      "animal_age_at_collection": {
+        "value": 23.5,
+        "units": "month"
+      },
+      "developmental_stage": {
+        "text": "adult",
+        "term": "EFO:0001272"
+      },
+      "health_status_at_collection": [
         {
-            "Health Status": [
-                {
-                    "text": "normal",
-                    "term": "PATO:0000461"
-                }
-            ],
-            "Sample Name": "OCU_INRAE_PND18_S1",
-            "Sample Description": "Adipose Tissue, H1",
-            "Material": "specimen from organism",
-            "Term Source ID": "OBI_0001479",
-            "Project": "FAANG",
-            "Secondary Project": "",
-            "Availability": "",
-            "Same as": "",
-            "Specimen Collection Date": "2005-05",
-            "Unit": "YYYY-MM",
-            "Geographic Location": "Denmark",
-            "Animal Age At Collection": "23.5",
-            "Animal Age At Collection Unit": "month",
-            "Developmental Stage": "adult",
-            "Developmental Stage Term Source ID": "EFO_0001272",
-            "Organism Part": "adipose tissue",
-            "Organism Part Term Source ID": "UBERON_0001013",
-            "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
-            "Fasted Status": "",
-            "Number of Pieces": "",
-            "Number of Pieces Unit": "",
-            "Specimen Volume": "",
-            "Specimen Volume Unit": "",
-            "Specimen Size": "",
-            "Specimen Size Unit": "",
-            "Specimen Weight": "",
-            "Specimen Weight Unit": "",
-            "Specimen Picture URL": [""],
-            "Gestational Age At Sample Collection": "",
-            "Gestational Age At Sample Collection Unit": "",
-            "Average Incubation temperature": "",
-            "Average Incubation temperature Unit": "",
-            "Average Incubation Humidity": "",
-            "Average Incubation Humidity Unit": "",
-            "Embryonic Stage": "",
-            "Embryonic Stage Unit": "",
-            "Derived From": "OCU_INRAE_PND18"
+          "text": "normal",
+          "term": "PATO:0000461"
         }
-    ]
+      ],
+      "organism_part": {
+        "text": "adipose tissue",
+        "term": "UBERON:0001013"
+      },
+      "specimen_collection_protocol": {
+        "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+      },
+      "derived_from": {
+        "value": "OCU_INRAE_PND18"
+      },
+      "custom": {
+        "sample_name": {
+          "value": "teleostei_embryo_1"
+        }
+      },
+      "teleostei_embryo": {
+        "origin": {
+          "value": "Domesticated diploid"
+        },
+        "reproductive_strategy": {
+          "value": "gonochoric"
+        },
+        "hatching": {
+          "value": "pre"
+        },
+        "time_post_fertilisation": {
+          "value": 2.0,
+          "units": "hours"
+        },
+        "pre-hatching_water_temperature_average": {
+          "value": 12.0,
+          "units": "Degrees celsius"
+        },
+        "post-hatching_water_temperature_average": {
+          "value": 14.0,
+          "units": "Degrees celsius"
+        },
+        "degree_days": {
+          "value": 14.0,
+          "units": "Thermal time"
+        },
+        "growth_media": {
+          "value": "Water"
+        },
+        "medium_replacement_frequency": {
+          "value": 10.0,
+          "units": "days"
+        },
+        "percentage_total_somite_number": {
+          "value": 65.0,
+          "units": "%"
+        },
+        "average_water_salinity": {
+          "value": 10.0,
+          "units": "parts per thousand"
+        },
+        "photoperiod": {
+          "value": "natural light"
+        },
+        "generations_from_wild": {
+          "value": 11.0,
+          "units": "generations from wild"
+        }
+      }
+    },
+    {
+      "samples_core": {
+        "sample_description": {
+          "value": "Sample_description for teleostei_embryo_2"
+        },
+        "material": {
+          "text": "specimen from organism",
+          "term": "OBI:0001479"
+        },
+        "project": {
+          "value": "FAANG"
+        }
+      },
+      "specimen_collection_date": {
+        "value": "2005-05",
+        "units": "YYYY-MM"
+      },
+      "geographic_location": {
+        "value": "Denmark"
+      },
+      "animal_age_at_collection": {
+        "value": 23.5,
+        "units": "month"
+      },
+      "developmental_stage": {
+        "text": "adult",
+        "term": "EFO:0001272"
+      },
+      "health_status_at_collection": [
+        {
+          "text": "normal",
+          "term": "PATO:0000461"
+        }
+      ],
+      "organism_part": {
+        "text": "adipose tissue",
+        "term": "UBERON:0001013"
+      },
+      "specimen_collection_protocol": {
+        "value": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+      },
+      "derived_from": {
+        "value": "OCU_INRAE_PND18"
+      },
+      "custom": {
+        "sample_name": {
+          "value": "teleostei_embryo_2"
+        }
+      },
+      "teleostei_embryo": {
+        "origin": {
+          "value": "Domesticated diploid"
+        },
+        "reproductive_strategy": {
+          "value": "gonochoric"
+        },
+        "hatching": {
+          "value": "pre"
+        },
+        "time_post_fertilisation": {
+          "value": 5.0,
+          "units": "hours"
+        },
+        "pre-hatching_water_temperature_average": {
+          "value": 12.4,
+          "units": "Degrees celsius"
+        },
+        "post-hatching_water_temperature_average": {
+          "value": 16.0,
+          "units": "Degrees celsius"
+        },
+        "degree_days": {
+          "value": 15.0,
+          "units": "Thermal time"
+        },
+        "growth_media": {
+          "value": "Water"
+        },
+        "medium_replacement_frequency": {
+          "value": 17.0,
+          "units": "days"
+        },
+        "percentage_total_somite_number": {
+          "value": 65.0,
+          "units": "%"
+        },
+        "average_water_salinity": {
+          "value": 10.0,
+          "units": "parts per thousand"
+        },
+        "photoperiod": {
+          "value": "natural light"
+        },
+        "generations_from_wild": {
+          "value": 11.0,
+          "units": "generations from wild"
+        }
+      }
+    }
+  ],
+  "teleostei embryo": [
+    {
+      "Health Status": [
+        {
+          "text": "normal",
+          "term": "PATO_0000461"
+        }
+      ],
+      "Sample Name": "teleostei_embryo_1",
+      "Sample Description": "Sample_description for teleostei_embryo_1",
+      "Material": "specimen from organism",
+      "Term Source ID": "OBI_0001479",
+      "Project": "FAANG",
+      "Secondary Project": "",
+      "Availability": "",
+      "Same as": "",
+      "Specimen Collection Date": "2005-05",
+      "Unit": "YYYY-MM",
+      "Geographic Location": "Denmark",
+      "Animal Age At Collection": 23.5,
+      "Animal Age At Collection Unit": "month",
+      "Developmental Stage": "adult",
+      "Developmental Stage Term Source ID": "EFO_0001272",
+      "Organism Part": "adipose tissue",
+      "Organism Part Term Source ID": "UBERON_0001013",
+      "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+      "Fasted Status": "",
+      "Number of Pieces": "",
+      "Number of Pieces Unit": "",
+      "Specimen Volume": "",
+      "Specimen Volume Unit": "",
+      "Specimen Size": "",
+      "Specimen Size Unit": "",
+      "Specimen Weight": "",
+      "Specimen Weight Unit": "",
+      "Specimen Picture URL": "",
+      "Gestational Age At Sample Collection": "",
+      "Gestational Age At Sample Collection Unit": "",
+      "Average Incubation temperature": "",
+      "Average Incubation temperature Unit": "",
+      "Average Incubation Humidity": "",
+      "Average Incubation Humidity Unit": "",
+      "Embryonic Stage": "",
+      "Embryonic Stage Unit": "",
+      "Derived From": "OCU_INRAE_PND18",
+      "Origin": "Domesticated diploid",
+      "Reproductive Strategy": "gonochoric",
+      "Hatching": "pre",
+      "Time Post Fertilisation": 2,
+      "Time Post Fertilisation Unit": "hours",
+      "Pre-hatching Water Temperature Average": 12,
+      "Pre-hatching Water Temperature Average Unit": "Degrees celsius",
+      "Post-hatching Water Temperature Average": 14,
+      "Post-hatching Water Temperature Average Unit": "Degrees celsius",
+      "Degree Days": 14,
+      "Degree Days Unit": "Thermal time\t\t",
+      "Growth Media": "Water",
+      "Medium Replacement Frequency": 10,
+      "Medium Replacement Frequency Unit": "days",
+      "Percentage Total Somite Number": 65,
+      "Percentage Total Somite Number Unit": "%",
+      "Average Water Salinity": 10,
+      "Average Water Salinity Unit": "parts per thousand",
+      "Photoperiod": "natural light",
+      "Generations From Wild": 11,
+      "Generations From Wild Unit": "generations from wild"
+    },
+    {
+      "Health Status": [
+        {
+          "text": "normal",
+          "term": "PATO_0000461"
+        }
+      ],
+      "Sample Name": "teleostei_embryo_2",
+      "Sample Description": "Sample_description for teleostei_embryo_2",
+      "Material": "specimen from organism",
+      "Term Source ID": "OBI_0001479",
+      "Project": "FAANG",
+      "Secondary Project": "",
+      "Availability": "",
+      "Same as": "",
+      "Specimen Collection Date": "2005-05",
+      "Unit": "YYYY-MM",
+      "Geographic Location": "Denmark",
+      "Animal Age At Collection": 23.5,
+      "Animal Age At Collection Unit": "month",
+      "Developmental Stage": "adult",
+      "Developmental Stage Term Source ID": "EFO_0001272",
+      "Organism Part": "adipose tissue",
+      "Organism Part Term Source ID": "UBERON_0001013",
+      "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+      "Fasted Status": "",
+      "Number of Pieces": "",
+      "Number of Pieces Unit": "",
+      "Specimen Volume": "",
+      "Specimen Volume Unit": "",
+      "Specimen Size": "",
+      "Specimen Size Unit": "",
+      "Specimen Weight": "",
+      "Specimen Weight Unit": "",
+      "Specimen Picture URL": "",
+      "Gestational Age At Sample Collection": "",
+      "Gestational Age At Sample Collection Unit": "",
+      "Average Incubation temperature": "",
+      "Average Incubation temperature Unit": "",
+      "Average Incubation Humidity": "",
+      "Average Incubation Humidity Unit": "",
+      "Embryonic Stage": "",
+      "Embryonic Stage Unit": "",
+      "Derived From": "OCU_INRAE_PND18",
+      "Origin": "Domesticated diploid",
+      "Reproductive Strategy": "gonochoric",
+      "Hatching": "pre",
+      "Time Post Fertilisation": 5,
+      "Time Post Fertilisation Unit": "hours",
+      "Pre-hatching Water Temperature Average": 12.4,
+      "Pre-hatching Water Temperature Average Unit": "Degrees celsius",
+      "Post-hatching Water Temperature Average": 16,
+      "Post-hatching Water Temperature Average Unit": "Degrees celsius",
+      "Degree Days": 15,
+      "Degree Days Unit": "Thermal time\t\t",
+      "Growth Media": "Water",
+      "Medium Replacement Frequency": 17,
+      "Medium Replacement Frequency Unit": "days",
+      "Percentage Total Somite Number": 65,
+      "Percentage Total Somite Number Unit": "%",
+      "Average Water Salinity": 10,
+      "Average Water Salinity Unit": "parts per thousand",
+      "Photoperiod": "natural light",
+      "Generations From Wild": 11,
+      "Generations From Wild Unit": "generations from wild"
+    }
+  ]
 }
