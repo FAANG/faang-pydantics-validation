@@ -65,8 +65,137 @@ class SpecimenValidator(BaseValidator):
                     specimen['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
+            # Add relationship errors to invalid specimens
+            for specimen in results['invalid_specimen_from_organisms']:
+                sample_name = specimen['sample_name']
+                if sample_name in relationship_errors:
+                    if 'relationship_errors' not in specimen['errors']:
+                        specimen['errors']['relationship_errors'] = []
+                    specimen['errors']['relationship_errors'] = relationship_errors[sample_name]
+                    results['summary']['relationship_errors'] += 1
+
+        # Ontology text consistency validation
+        if validate_ontology_text:
+            text_consistency_errors = self.validate_ontology_text_consistency(sheet_records)
+
+            # Add text consistency errors as warnings for valid specimens
+            for specimen in results['valid_specimen_from_organisms']:
+                sample_name = specimen['sample_name']
+                if sample_name in text_consistency_errors:
+                    if 'ontology_warnings' not in specimen:
+                        specimen['ontology_warnings'] = []
+                    specimen['ontology_warnings'].extend(text_consistency_errors[sample_name])
+                    results['summary']['warnings'] += 1
+
+            # Add ontology warnings to invalid specimens
+            for specimen in results['invalid_specimen_from_organisms']:
+                sample_name = specimen['sample_name']
+                if sample_name in text_consistency_errors:
+                    if 'ontology_warnings' not in specimen['errors']:
+                        specimen['errors']['ontology_warnings'] = []
+                    specimen['errors']['ontology_warnings'].extend(text_consistency_errors[sample_name])
+
         return results
 
+    def validate_ontology_text_consistency(self, specimens: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+        ontology_data = self.collect_ontology_ids(specimens)
+        text_consistency_errors = {}
+
+        for i, specimen in enumerate(specimens):
+            sample_name = specimen.get('Sample Name', f'specimen_{i}')
+            errors = []
+
+            # Validate developmental stage text-term consistency
+            dev_stage_text = specimen.get('Developmental Stage')
+            dev_stage_term = specimen.get('Developmental Stage Term Source ID')
+            if dev_stage_text and dev_stage_term and dev_stage_term != "restricted access":
+                error = self.check_text_term_consistency(
+                    dev_stage_text, dev_stage_term, ontology_data, 'developmental_stage'
+                )
+                if error:
+                    errors.append(error)
+
+            # Validate organism part text-term consistency
+            org_part_text = specimen.get('Organism Part')
+            org_part_term = specimen.get('Organism Part Term Source ID')
+            if org_part_text and org_part_term and org_part_term != "restricted access":
+                error = self.check_text_term_consistency(
+                    org_part_text, org_part_term, ontology_data, 'organism_part'
+                )
+                if error:
+                    errors.append(error)
+
+            if errors:
+                text_consistency_errors[sample_name] = errors
+
+        return text_consistency_errors
+
+    def collect_ontology_ids(self, specimens: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
+        ids = set()
+
+        for specimen in specimens:
+            # Get terms from developmental stage
+            dev_stage_term = specimen.get('Developmental Stage Term Source ID')
+            if dev_stage_term and dev_stage_term != "restricted access":
+                ids.add(dev_stage_term)
+
+            # Get terms from organism part
+            org_part_term = specimen.get('Organism Part Term Source ID')
+            if org_part_term and org_part_term != "restricted access":
+                ids.add(org_part_term)
+
+        return self.fetch_ontology_data_for_ids(ids)
+
+    def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
+        results = {}
+
+        for term_id in ids:
+            if term_id and term_id != "restricted access":
+                try:
+                    term_for_lookup = term_id.replace('_', ':', 1) if '_' in term_id else term_id
+                    ols_data = self.ontology_validator.fetch_from_ols(term_for_lookup)
+                    if ols_data:
+                        results[term_id] = ols_data
+                except Exception as e:
+                    print(f"Error fetching ontology data for {term_id}: {e}")
+                    results[term_id] = []
+
+        return results
+
+    def check_text_term_consistency(self, text: str, term: str,
+                                    ontology_data: Dict, field_name: str) -> Optional[str]:
+        if not text or not term or term == "restricted access":
+            return None
+
+        if term not in ontology_data:
+            return f"Couldn't find term '{term}' in OLS"
+
+        term_with_colon = term.replace('_', ':', 1) if '_' in term else term
+        ontology_name = None
+        if term_with_colon.startswith("EFO:"):
+            ontology_name = "EFO"
+        elif term_with_colon.startswith("UBERON:"):
+            ontology_name = "UBERON"
+        elif term_with_colon.startswith("BTO:"):
+            ontology_name = "BTO"
+
+        # Get labels from OLS data
+        term_labels = []
+        for label_data in ontology_data[term]:
+            if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
+                term_labels.append(label_data.get('label', '').lower())
+            elif not ontology_name:
+                term_labels.append(label_data.get('label', '').lower())
+
+        if not term_labels:
+            return f"Couldn't find label in OLS with ontology name: {ontology_name}"
+
+        # Check if provided text matches any OLS label
+        if str(text).lower() not in term_labels:
+            return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
+                    f"for term '{term}' in field '{field_name}'")
+
+        return None
 
     def export_to_biosample_format(self, model: FAANGSpecimenFromOrganismSample) -> Dict[str, Any]:
         """Export specimen model to BioSamples JSON format - updated for flattened model"""
