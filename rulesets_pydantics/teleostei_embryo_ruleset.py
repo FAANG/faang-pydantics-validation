@@ -107,6 +107,37 @@ class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
             )
         return v
 
+    # Single validator to strip whitespace and convert empty strings to None
+    @field_validator(
+        # required unit fields
+        'time_post_fertilisation_unit',
+        'pre_hatching_water_temperature_average_unit',
+        'post_hatching_water_temperature_average_unit',
+        'degree_days_unit',
+        'medium_replacement_frequency_unit',
+        'percentage_total_somite_number_unit',
+        'average_water_salinity_unit',
+        # optional fields
+        'generations_from_wild', 'generations_from_wild_unit',
+        'fasted_status', 'number_of_pieces', 'number_of_pieces_unit',
+        'specimen_volume', 'specimen_volume_unit', 'specimen_size', 'specimen_size_unit',
+        'specimen_weight', 'specimen_weight_unit', 'specimen_picture_url',
+        'gestational_age_at_sample_collection', 'gestational_age_at_sample_collection_unit',
+        'average_incubation_temperature', 'average_incubation_temperature_unit',
+        'average_incubation_humidity', 'average_incubation_humidity_unit',
+        'embryonic_stage', 'embryonic_stage_unit',
+        mode='before'
+    )
+    def strip_and_convert_empty(cls, v):
+        if isinstance(v, str):
+            v = v.strip()
+            if v == "":
+                return None
+        elif v == "":
+            return None
+        return v
+
+
     @field_validator(
         'time_post_fertilisation',
         'pre_hatching_water_temperature_average',

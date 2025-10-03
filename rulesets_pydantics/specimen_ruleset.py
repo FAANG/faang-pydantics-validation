@@ -15,18 +15,18 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        # determine ontology to use (PATO or EFO)
-        if v.startswith("EFO:"):
+        term = v.replace('_', ':', 1) if '_' in v and ':' not in v else v
+
+        if term.startswith("EFO:"):
             ontology_name = "EFO"
-        elif v.startswith("PATO:"):
+        elif term.startswith("PATO:"):
             ontology_name = "PATO"
         else:
             raise ValueError(f"Health status term '{v}' should be from PATO or EFO ontology")
 
-
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=v,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"],
             text=info.data.get('text')

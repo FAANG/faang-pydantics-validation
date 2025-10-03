@@ -3,14 +3,15 @@
     "sample_types_processed": [
       "organism",
       "organoid",
-      "specimen_from_organism"
+      "specimen_from_organism",
+      "teleostei_embryo"
     ],
     "total_summary": {
-      "total_samples": 5,
-      "valid_samples": 3,
+      "total_samples": 7,
+      "valid_samples": 5,
       "invalid_samples": 2,
       "warnings": 1,
-      "relationship_errors": 3
+      "relationship_errors": 5
     },
     "results_by_type": {
       "organism": {
@@ -309,12 +310,175 @@
           "warnings": 0,
           "relationship_errors": 1
         }
+      },
+      "teleostei_embryo": {
+        "valid_teleostei_embryos": [
+          {
+            "index": 0,
+            "sample_name": "teleostei_embryo_1",
+            "model": "sample_description='Sample_description for teleostei_embryo_1' material='specimen from organism' term_source_id='OBI_0001479' project='FAANG' secondary_project=None availability='' same_as='' sample_name='teleostei_embryo_1' specimen_collection_date='2005-05' specimen_collection_date_unit='YYYY-MM' geographic_location='Denmark' animal_age_at_collection=23.5 animal_age_at_collection_unit='month' developmental_stage='adult' developmental_stage_term_source_id='EFO_0001272' organism_part='adipose tissue' organism_part_term_source_id='UBERON_0001013' specimen_collection_protocol='ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf' derived_from='OCU_INRAE_PND18' health_status=[HealthStatus(text='normal', term='PATO_0000461')] fasted_status=None number_of_pieces=None number_of_pieces_unit=None specimen_volume=None specimen_volume_unit=None specimen_size=None specimen_size_unit=None specimen_weight=None specimen_weight_unit=None specimen_picture_url=None gestational_age_at_sample_collection=None gestational_age_at_sample_collection_unit=None average_incubation_temperature=None average_incubation_temperature_unit=None average_incubation_humidity=None average_incubation_humidity_unit=None embryonic_stage=None embryonic_stage_unit=None origin='Domesticated diploid' reproductive_strategy='gonochoric' hatching='pre' time_post_fertilisation=2.0 time_post_fertilisation_unit='hours' pre_hatching_water_temperature_average=12.0 pre_hatching_water_temperature_average_unit='Degrees celsius' post_hatching_water_temperature_average=14.0 post_hatching_water_temperature_average_unit='Degrees celsius' degree_days=14.0 degree_days_unit='Thermal time' growth_media='Water' medium_replacement_frequency=10.0 medium_replacement_frequency_unit='days' percentage_total_somite_number=65.0 percentage_total_somite_number_unit='%' average_water_salinity=10.0 average_water_salinity_unit='parts per thousand' photoperiod='natural light' generations_from_wild=11.0 generations_from_wild_unit='generations from wild'",
+            "data": {
+              "Health Status": [
+                {
+                  "text": "normal",
+                  "term": "PATO_0000461"
+                }
+              ],
+              "Sample Name": "teleostei_embryo_1",
+              "Sample Description": "Sample_description for teleostei_embryo_1",
+              "Material": "specimen from organism",
+              "Term Source ID": "OBI_0001479",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Specimen Collection Date": "2005-05",
+              "Unit": "YYYY-MM",
+              "Geographic Location": "Denmark",
+              "Animal Age At Collection": 23.5,
+              "Animal Age At Collection Unit": "month",
+              "Developmental Stage": "adult",
+              "Developmental Stage Term Source ID": "EFO_0001272",
+              "Organism Part": "adipose tissue",
+              "Organism Part Term Source ID": "UBERON_0001013",
+              "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+              "Fasted Status": "",
+              "Number of Pieces": "",
+              "Number of Pieces Unit": "",
+              "Specimen Volume": "",
+              "Specimen Volume Unit": "",
+              "Specimen Size": "",
+              "Specimen Size Unit": "",
+              "Specimen Weight": "",
+              "Specimen Weight Unit": "",
+              "Specimen Picture URL": "",
+              "Gestational Age At Sample Collection": "",
+              "Gestational Age At Sample Collection Unit": "",
+              "Average Incubation temperature": "",
+              "Average Incubation temperature Unit": "",
+              "Average Incubation Humidity": "",
+              "Average Incubation Humidity Unit": "",
+              "Embryonic Stage": "",
+              "Embryonic Stage Unit": "",
+              "Derived From": "OCU_INRAE_PND18",
+              "Origin": "Domesticated diploid",
+              "Reproductive Strategy": "gonochoric",
+              "Hatching": "pre",
+              "Time Post Fertilisation": 2,
+              "Time Post Fertilisation Unit": "hours",
+              "Pre-hatching Water Temperature Average": 12,
+              "Pre-hatching Water Temperature Average Unit": "Degrees celsius",
+              "Post-hatching Water Temperature Average": 14,
+              "Post-hatching Water Temperature Average Unit": "Degrees celsius",
+              "Degree Days": 14,
+              "Degree Days Unit": "Thermal time",
+              "Growth Media": "Water",
+              "Medium Replacement Frequency": 10,
+              "Medium Replacement Frequency Unit": "days",
+              "Percentage Total Somite Number": 65,
+              "Percentage Total Somite Number Unit": "%",
+              "Average Water Salinity": 10,
+              "Average Water Salinity Unit": "parts per thousand",
+              "Photoperiod": "natural light",
+              "Generations From Wild": 11,
+              "Generations From Wild Unit": "generations from wild"
+            },
+            "warnings": [],
+            "relationship_errors": [
+              "Relationships part: no entity 'OCU_INRAE_PND18' found"
+            ]
+          },
+          {
+            "index": 1,
+            "sample_name": "teleostei_embryo_2",
+            "model": "sample_description='Sample_description for teleostei_embryo_2' material='specimen from organism' term_source_id='OBI_0001479' project='FAANG' secondary_project=None availability='' same_as='' sample_name='teleostei_embryo_2' specimen_collection_date='2005-05' specimen_collection_date_unit='YYYY-MM' geographic_location='Denmark' animal_age_at_collection=23.5 animal_age_at_collection_unit='month' developmental_stage='adult' developmental_stage_term_source_id='EFO_0001272' organism_part='adipose tissue' organism_part_term_source_id='UBERON_0001013' specimen_collection_protocol='ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf' derived_from='OCU_INRAE_PND18' health_status=[HealthStatus(text='normal', term='PATO_0000461')] fasted_status=None number_of_pieces=None number_of_pieces_unit=None specimen_volume=None specimen_volume_unit=None specimen_size=None specimen_size_unit=None specimen_weight=None specimen_weight_unit=None specimen_picture_url=None gestational_age_at_sample_collection=None gestational_age_at_sample_collection_unit=None average_incubation_temperature=None average_incubation_temperature_unit=None average_incubation_humidity=None average_incubation_humidity_unit=None embryonic_stage=None embryonic_stage_unit=None origin='Domesticated diploid' reproductive_strategy='gonochoric' hatching='pre' time_post_fertilisation=5.0 time_post_fertilisation_unit='hours' pre_hatching_water_temperature_average=12.4 pre_hatching_water_temperature_average_unit='Degrees celsius' post_hatching_water_temperature_average=16.0 post_hatching_water_temperature_average_unit='Degrees celsius' degree_days=15.0 degree_days_unit='Thermal time' growth_media='Water' medium_replacement_frequency=17.0 medium_replacement_frequency_unit='days' percentage_total_somite_number=65.0 percentage_total_somite_number_unit='%' average_water_salinity=10.0 average_water_salinity_unit='parts per thousand' photoperiod='natural light' generations_from_wild=11.0 generations_from_wild_unit='generations from wild'",
+            "data": {
+              "Health Status": [
+                {
+                  "text": "normal",
+                  "term": "PATO_0000461"
+                }
+              ],
+              "Sample Name": "teleostei_embryo_2",
+              "Sample Description": "Sample_description for teleostei_embryo_2",
+              "Material": "specimen from organism",
+              "Term Source ID": "OBI_0001479",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Specimen Collection Date": "2005-05",
+              "Unit": "YYYY-MM",
+              "Geographic Location": "Denmark",
+              "Animal Age At Collection": 23.5,
+              "Animal Age At Collection Unit": "month",
+              "Developmental Stage": "adult",
+              "Developmental Stage Term Source ID": "EFO_0001272",
+              "Organism Part": "adipose tissue",
+              "Organism Part Term Source ID": "UBERON_0001013",
+              "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+              "Fasted Status": "",
+              "Number of Pieces": "",
+              "Number of Pieces Unit": "",
+              "Specimen Volume": "",
+              "Specimen Volume Unit": "",
+              "Specimen Size": "",
+              "Specimen Size Unit": "",
+              "Specimen Weight": "",
+              "Specimen Weight Unit": "",
+              "Specimen Picture URL": "",
+              "Gestational Age At Sample Collection": "",
+              "Gestational Age At Sample Collection Unit": "",
+              "Average Incubation temperature": "",
+              "Average Incubation temperature Unit": "",
+              "Average Incubation Humidity": "",
+              "Average Incubation Humidity Unit": "",
+              "Embryonic Stage": "",
+              "Embryonic Stage Unit": "",
+              "Derived From": "OCU_INRAE_PND18",
+              "Origin": "Domesticated diploid",
+              "Reproductive Strategy": "gonochoric",
+              "Hatching": "pre",
+              "Time Post Fertilisation": 5,
+              "Time Post Fertilisation Unit": "hours",
+              "Pre-hatching Water Temperature Average": 12.4,
+              "Pre-hatching Water Temperature Average Unit": "Degrees celsius",
+              "Post-hatching Water Temperature Average": 16,
+              "Post-hatching Water Temperature Average Unit": "Degrees celsius",
+              "Degree Days": 15,
+              "Degree Days Unit": "Thermal time",
+              "Growth Media": "Water",
+              "Medium Replacement Frequency": 17,
+              "Medium Replacement Frequency Unit": "days",
+              "Percentage Total Somite Number": 65,
+              "Percentage Total Somite Number Unit": "%",
+              "Average Water Salinity": 10,
+              "Average Water Salinity Unit": "parts per thousand",
+              "Photoperiod": "natural light",
+              "Generations From Wild": 11,
+              "Generations From Wild Unit": "generations from wild"
+            },
+            "warnings": [],
+            "relationship_errors": [
+              "Relationships part: no entity 'OCU_INRAE_PND18' found"
+            ]
+          }
+        ],
+        "invalid_teleostei_embryos": [],
+        "summary": {
+          "total": 2,
+          "valid": 2,
+          "invalid": 0,
+          "warnings": 0,
+          "relationship_errors": 2
+        }
       }
     },
     "reports_by_type": {
       "organism": "FAANG Organism Validation Report\n=================================\n\nTotal organisms processed: 2\nValid organisms: 1\nInvalid organisms: 1\nOrganisms with warnings: 1\n\n\nValidation Errors:\n--------------------\n\nOrganism: ECA_UKY_H11 (index: 0)\n  ERROR in Secondary Project: Input should be 'AQUA-FAANG', 'BovReg', 'GENE-SWitCH', 'Bovine-FAANG', 'EFFICACE', 'GEroNIMO', 'RUMIGEN', 'Equine-FAANG', 'Holoruminant' or 'USPIGFAANG'\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nOrganism: ECA_UKY_H1 (index: 1)\n  WARNING: Field 'Breed' is recommended but was not provided\n  WARNING: Field 'Breed Term Source ID' is recommended but was not provided\n  RELATIONSHIP: Relationships part: parent 'ECA_UKY_H1' is listing the child as its parent",
       "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 1\nInvalid organoids: 1\nOrganoids with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  ERROR in Organ Model Term Source ID: Value error, Organ model term 'UBERONx:0001153' should be from UBERON or BTO ontology\n  RELATIONSHIP ERROR: Relationships part: no entity 'OCU_INRAE_PND18_S19' found\n  ONTOLOGY WARNING: Couldn't find term 'UBERONx:0001153' in OLS",
-      "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nSpecimen_From_Organism: OCU_INRAE_PND18_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found"
+      "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nSpecimen_From_Organism: OCU_INRAE_PND18_S1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found",
+      "teleostei_embryo": "FAANG Teleostei_Embryo Validation Report\n=========================================\n\nTotal teleostei_embryos processed: 2\nValid teleostei_embryos: 2\nInvalid teleostei_embryos: 0\nTeleostei_Embryos with warnings: 0\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nTeleostei_Embryo: teleostei_embryo_1 (index: 0)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found\n\nTeleostei_Embryo: teleostei_embryo_2 (index: 1)\n  RELATIONSHIP: Relationships part: no entity 'OCU_INRAE_PND18' found"
     }
   },
   "biosample_exports": {
@@ -492,6 +656,288 @@
                 "ontologyTerms": [
                   "http://purl.obolibrary.org/obo/PATO_0000461"
                 ]
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "derived from",
+              "target": "OCU_INRAE_PND18"
+            }
+          ]
+        }
+      }
+    ],
+    "teleostei_embryo": [
+      {
+        "sample_name": "teleostei_embryo_1",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "specimen from organism",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/OBI_0001479"
+                ]
+              }
+            ],
+            "specimen collection date": [
+              {
+                "text": "2005-05",
+                "unit": "YYYY-MM"
+              }
+            ],
+            "geographic location": [
+              {
+                "text": "Denmark"
+              }
+            ],
+            "animal age at collection": [
+              {
+                "text": "23.5",
+                "unit": "month"
+              }
+            ],
+            "developmental stage": [
+              {
+                "text": "adult",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/EFO_0001272"
+                ]
+              }
+            ],
+            "organism part": [
+              {
+                "text": "adipose tissue",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0001013"
+                ]
+              }
+            ],
+            "specimen collection protocol": [
+              {
+                "text": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+              }
+            ],
+            "health status at collection": [
+              {
+                "text": "normal",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000461"
+                ]
+              }
+            ],
+            "origin": [
+              {
+                "text": "Domesticated diploid"
+              }
+            ],
+            "reproductive strategy": [
+              {
+                "text": "gonochoric"
+              }
+            ],
+            "hatching": [
+              {
+                "text": "pre"
+              }
+            ],
+            "time post fertilisation": [
+              {
+                "text": "2.0",
+                "unit": "hours"
+              }
+            ],
+            "pre-hatching water temperature average": [
+              {
+                "text": "12.0",
+                "unit": "Degrees celsius"
+              }
+            ],
+            "post-hatching water temperature average": [
+              {
+                "text": "14.0",
+                "unit": "Degrees celsius"
+              }
+            ],
+            "degree days": [
+              {
+                "text": "14.0",
+                "unit": "Thermal time"
+              }
+            ],
+            "growth media": [
+              {
+                "text": "Water"
+              }
+            ],
+            "medium replacement frequency": [
+              {
+                "text": "10.0",
+                "unit": "days"
+              }
+            ],
+            "percentage total somite number": [
+              {
+                "text": "65.0",
+                "unit": "%"
+              }
+            ],
+            "average water salinity": [
+              {
+                "text": "10.0",
+                "unit": "parts per thousand"
+              }
+            ],
+            "photoperiod": [
+              {
+                "text": "natural light"
+              }
+            ],
+            "generations from wild": [
+              {
+                "text": "11.0",
+                "unit": "generations from wild"
+              }
+            ]
+          },
+          "relationships": [
+            {
+              "type": "derived from",
+              "target": "OCU_INRAE_PND18"
+            }
+          ]
+        }
+      },
+      {
+        "sample_name": "teleostei_embryo_2",
+        "biosample_format": {
+          "characteristics": {
+            "material": [
+              {
+                "text": "specimen from organism",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/OBI_0001479"
+                ]
+              }
+            ],
+            "specimen collection date": [
+              {
+                "text": "2005-05",
+                "unit": "YYYY-MM"
+              }
+            ],
+            "geographic location": [
+              {
+                "text": "Denmark"
+              }
+            ],
+            "animal age at collection": [
+              {
+                "text": "23.5",
+                "unit": "month"
+              }
+            ],
+            "developmental stage": [
+              {
+                "text": "adult",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/EFO_0001272"
+                ]
+              }
+            ],
+            "organism part": [
+              {
+                "text": "adipose tissue",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/UBERON_0001013"
+                ]
+              }
+            ],
+            "specimen collection protocol": [
+              {
+                "text": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
+              }
+            ],
+            "health status at collection": [
+              {
+                "text": "normal",
+                "ontologyTerms": [
+                  "http://purl.obolibrary.org/obo/PATO_0000461"
+                ]
+              }
+            ],
+            "origin": [
+              {
+                "text": "Domesticated diploid"
+              }
+            ],
+            "reproductive strategy": [
+              {
+                "text": "gonochoric"
+              }
+            ],
+            "hatching": [
+              {
+                "text": "pre"
+              }
+            ],
+            "time post fertilisation": [
+              {
+                "text": "5.0",
+                "unit": "hours"
+              }
+            ],
+            "pre-hatching water temperature average": [
+              {
+                "text": "12.4",
+                "unit": "Degrees celsius"
+              }
+            ],
+            "post-hatching water temperature average": [
+              {
+                "text": "16.0",
+                "unit": "Degrees celsius"
+              }
+            ],
+            "degree days": [
+              {
+                "text": "15.0",
+                "unit": "Thermal time"
+              }
+            ],
+            "growth media": [
+              {
+                "text": "Water"
+              }
+            ],
+            "medium replacement frequency": [
+              {
+                "text": "17.0",
+                "unit": "days"
+              }
+            ],
+            "percentage total somite number": [
+              {
+                "text": "65.0",
+                "unit": "%"
+              }
+            ],
+            "average water salinity": [
+              {
+                "text": "10.0",
+                "unit": "parts per thousand"
+              }
+            ],
+            "photoperiod": [
+              {
+                "text": "natural light"
+              }
+            ],
+            "generations from wild": [
+              {
+                "text": "11.0",
+                "unit": "generations from wild"
               }
             ]
           },

@@ -400,7 +400,7 @@
       }
     }
   ],
-  "teleostei embryo": [
+  "teleostei_embryo": [
     {
       "Health Status": [
         {
@@ -455,7 +455,7 @@
       "Post-hatching Water Temperature Average": 14,
       "Post-hatching Water Temperature Average Unit": "Degrees celsius",
       "Degree Days": 14,
-      "Degree Days Unit": "Thermal time\t\t",
+      "Degree Days Unit": "Thermal time",
       "Growth Media": "Water",
       "Medium Replacement Frequency": 10,
       "Medium Replacement Frequency Unit": "days",
@@ -521,7 +521,7 @@
       "Post-hatching Water Temperature Average": 16,
       "Post-hatching Water Temperature Average Unit": "Degrees celsius",
       "Degree Days": 15,
-      "Degree Days Unit": "Thermal time\t\t",
+      "Degree Days Unit": "Thermal time",
       "Growth Media": "Water",
       "Medium Replacement Frequency": 17,
       "Medium Replacement Frequency Unit": "days",
