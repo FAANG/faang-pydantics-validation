@@ -197,18 +197,12 @@ class SpecimenValidator(BaseValidator):
             return f"Couldn't find term '{term}' in OLS"
 
         term_with_colon = term.replace('_', ':', 1) if '_' in term else term
-        ontology_name = None
-        if term_with_colon.startswith("EFO:"):
-            ontology_name = "EFO"
-        elif term_with_colon.startswith("UBERON:"):
-            ontology_name = "UBERON"
-        elif term_with_colon.startswith("BTO:"):
-            ontology_name = "BTO"
+        ontology_name = term_with_colon.split(':')[0] if ':' in term_with_colon else None
 
-        # Get labels from OLS data
+        # get labels from OLS data
         term_labels = []
         for label_data in ontology_data[term]:
-            if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
+            if ontology_name and label_data.get('ontology_name', '').upper() == ontology_name.upper():
                 term_labels.append(label_data.get('label', '').lower())
             elif not ontology_name:
                 term_labels.append(label_data.get('label', '').lower())
@@ -216,7 +210,7 @@ class SpecimenValidator(BaseValidator):
         if not term_labels:
             return f"Couldn't find label in OLS with ontology name: {ontology_name}"
 
-        # Check if provided text matches any OLS label
+        # check if provided text matches any OLS label
         if str(text).lower() not in term_labels:
             return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
                     f"for term '{term}' in field '{field_name}'")
@@ -224,7 +218,6 @@ class SpecimenValidator(BaseValidator):
         return None
 
     def export_to_biosample_format(self, model: FAANGSpecimenFromOrganismSample) -> Dict[str, Any]:
-        """Export specimen model to BioSamples JSON format - updated for flattened model"""
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided", ""]:
