@@ -81,6 +81,47 @@
         "ECA_UKY_H1"
       ],
       "Pedigree": ""
+    },
+    {
+      "Sample Name": "OCU_INRAE_PND18",
+      "Sample Description": "Foal, 9 days old, Thoroughbred",
+      "Material": "organism",
+      "Term Source ID": "OBI_0100026",
+      "Project": "FAANG",
+      "Secondary Project": "AQUA-FAANG",
+      "Availability": "",
+      "Same as": "",
+      "Organism": "Equus caballus",
+      "Organism Term Source ID": "NCBITaxon:9796",
+      "Sex": "female",
+      "Sex Term Source ID": "PATO_0000383",
+      "Birth Date": "2014-07",
+      "Unit": "YYYY-MM",
+      "Health Status": [
+        {
+          "text": "normal",
+          "term": "PATO:0000461"
+        }
+      ],
+      "Diet": "",
+      "Birth Location": "",
+      "Birth Location Latitude": "",
+      "Birth Location Latitude Unit": "",
+      "Birth Location Longitude": "",
+      "Birth Location Longitude Unit": "",
+      "Birth Weight": "",
+      "Birth Weight Unit": "",
+      "Placental Weight": "",
+      "Placental Weight Unit": "",
+      "Pregnancy Length": "",
+      "Pregnancy Length Unit": "",
+      "Delivery Timing": "",
+      "Delivery Ease": "",
+      "Child Of": [
+        "ECA_UKY_H11",
+        "ECA_UKY_H1"
+      ],
+      "Pedigree": ""
     }
   ],
   "organoid": [
@@ -802,13 +843,12 @@
             }
         }
     ],
- " teleostei_post-hatching" :
-[
+  "teleostei_post_hatching" : [
     {
         "Health Status": [
             {
                 "text": "normal",
-                "term": "PATO_0000461"
+                "term": "PATO_0000462"
             }
         ],
         "Sample Name": "teleostei_post_hatching_1",

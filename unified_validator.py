@@ -3,6 +3,7 @@ from teleostei_embryo_validator import TeleosteiEmbryoValidator
 from organism_validator import OrganismValidator
 from organoid_validator import OrganoidValidator
 from specimen_validator import SpecimenValidator
+from teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
 
 
 class UnifiedFAANGValidator:
@@ -12,6 +13,7 @@ class UnifiedFAANGValidator:
             'organoid': OrganoidValidator(),
             'specimen_from_organism': SpecimenValidator(),
             'teleostei_embryo': TeleosteiEmbryoValidator(),
+            'teleostei_post_hatching': TeleosteiPostHatchingValidator(),
             # 'cell_culture': CellCultureValidator(),
             # 'cell_line': CellLineValidator(),
         }
