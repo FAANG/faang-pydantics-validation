@@ -11,7 +11,7 @@
       "total_samples": 10,
       "valid_samples": 8,
       "invalid_samples": 2,
-      "warnings": 2,
+      "warnings": 3,
       "relationship_errors": 2
     },
     "results_by_type": {
@@ -608,7 +608,10 @@
               "Anaesthetic Or Sedative Name": "Tricaine methanesulfonate (MS-222)"
             },
             "warnings": [],
-            "relationship_errors": []
+            "relationship_errors": [],
+            "ontology_warnings": [
+              "Provided value 'normal' doesn't precisely match 'absent' for term 'PATO_0000462' in field 'health_status'"
+            ]
           },
           {
             "index": 1,
@@ -705,7 +708,7 @@
           "total": 2,
           "valid": 2,
           "invalid": 0,
-          "warnings": 0,
+          "warnings": 1,
           "relationship_errors": 0
         }
       }
@@ -715,7 +718,7 @@
       "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 1\nInvalid organoids: 1\nOrganoids with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  ERROR in Organ Model Term Source ID: Value error, Organ model term 'UBERONx:0001153' should be from UBERON or BTO ontology\n  RELATIONSHIP ERROR: Relationships part: no entity 'OCU_INRAE_PND18_S19' found\n  ONTOLOGY WARNING: Couldn't find term 'UBERONx:0001153' in OLS",
       "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0",
       "teleostei_embryo": "FAANG Teleostei_Embryo Validation Report\n=========================================\n\nTotal teleostei_embryos processed: 2\nValid teleostei_embryos: 2\nInvalid teleostei_embryos: 0\nTeleostei_Embryos with warnings: 0",
-      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 2\nInvalid teleostei_post_hatchings: 0\nTeleostei_Post_Hatchings with warnings: 0"
+      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 2\nInvalid teleostei_post_hatchings: 0\nTeleostei_Post_Hatchings with warnings: 1\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nTeleostei_Post_Hatching: teleostei_post_hatching_1 (index: 0)\n  ONTOLOGY: Provided value 'normal' doesn't precisely match 'absent' for term 'PATO_0000462' in field 'health_status'"
     }
   },
   "biosample_exports": {

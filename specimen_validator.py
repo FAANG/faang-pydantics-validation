@@ -105,7 +105,23 @@ class SpecimenValidator(BaseValidator):
             sample_name = specimen.get('Sample Name', f'specimen_{i}')
             errors = []
 
-            # Validate developmental stage text-term consistency
+            # health status validation
+            health_statuses = specimen.get('Health Status', [])
+            if isinstance(health_statuses, list):
+                for health_status in health_statuses:
+                    if isinstance(health_status, dict):
+                        text = health_status.get('text')
+                        term = health_status.get('term')
+                        if text and term and term not in ["restricted access", "not applicable", "not collected",
+                                                          "not provided"]:
+                            error = self.check_text_term_consistency(
+                                text, term, ontology_data, 'health_status'
+                            )
+                            if error:
+                                errors.append(error)
+
+
+            # validate developmental stage text-term consistency
             dev_stage_text = specimen.get('Developmental Stage')
             dev_stage_term = specimen.get('Developmental Stage Term Source ID')
             if dev_stage_text and dev_stage_term and dev_stage_term != "restricted access":
@@ -115,7 +131,7 @@ class SpecimenValidator(BaseValidator):
                 if error:
                     errors.append(error)
 
-            # Validate organism part text-term consistency
+            # validate organism part text-term consistency
             org_part_text = specimen.get('Organism Part')
             org_part_term = specimen.get('Organism Part Term Source ID')
             if org_part_text and org_part_term and org_part_term != "restricted access":
@@ -134,15 +150,25 @@ class SpecimenValidator(BaseValidator):
         ids = set()
 
         for specimen in specimens:
-            # Get terms from developmental stage
+            # terms from developmental stage
             dev_stage_term = specimen.get('Developmental Stage Term Source ID')
             if dev_stage_term and dev_stage_term != "restricted access":
                 ids.add(dev_stage_term)
 
-            # Get terms from organism part
+            # terms from organism part
             org_part_term = specimen.get('Organism Part Term Source ID')
             if org_part_term and org_part_term != "restricted access":
                 ids.add(org_part_term)
+
+            # terms from health status
+            health_statuses = specimen.get('Health Status', [])
+            if isinstance(health_statuses, list):
+                for health_status in health_statuses:
+                    if isinstance(health_status, dict):
+                        term = health_status.get('term')
+                        if term and term not in ["restricted access", "not applicable", "not collected",
+                                                 "not provided"]:
+                            ids.add(term)
 
         return self.fetch_ontology_data_for_ids(ids)
 
