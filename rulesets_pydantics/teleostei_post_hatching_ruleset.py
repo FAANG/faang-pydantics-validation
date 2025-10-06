@@ -95,7 +95,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         "restricted access"
     ] = Field(..., alias="Method Of Euthanasia")
 
-    # Recommended fields
+    # recommended fields
     generations_from_wild: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
     ]]] = Field(None, alias="Generations From Wild", json_schema_extra={"recommended": True})
@@ -131,7 +131,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         None, alias="Fork Length Unit", json_schema_extra={"recommended": True}
     )
 
-    # Optional fields
+    # optional fields
     experimental_strain_id: Optional[str] = Field(None, alias="Experimental Strain Id")
     genetic_background: Optional[str] = Field(None, alias="Genetic Background")
 
@@ -160,7 +160,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         "restricted access"
     ]] = Field(None, alias="Anaesthetic Or Sedative Name")
 
-    # Validators
+    # validators
     @field_validator('maturity_state_term_source_id')
     def validate_maturity_state_term(cls, v, info):
         if v == "restricted access":
@@ -171,13 +171,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         if not term.startswith("PATO:"):
             raise ValueError(f"Maturity state term '{v}' should be from PATO ontology")
 
-        # Validate it's either PATO:0001501 (Immature) or PATO:0001701 (Mature)
-        allowed_terms = ["PATO:0001501", "PATO:0001701"]
-        if term not in allowed_terms:
-            raise ValueError(
-                f"Maturity state term must be either PATO:0001501 (Immature) or PATO:0001701 (Mature), got '{term}'"
-            )
-
+        # PATO:0001501 (Immature) | PATO:0001701 (Mature)
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
             term=term,
