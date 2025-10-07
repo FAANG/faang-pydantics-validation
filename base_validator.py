@@ -149,7 +149,40 @@ class BaseValidator(ABC):
                 })
                 results['summary']['invalid'] += 1
 
+        # Add relationship validation if enabled
+        if validate_relationships and all_samples:
+            self._add_relationship_errors(results, all_samples)
+
         return results
+
+    def _add_relationship_errors(self, results: Dict[str, Any], all_samples: Dict[str, List[Dict]]):
+        sample_type = self.get_sample_type_name()
+        relationship_errors = self._get_relationship_errors(all_samples)
+
+        if not relationship_errors:
+            return
+
+        # Add to valid samples
+        for sample in results[f'valid_{sample_type}s']:
+            sample_name = sample['sample_name']
+            if sample_name in relationship_errors:
+                sample['relationship_errors'] = relationship_errors[sample_name]
+                results['summary']['relationship_errors'] += 1
+
+        # Add to invalid samples
+        for sample in results[f'invalid_{sample_type}s']:
+            sample_name = sample['sample_name']
+            if sample_name in relationship_errors:
+                if 'relationship_errors' not in sample['errors']:
+                    sample['errors']['relationship_errors'] = []
+                sample['errors']['relationship_errors'] = relationship_errors[sample_name]
+                results['summary']['relationship_errors'] += 1
+
+    def _get_relationship_errors(self, all_samples: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
+        if not self.relationship_validator:
+            return {}
+
+        return self.relationship_validator.validate_derived_from_relationships(all_samples)
 
     def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
         sample_type = self.get_sample_type_name()
