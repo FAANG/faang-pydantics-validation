@@ -192,7 +192,6 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
         term = v.replace('_', ':', 1) if '_' in v else v
 
-        # Determine ontology based on term prefix
         if term.startswith("EFO:"):
             ontology_name = "EFO"
             allowed_classes = ["EFO:0000399"]

@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
 from generic_validator_classes import OntologyValidator
-from typing import List, Optional, Union, Literal
+from typing import Optional, Union, Literal
 import re
 from datetime import datetime
 

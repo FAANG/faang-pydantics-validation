@@ -65,7 +65,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
                                                                     "otherwise use the as many disease terms as "
                                                                     "necessary from EFO.",
                                                         json_schema_extra={"recommended": True})
-    # Optional fields - numeric fields
+    # Optional fields
     diet: Optional[str] = Field(None, alias="Diet")
     birth_location: Optional[str] = Field(None, alias="Birth Location")
 
@@ -136,16 +136,15 @@ class FAANGOrganismSample(SampleCoreMetadata):
         if v == "restricted access":
             return v
 
-        # convert underscore to colon
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
-        if not term_with_colon.startswith("PATO:"):
+        if not term.startswith("PATO:"):
             raise ValueError(f"Sex term '{v}' should be from PATO ontology")
 
         # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name="PATO",
             allowed_classes=["PATO:0000047"],
             text=info.data.get('sex')
@@ -160,16 +159,15 @@ class FAANGOrganismSample(SampleCoreMetadata):
         if not v or v in ["not applicable", "restricted access", ""]:
             return v
 
-        # convert underscore to colon
-        term_with_colon = v.replace('_', ':', 1)
+        term = v.replace('_', ':', 1)
 
-        if not term_with_colon.startswith("LBO:"):
+        if not term.startswith("LBO:"):
             raise ValueError(f"Breed term '{v}' should be from LBO ontology")
 
         # ontology validation
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=term_with_colon,
+            term=term,
             ontology_name="LBO",
             allowed_classes=["LBO"],
             text=info.data.get('breed')
@@ -220,7 +218,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
         if v and v.strip() and not breed_term:
             raise ValueError(f"Breed '{v}' is provided but Breed Term Source ID is missing")
 
-        #check if breed_term_source_id is provided without breed text
+        # check if breed_term_source_id is provided without breed text
         if (breed_term and
             breed_term not in ["", "not applicable", "restricted access"] and
             (not v or not v.strip())):
@@ -300,12 +298,12 @@ class FAANGOrganismSample(SampleCoreMetadata):
             return None
 
         # filter empty strings and None
-        child_of_cleaned = [item.strip() for item in v if item and item.strip()]
+        child_of = [item.strip() for item in v if item and item.strip()]
 
-        if len(child_of_cleaned) > 2:
+        if len(child_of) > 2:
             raise ValueError("Organism can have at most 2 parents")
 
-        return child_of_cleaned if child_of_cleaned else None
+        return child_of if child_of else None
 
     @field_validator('pedigree')
     def validate_pedigree_url(cls, v):

@@ -189,7 +189,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         if v in ["natural light", "restricted access"]:
             return v
 
-        # Pattern: e.g., "12L:12D" (light:dark ratio)
+        # pattern: e.g., "12L:12D" (light:dark ratio)
         import re
         pattern = r'^(2[0-4]|1[0-9]|[1-9])L:(2[0-4]|1[0-9]|[1-9])D$'
         if not re.match(pattern, v):
@@ -242,8 +242,8 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
         if v == "restricted access" or v is None:
             return v
 
-        # Check if percentage (0-100) or mg/L (any positive)
-        # We'll assume percentage if <= 100
+        # check if percentage (0-100) or mg/L (any positive)
+        # we'll assume percentage if <= 100
         if v > 100:
             return v  # Assume it's mg/L
 
@@ -251,7 +251,7 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
             raise ValueError("Oxygen percentage must be between 0 and 100")
         return v
 
-    # Convert empty strings to None for all optional fields
+    # convert empty strings to None for all optional fields
     @field_validator(
         'generations_from_wild', 'generations_from_wild_unit',
         'experimental_strain_id', 'genetic_background',

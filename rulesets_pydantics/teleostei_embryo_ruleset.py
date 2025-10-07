@@ -92,13 +92,13 @@ class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
         "restricted access"
     ]] = Field(None, alias="Generations From Wild Unit", json_schema_extra={"recommended": True})
 
-    # Validators
+    # validators
     @field_validator('photoperiod')
     def validate_photoperiod(cls, v):
         if v in ["natural light", "restricted access"]:
             return v
 
-        # Pattern: e.g., "12L:12D" (light:dark ratio)
+        # pattern: e.g., "12L:12D" (light:dark ratio)
         import re
         pattern = r'^(2[0-4]|1[0-9]|[1-9])L:(2[0-4]|1[0-9]|[1-9])D$'
         if not re.match(pattern, v):
@@ -107,7 +107,7 @@ class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
             )
         return v
 
-    # Single validator to strip whitespace and convert empty strings to None
+    # strip whitespace and convert empty strings to None
     @field_validator(
         # required unit fields
         'time_post_fertilisation_unit',
@@ -172,15 +172,6 @@ class FAANGTeleosteiEmbryoSample(FAANGSpecimenFromOrganismSample):
             raise ValueError("Percentage must be between 0 and 100")
         return v
 
-    # Convert empty strings to None for optional fields
-    @field_validator(
-        'generations_from_wild', 'generations_from_wild_unit',
-        mode='before'
-    )
-    def convert_empty_strings_to_none(cls, v):
-        if v is not None and v == "":
-            return None
-        return v
 
     class Config:
         populate_by_name = True
