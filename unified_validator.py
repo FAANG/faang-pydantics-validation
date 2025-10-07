@@ -19,23 +19,13 @@ class UnifiedFAANGValidator:
         }
         self.supported_sample_types = set(self.validators.keys())
 
-    def validate_all_samples(
+    def validate_all_records(
         self,
         data: Dict[str, List[Dict[str, Any]]],
         validate_relationships: bool = True,
         validate_ontology_text: bool = True
     ) -> Dict[str, Any]:
-        """
-        Validate all sample types in the provided data
 
-        Args:
-            data: Dictionary with sample type keys and lists of samples
-            validate_relationships: Whether to validate cross-sample relationships
-            validate_ontology_text: Whether to validate ontology text consistency
-
-        Returns:
-            Dictionary containing validation results for all sample types
-        """
         all_results = {
             'sample_types_processed': [],
             'total_summary': {
@@ -49,7 +39,7 @@ class UnifiedFAANGValidator:
             'reports_by_type': {}
         }
 
-        # Process each sample type
+        # process each record type
         print("Sample types in data:", list(data.keys()))
         for sample_type, samples in data.items():
             if sample_type not in self.supported_sample_types:

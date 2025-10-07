@@ -17,7 +17,7 @@ def main():
         print()
 
         # validation
-        results = validator.validate_all_samples(
+        results = validator.validate_all_records(
             faang_json_data,
             validate_relationships=True,
             validate_ontology_text=True
