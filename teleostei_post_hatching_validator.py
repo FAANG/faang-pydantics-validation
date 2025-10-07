@@ -84,7 +84,7 @@ class TeleosteiPostHatchingValidator(BaseValidator):
                 sheet_records, specimen_validator
             )
 
-            # Merge both error dictionaries
+            # merge both error dictionaries
             for sample_name, errors in maturity_state_errors.items():
                 if sample_name in text_consistency_errors:
                     text_consistency_errors[sample_name].extend(errors)

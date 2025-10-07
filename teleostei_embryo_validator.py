@@ -57,7 +57,7 @@ class TeleosteiEmbryoValidator(BaseValidator):
         if validate_relationships and all_samples:
             relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
-            # relationship errors of valid teleostei embryos
+            # relationship errors for valid teleostei embryos
             for embryo in results['valid_teleostei_embryos']:
                 sample_name = embryo['sample_name']
                 if sample_name in relationship_errors:
@@ -87,7 +87,7 @@ class TeleosteiEmbryoValidator(BaseValidator):
                     embryo['ontology_warnings'].extend(text_consistency_errors[sample_name])
                     results['summary']['warnings'] += 1
 
-            # ontology warnings to invalid embryos
+            # ontology warnings for invalid embryos
             for embryo in results['invalid_teleostei_embryos']:
                 sample_name = embryo['sample_name']
                 if sample_name in text_consistency_errors:

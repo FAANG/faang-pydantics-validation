@@ -58,14 +58,14 @@ class SpecimenValidator(BaseValidator):
         if validate_relationships and all_samples:
             relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
-            # Add relationship errors to specimens
+            # relationship errors for specimens
             for specimen in results['valid_specimen_from_organisms']:
                 sample_name = specimen['sample_name']
                 if sample_name in relationship_errors:
                     specimen['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-            # Add relationship errors to invalid specimens
+            # relationship errors for invalid specimens
             for specimen in results['invalid_specimen_from_organisms']:
                 sample_name = specimen['sample_name']
                 if sample_name in relationship_errors:
@@ -74,11 +74,11 @@ class SpecimenValidator(BaseValidator):
                     specimen['errors']['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # Ontology text consistency validation
+        # ontology text consistency validation
         if validate_ontology_text:
             text_consistency_errors = self.validate_ontology_text_consistency(sheet_records)
 
-            # Add text consistency errors as warnings for valid specimens
+            # text consistency errors as warnings for valid specimens
             for specimen in results['valid_specimen_from_organisms']:
                 sample_name = specimen['sample_name']
                 if sample_name in text_consistency_errors:
@@ -87,7 +87,7 @@ class SpecimenValidator(BaseValidator):
                     specimen['ontology_warnings'].extend(text_consistency_errors[sample_name])
                     results['summary']['warnings'] += 1
 
-            # Add ontology warnings to invalid specimens
+            # ontology warnings for invalid specimens
             for specimen in results['invalid_specimen_from_organisms']:
                 sample_name = specimen['sample_name']
                 if sample_name in text_consistency_errors:

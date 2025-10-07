@@ -275,7 +275,7 @@ class RelationshipValidator:
 
 
     # handles both 'Derived From' and 'Child Of' relationships
-    # Uses ALLOWED_RELATIONSHIPS from constants.py
+    # uses ALLOWED_RELATIONSHIPS from constants.py
     def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         relationship_errors = {}
         relationships = {}
@@ -296,7 +296,7 @@ class RelationshipValidator:
                         if related_records:
                             relationships[sample_name]['relationships'] = related_records
 
-        # Step 2: validate relationships
+        # validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue

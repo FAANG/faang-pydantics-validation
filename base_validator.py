@@ -142,22 +142,22 @@ class BaseValidator(ABC):
             for sample in validation_results[f'invalid_{sample_type}s']:
                 report.append(f"\n{sample_type_title}: {sample['sample_name']} (index: {sample['index']})")
 
-                # Field errors from Pydantic validation
+                # field errors from Pydantic validation
                 for field, field_errors in sample['errors'].get('field_errors', {}).items():
                     for error in field_errors:
                         report.append(f"  ERROR in {field}: {error}")
 
-                # General errors
+                # general errors
                 for error in sample['errors'].get('errors', []):
                     if not any(error.startswith(field) for field in sample['errors'].get('field_errors', {})):
                         report.append(f"  ERROR: {error}")
 
-                # FIXED: Show relationship errors for invalid samples
+                # relationship errors for invalid samples
                 if sample['errors'].get('relationship_errors'):
                     for error in sample['errors']['relationship_errors']:
                         report.append(f"  RELATIONSHIP ERROR: {error}")
 
-                # FIXED: Show ontology warnings for invalid samples
+                # show ontology warnings for invalid samples
                 if sample['errors'].get('ontology_warnings'):
                     for warning in sample['errors']['ontology_warnings']:
                         report.append(f"  ONTOLOGY WARNING: {warning}")
