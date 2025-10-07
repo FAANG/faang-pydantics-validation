@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.organoid_ruleset import FAANGOrganoidSample
-import json
 
 
 class OrganoidValidator(BaseValidator):
@@ -22,7 +21,6 @@ class OrganoidValidator(BaseValidator):
         self,
         data: Dict[str, Any],
         validate_relationships: bool = True,
-        validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganoidSample], Dict[str, List[str]]]:
 
         model, errors = self.validate_single_record(data, validate_relationships)
@@ -43,7 +41,6 @@ class OrganoidValidator(BaseValidator):
             validate_ontology_text=validate_ontology_text
         )
 
-    # validate organoids with relationship and ontology validation
     def validate_records(
         self,
         organoids: List[Dict[str, Any]],
@@ -60,13 +57,14 @@ class OrganoidValidator(BaseValidator):
         if validate_relationships and all_samples:
             relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
 
-            # add relationship errors to BOTH valid AND invalid organoids
+            # relationship errors for valid organoids
             for org in results['valid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
                     org['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
+            # relationship errors for invalid organoids
             for org in results['invalid_organoids']:
                 sample_name = org['sample_name']
                 if sample_name in relationship_errors:
@@ -75,128 +73,8 @@ class OrganoidValidator(BaseValidator):
                     org['errors']['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # ontology text consistency validation
-        if validate_ontology_text:
-            text_consistency_errors = self.validate_ontology_text_consistency(organoids)
-
-            # text consistency errors as warnings for valid organoids
-            for org in results['valid_organoids']:
-                sample_name = org['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in org:
-                        org['ontology_warnings'] = []
-                    org['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += 1
-
-            # add ontology warnings to invalid organoids
-            for org in results['invalid_organoids']:
-                sample_name = org['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in org['errors']:
-                        org['errors']['ontology_warnings'] = []
-                    org['errors']['ontology_warnings'].extend(text_consistency_errors[sample_name])
-
         return results
 
-    def validate_ontology_text_consistency(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-        ontology_data = self.collect_ontology_ids(organoids)
-        text_consistency_errors = {}
-
-        for i, organoid in enumerate(organoids):
-            sample_name = organoid.get('Sample Name', f'organoid_{i}')
-            errors = []
-
-            # validate organ model text-term consistency
-            organ_model_text = organoid.get('Organ Model')
-            organ_model_term = organoid.get('Organ Model Term Source ID')
-            if organ_model_text and organ_model_term and organ_model_term != "restricted access":
-                error = self._check_text_term_consistency_flattened(
-                    organ_model_text, organ_model_term, ontology_data, 'organ_model'
-                )
-                if error:
-                    errors.append(error)
-
-            # validate organ part model text-term consistency
-            organ_part_text = organoid.get('Organ Part Model')
-            organ_part_term = organoid.get('Organ Part Model Term Source ID')
-            if organ_part_text and organ_part_term and organ_part_term != "restricted access":
-                error = self._check_text_term_consistency_flattened(
-                    organ_part_text, organ_part_term, ontology_data, 'organ_part_model'
-                )
-                if error:
-                    errors.append(error)
-
-            if errors:
-                text_consistency_errors[sample_name] = errors
-
-        return text_consistency_errors
-
-    def collect_ontology_ids(self, organoids: List[Dict[str, Any]]) -> Dict[str, List[Dict]]:
-        ids = set()
-
-        for organoid in organoids:
-            # get terms from organ model
-            organ_model_term = organoid.get('Organ Model Term Source ID')
-            if organ_model_term and organ_model_term != "restricted access":
-                ids.add(organ_model_term)
-
-            # get terms from organ part model
-            organ_part_term = organoid.get('Organ Part Model Term Source ID')
-            if organ_part_term and organ_part_term != "restricted access":
-                ids.add(organ_part_term)
-
-        return self.fetch_ontology_data_for_ids(ids)
-
-    def fetch_ontology_data_for_ids(self, ids: set) -> Dict[str, List[Dict]]:
-        results = {}
-
-        for term_id in ids:
-            if term_id and term_id != "restricted access":
-                try:
-                    # convert underscore to colon for OLS lookup
-                    term_for_lookup = term_id.replace('_', ':', 1) if '_' in term_id else term_id
-                    ols_data = self.ontology_validator.fetch_from_ols(term_for_lookup)
-                    if ols_data:
-                        results[term_id] = ols_data
-                except Exception as e:
-                    print(f"Error fetching ontology data for {term_id}: {e}")
-                    results[term_id] = []
-
-        return results
-
-    def _check_text_term_consistency_flattened(self, text: str, term: str,
-                                               ontology_data: Dict, field_name: str) -> str:
-        if not text or not term or term == "restricted access":
-            return None
-
-        if term not in ontology_data:
-            return f"Couldn't find term '{term}' in OLS"
-
-        # determine ontology based on term prefix
-        term_with_colon = term.replace('_', ':', 1) if '_' in term else term
-        ontology_name = None
-        if term_with_colon.startswith("UBERON:"):
-            ontology_name = "UBERON"
-        elif term_with_colon.startswith("BTO:"):
-            ontology_name = "BTO"
-
-        # get labels from OLS data
-        term_labels = []
-        for label_data in ontology_data[term]:
-            if ontology_name and label_data.get('ontology_name', '').lower() == ontology_name.lower():
-                term_labels.append(label_data.get('label', '').lower())
-            elif not ontology_name:
-                term_labels.append(label_data.get('label', '').lower())
-
-        if not term_labels:
-            return f"Couldn't find label in OLS with ontology name: {ontology_name}"
-
-        # check if provided text matches any OLS label
-        if str(text).lower() not in term_labels:
-            return (f"Provided value '{text}' doesn't precisely match '{term_labels[0]}' "
-                    f"for term '{term}' in field '{field_name}'")
-
-        return None
 
     def export_to_biosample_format(self, model: FAANGOrganoidSample) -> Dict[str, Any]:
 

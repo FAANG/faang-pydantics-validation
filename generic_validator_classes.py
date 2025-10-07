@@ -4,6 +4,14 @@ import requests
 
 from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 
+# import context variable from base_validator
+try:
+    from base_validator import ontology_warnings_context
+except ImportError:
+    from contextvars import ContextVar
+
+    ontology_warnings_context: ContextVar[List[str]] = ContextVar('ontology_warnings', default=[])
+
 
 class ValidationResult(BaseModel):
     errors: List[str] = Field(default_factory=list)
@@ -58,32 +66,54 @@ class OntologyValidator:
 
     def validate_ontology_term(self, term: str, ontology_name: str,
                                allowed_classes: List[str],
-                               text: str = None) -> ValidationResult:
+                               text: str = None,
+                               field_name: str = None) -> ValidationResult:
 
         result = ValidationResult(field_path=f"{ontology_name}:{term}")
 
         if term == "restricted access":
             return result
 
-        # check OLS for term and text validity
+        # check OLS for term validity
         ols_data = self.fetch_from_ols(term)
         if not ols_data:
             result.errors.append(f"Term {term} not found in OLS")
             return result
 
+        # text-term consistency check
         if text:
-            ols_labels = [doc.get('label', '').lower() for doc in ols_data
-                          if doc.get('ontology_name', '').lower() == ontology_name.lower()]
+            term_with_colon = term.replace('_', ':', 1) if '_' in term and ':' not in term else term
+            actual_ontology = term_with_colon.split(':')[0] if ':' in term_with_colon else ontology_name
 
+            ols_labels = []
+            for doc in ols_data:
+                doc_ontology = doc.get('ontology_name', '').upper()
+                if doc_ontology == actual_ontology.upper():
+                    ols_labels.append(doc.get('label', '').lower())
+
+            # if no labels found with specific ontology, get all labels
             if not ols_labels:
                 ols_labels = [doc.get('label', '').lower() for doc in ols_data]
 
+            # check if text matches any label
             if text.lower() not in ols_labels:
                 expected_label = ols_labels[0] if ols_labels else "unknown"
-                result.warnings.append(
+                warning_msg = (
                     f"Provided value '{text}' doesn't precisely match '{expected_label}' "
                     f"for term '{term}'"
                 )
+                if field_name:
+                    warning_msg += f" in field '{field_name}'"
+
+                result.warnings.append(warning_msg)
+
+                # store warning in context so it can be collected by BaseValidator
+                try:
+                    current_warnings = ontology_warnings_context.get()
+                    current_warnings.append(warning_msg)
+                    ontology_warnings_context.set(current_warnings)
+                except LookupError:
+                    pass
 
         return result
 
@@ -275,7 +305,7 @@ class RelationshipValidator:
 
 
     # handles both 'Derived From' and 'Child Of' relationships
-    # Uses ALLOWED_RELATIONSHIPS from constants.py
+    # uses ALLOWED_RELATIONSHIPS from constants.py
     def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         relationship_errors = {}
         relationships = {}
@@ -296,7 +326,7 @@ class RelationshipValidator:
                         if related_records:
                             relationships[sample_name]['relationships'] = related_records
 
-        # Step 2: validate relationships
+        # validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue

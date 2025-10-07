@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, BreedSpeciesValidator, RelationshipValidator
 from rulesets_pydantics.organism_ruleset import FAANGOrganismSample
-import json
 
 
 class OrganismValidator(BaseValidator):
@@ -23,7 +22,6 @@ class OrganismValidator(BaseValidator):
         self,
         data: Dict[str, Any],
         validate_relationships: bool = True,
-        validate_with_json_schema: bool = True
     ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
 
         model, errors = self.validate_single_record(data, validate_relationships)
@@ -48,7 +46,6 @@ class OrganismValidator(BaseValidator):
         # base validation results
         results = super().validate_records(organisms, validate_relationships=False, all_samples=all_samples)
 
-        # FIXED: relationship validation should check against ALL organisms, not just valid or invalid subsets
         if validate_relationships and organisms:
             relationship_errors = self.relationship_validator.validate_organism_relationships(organisms)
 

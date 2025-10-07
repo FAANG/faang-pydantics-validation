@@ -15,21 +15,22 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        # determine ontology to use (PATO or EFO)
-        if v.startswith("EFO:"):
+        term = v.replace('_', ':', 1) if '_' in v and ':' not in v else v
+
+        if term.startswith("EFO:"):
             ontology_name = "EFO"
-        elif v.startswith("PATO:"):
+        elif term.startswith("PATO:"):
             ontology_name = "PATO"
         else:
             raise ValueError(f"Health status term '{v}' should be from PATO or EFO ontology")
 
-
         ov = OntologyValidator(cache_enabled=True)
         res = ov.validate_ontology_term(
-            term=v,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"],
-            text=info.data.get('text')
+            text=info.data.get('text'),
+            field_name='health_status'
         )
         if res.errors:
             raise ValueError(f"HealthStatus term invalid: {res.errors}")
@@ -192,7 +193,6 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
         term = v.replace('_', ':', 1) if '_' in v else v
 
-        # Determine ontology based on term prefix
         if term.startswith("EFO:"):
             ontology_name = "EFO"
             allowed_classes = ["EFO:0000399"]
@@ -208,7 +208,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('developmental_stage')
+            text=info.data.get('developmental_stage'),
+            field_name='developmental_stage'
         )
         if res.errors:
             raise ValueError(f"Developmental stage term invalid: {res.errors}")
@@ -237,7 +238,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('organism_part')
+            text=info.data.get('organism_part'),
+            field_name='organism_part'
         )
         if res.errors:
             raise ValueError(f"Organism part term invalid: {res.errors}")
