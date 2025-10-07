@@ -79,7 +79,8 @@ class FAANGOrganoidSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('organ_model')
+            text=info.data.get('organ_model'),
+            field_name='organ_model'
         )
         if res.errors:
             raise ValueError(f"Organ model term invalid: {res.errors}")
@@ -93,7 +94,6 @@ class FAANGOrganoidSample(SampleCoreMetadata):
 
         term = v.replace('_', ':', 1)
 
-        # Determine ontology based on term prefix
         if term.startswith("UBERON:"):
             ontology_name = "UBERON"
             allowed_classes = ["UBERON:0001062"]
@@ -109,7 +109,8 @@ class FAANGOrganoidSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('organ_part_model')
+            text=info.data.get('organ_part_model'),
+            field_name='organ_part_model'
         )
         if res.errors:
             raise ValueError(f"Organ part model term invalid: {res.errors}")

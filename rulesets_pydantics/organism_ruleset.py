@@ -14,20 +14,18 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        # determine ontology to use (PATO or EFO)
         if v.startswith("EFO:"):
             ontology_name = "EFO"
         else:
             ontology_name = "PATO"
 
-
         ov = OntologyValidator(cache_enabled=True)
-
         res = ov.validate_ontology_term(
             term=v,
             ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"],
-            text=info.data.get('text')
+            text=info.data.get('text'),
+            field_name='health_status'
         )
         if res.errors:
             raise ValueError(f"HealthStatus term invalid: {res.errors}")
@@ -124,7 +122,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name="NCBITaxon",
             allowed_classes=["NCBITaxon"],
-            text=info.data.get('organism')
+            text=info.data.get('organism'),
+            field_name='organism'
         )
         if res.errors:
             raise ValueError(f"Organism term invalid: {res.errors}")
@@ -147,7 +146,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name="PATO",
             allowed_classes=["PATO:0000047"],
-            text=info.data.get('sex')
+            text=info.data.get('sex'),
+            field_name='sex'
         )
         if res.errors:
             raise ValueError(f"Sex term invalid: {res.errors}")
@@ -170,7 +170,8 @@ class FAANGOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name="LBO",
             allowed_classes=["LBO"],
-            text=info.data.get('breed')
+            text=info.data.get('breed'),
+            field_name='breed'
         )
         if res.errors:
             raise ValueError(f"Breed term invalid: {res.errors}")

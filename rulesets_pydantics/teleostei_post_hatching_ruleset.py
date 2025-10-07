@@ -177,7 +177,8 @@ class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):
             term=term,
             ontology_name="PATO",
             allowed_classes=["PATO:0001501", "PATO:0001701"],
-            text=info.data.get('maturity_state')
+            text=info.data.get('maturity_state'),
+            field_name='maturity_state'
         )
         if res.errors:
             raise ValueError(f"Maturity state term invalid: {res.errors}")

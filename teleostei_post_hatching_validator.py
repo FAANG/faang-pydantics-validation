@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.teleostei_post_hatching_ruleset import FAANGTeleosteiPostHatchingSample
-from specimen_validator import SpecimenValidator
 
 
 class TeleosteiPostHatchingValidator(BaseValidator):
@@ -74,75 +73,8 @@ class TeleosteiPostHatchingValidator(BaseValidator):
                     sample['errors']['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
 
-        # ontology text consistency validation
-        if validate_ontology_text:
-            specimen_validator = SpecimenValidator()
-            text_consistency_errors = specimen_validator.validate_ontology_text_consistency(sheet_records)
-
-            # teleostei-specific maturity state validation
-            maturity_state_errors = self.validate_maturity_state_text_consistency(
-                sheet_records, specimen_validator
-            )
-
-            # merge both error dictionaries
-            for sample_name, errors in maturity_state_errors.items():
-                if sample_name in text_consistency_errors:
-                    text_consistency_errors[sample_name].extend(errors)
-                else:
-                    text_consistency_errors[sample_name] = errors
-
-            # ontology warnings for valid  post_hatchings
-            for sample in results['valid_teleostei_post_hatchings']:
-                sample_name = sample['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in sample:
-                        sample['ontology_warnings'] = []
-                    sample['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += 1
-
-            # ontology warnings for invalid post_hatchings
-            for sample in results['invalid_teleostei_post_hatchings']:
-                sample_name = sample['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in sample['errors']:
-                        sample['errors']['ontology_warnings'] = []
-                    sample['errors']['ontology_warnings'].extend(text_consistency_errors[sample_name])
-
         return results
 
-    def validate_maturity_state_text_consistency(
-        self,
-        records: List[Dict[str, Any]],
-        specimen_validator: SpecimenValidator
-    ) -> Dict[str, List[str]]:
-        # maturity state ontology IDs
-        ids = set()
-        for record in records:
-            maturity_state_term = record.get('Maturity State Term Source ID')
-            if maturity_state_term and maturity_state_term != "restricted access":
-                ids.add(maturity_state_term)
-
-        ontology_data = specimen_validator.fetch_ontology_data_for_ids(ids)
-
-        text_consistency_errors = {}
-        for i, record in enumerate(records):
-            sample_name = record.get('Sample Name', f'teleostei_post_hatching_{i}')
-            errors = []
-
-            maturity_state_text = record.get('Maturity State')
-            maturity_state_term = record.get('Maturity State Term Source ID')
-
-            if maturity_state_text and maturity_state_term and maturity_state_term != "restricted access":
-                error = specimen_validator.check_text_term_consistency(
-                    maturity_state_text, maturity_state_term, ontology_data, 'maturity_state'
-                )
-                if error:
-                    errors.append(error)
-
-            if errors:
-                text_consistency_errors[sample_name] = errors
-
-        return text_consistency_errors
 
     def export_to_biosample_format(self, model: FAANGTeleosteiPostHatchingSample) -> Dict[str, Any]:
 

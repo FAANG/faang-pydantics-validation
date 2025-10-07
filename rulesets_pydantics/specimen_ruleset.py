@@ -29,7 +29,8 @@ class HealthStatus(BaseModel):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"],
-            text=info.data.get('text')
+            text=info.data.get('text'),
+            field_name='health_status'
         )
         if res.errors:
             raise ValueError(f"HealthStatus term invalid: {res.errors}")
@@ -207,7 +208,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('developmental_stage')
+            text=info.data.get('developmental_stage'),
+            field_name='developmental_stage'
         )
         if res.errors:
             raise ValueError(f"Developmental stage term invalid: {res.errors}")
@@ -236,7 +238,8 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
             term=term,
             ontology_name=ontology_name,
             allowed_classes=allowed_classes,
-            text=info.data.get('organism_part')
+            text=info.data.get('organism_part'),
+            field_name='organism_part'
         )
         if res.errors:
             raise ValueError(f"Organism part term invalid: {res.errors}")

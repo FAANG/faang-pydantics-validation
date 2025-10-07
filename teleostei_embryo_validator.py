@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, RelationshipValidator
 from rulesets_pydantics.teleostei_embryo_ruleset import FAANGTeleosteiEmbryoSample
-from specimen_validator import SpecimenValidator
+
 
 class TeleosteiEmbryoValidator(BaseValidator):
 
@@ -72,28 +72,6 @@ class TeleosteiEmbryoValidator(BaseValidator):
                         embryo['errors']['relationship_errors'] = []
                     embryo['errors']['relationship_errors'] = relationship_errors[sample_name]
                     results['summary']['relationship_errors'] += 1
-
-
-        if validate_ontology_text:
-            specimen_validator = SpecimenValidator()
-            text_consistency_errors = specimen_validator.validate_ontology_text_consistency(sheet_records)
-
-            # ontology warnings for valid embryos
-            for embryo in results['valid_teleostei_embryos']:
-                sample_name = embryo['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in embryo:
-                        embryo['ontology_warnings'] = []
-                    embryo['ontology_warnings'].extend(text_consistency_errors[sample_name])
-                    results['summary']['warnings'] += 1
-
-            # ontology warnings for invalid embryos
-            for embryo in results['invalid_teleostei_embryos']:
-                sample_name = embryo['sample_name']
-                if sample_name in text_consistency_errors:
-                    if 'ontology_warnings' not in embryo['errors']:
-                        embryo['errors']['ontology_warnings'] = []
-                    embryo['errors']['ontology_warnings'].extend(text_consistency_errors[sample_name])
 
         return results
 
