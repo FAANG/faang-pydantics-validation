@@ -919,7 +919,7 @@
         "Total Length Unit": "centimeters",
         "Fork Length": 2,
         "Fork Length Unit": "centimeters",
-        "Sampling Weight": 10,
+        "Sampling Weight": "a10",
         "Sampling Weight Unit": "grams",
         "Sampling Day Start Time": "",
         "Sampling Day End Time": "",
