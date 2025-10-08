@@ -1,7 +1,8 @@
 from pydantic import Field, field_validator, model_validator
 from generic_validator_classes import OntologyValidator
 from validation_utils import (
-normalize_ontology_term, is_restricted_value,
+    normalize_ontology_term,
+    is_restricted_value,
     validate_sample_name,
     validate_date_format,
     validate_protocol_url,
@@ -10,7 +11,6 @@ normalize_ontology_term, is_restricted_value,
 )
 from typing import Optional, Union, Literal
 from datetime import datetime
-
 from .standard_ruleset import SampleCoreMetadata
 
 

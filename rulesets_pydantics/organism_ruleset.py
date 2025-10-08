@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, field_validator
 from generic_validator_classes import BreedSpeciesValidator, OntologyValidator
 from validation_utils import (
-normalize_ontology_term, is_restricted_value,
+    normalize_ontology_term,
+    is_restricted_value,
     validate_sample_name,
     validate_date_format,
     validate_latitude,
@@ -11,7 +12,6 @@ normalize_ontology_term, is_restricted_value,
     strip_and_convert_empty_to_none
 )
 from typing import List, Optional, Union, Literal
-
 from .standard_ruleset import SampleCoreMetadata
 
 
