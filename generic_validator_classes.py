@@ -1,6 +1,8 @@
 from typing import List, Dict, Any, Optional, Set
 from pydantic import BaseModel, Field
 import requests
+import asyncio
+import aiohttp
 
 from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 
@@ -18,6 +20,7 @@ class ValidationResult(BaseModel):
     warnings: List[str] = Field(default_factory=list)
     field_path: str
     value: Any = None
+
 
 # for elixir validation - might need to be removed
 def validate_term_against_classes(term_id: str, ontology_name: str,
@@ -58,6 +61,7 @@ def validate_term_against_classes(term_id: str, ontology_name: str,
         errors.append(f"Error during validation: {str(e)}")
 
     return errors
+
 
 class OntologyValidator:
     def __init__(self, cache_enabled: bool = True):
@@ -134,6 +138,102 @@ class OntologyValidator:
         except Exception as e:
             print(f"Error fetching from OLS: {e}")
             return []
+
+    async def fetch_from_ols_async(self, term_id: str, session: aiohttp.ClientSession) -> tuple[str, List[Dict]]:
+        if self.cache_enabled and term_id in self._cache:
+            return term_id, self._cache[term_id]
+
+        try:
+            url = f"http://www.ebi.ac.uk/ols/api/search?q={term_id.replace(':', '_')}&rows=100"
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                response.raise_for_status()
+                data = await response.json()
+
+                docs = data.get('response', {}).get('docs', [])
+                if self.cache_enabled:
+                    self._cache[term_id] = docs
+                return term_id, docs
+        except Exception as e:
+            print(f"Error fetching from OLS for {term_id}: {e}")
+            return term_id, []
+
+    async def batch_fetch_from_ols(self, term_ids: List[str]) -> Dict[str, List[Dict]]:
+        # Filter out terms already in cache
+        terms_to_fetch = [tid for tid in term_ids if tid not in self._cache]
+
+        if not terms_to_fetch:
+            # all terms are cached
+            return {tid: self._cache[tid] for tid in term_ids}
+
+        # fetch terms from OLS concurrently
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.fetch_from_ols_async(term_id, session) for term_id in terms_to_fetch]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        result_dict = {}
+        for result in results:
+            if isinstance(result, Exception):
+                print(f"Task failed with exception: {result}")
+                continue
+            term_id, docs = result
+            result_dict[term_id] = docs
+
+        # add cached terms
+        for term_id in term_ids:
+            if term_id in self._cache and term_id not in result_dict:
+                result_dict[term_id] = self._cache[term_id]
+
+        return result_dict
+
+    def batch_fetch_from_ols_sync(self, term_ids: List[str]) -> Dict[str, List[Dict]]:
+        """
+        Synchronous wrapper for batch fetching
+        """
+        return asyncio.run(self.batch_fetch_from_ols(term_ids))
+
+
+def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
+    term_ids = set()
+
+    # common term ID field patterns to look for
+    term_id_fields = [
+        'Term Source ID',
+        'Organism Term Source ID',
+        'Sex Term Source ID',
+        'Breed Term Source ID',
+        'Developmental Stage Term Source ID',
+        'Organism Part Term Source ID',
+        'Organ Model Term Source ID',
+        'Organ Part Model Term Source ID',
+        'Maturity State Term Source ID',
+    ]
+
+    for sample_type, samples in data.items():
+        for sample in samples:
+            for field in term_id_fields:
+                if field in sample and sample[field]:
+                    term_value = sample[field]
+                    if term_value not in ["restricted access", "not applicable", "not collected", "not provided", ""]:
+                        # normalize the term
+                        if '_' in term_value and ':' not in term_value:
+                            term_value = term_value.replace('_', ':', 1)
+                        term_ids.add(term_value)
+
+            # check health status (nested structure)
+            if 'Health Status' in sample and sample['Health Status']:
+                health_statuses = sample['Health Status']
+                if isinstance(health_statuses, list):
+                    for status in health_statuses:
+                        if isinstance(status, dict) and 'term' in status:
+                            term_value = status['term']
+                            if term_value not in ["restricted access", "not applicable", "not collected",
+                                                  "not provided", ""]:
+                                if '_' in term_value and ':' not in term_value:
+                                    term_value = term_value.replace('_', ':', 1)
+                                term_ids.add(term_value)
+
+    return term_ids
+
 
 class BreedSpeciesValidator:
 
@@ -302,7 +402,6 @@ class RelationshipValidator:
                 f"Relationships part: parent '{parent_id}' "
                 f"is listing the child as its parent"
             )
-
 
     # handles both 'Derived From' and 'Child Of' relationships
     # uses ALLOWED_RELATIONSHIPS from constants.py

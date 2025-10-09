@@ -4,6 +4,7 @@ from organism_validator import OrganismValidator
 from organoid_validator import OrganoidValidator
 from specimen_validator import SpecimenValidator
 from teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
+from generic_validator_classes import collect_ontology_terms_from_data
 
 
 class UnifiedFAANGValidator:
@@ -18,6 +19,29 @@ class UnifiedFAANGValidator:
             # 'cell_line': CellLineValidator(),
         }
         self.supported_sample_types = set(self.validators.keys())
+
+    def prefetch_all_ontology_terms(self, data: Dict[str, List[Dict[str, Any]]]):
+        # collect unique term IDs
+        term_ids = collect_ontology_terms_from_data(data)
+
+        if not term_ids:
+            print("No ontology terms to pre-fetch")
+            return
+
+
+        # use the first validator's ontology_validator to fetch all terms since all validators share the same cache
+        # we only fetch once
+        for validator in self.validators.values():
+            if validator.ontology_validator:
+                validator.ontology_validator.batch_fetch_from_ols_sync(list(term_ids))
+                print(f"Pre-fetch complete. Cache now contains {len(validator.ontology_validator._cache)} terms.")
+
+                # share cache with all other validators to avoid redundant fetching
+                for other_validator in self.validators.values():
+                    if other_validator.ontology_validator and other_validator.ontology_validator != validator.ontology_validator:
+                        other_validator.ontology_validator._cache = validator.ontology_validator._cache
+
+                break
 
     def validate_all_records(
         self,
@@ -112,7 +136,6 @@ class UnifiedFAANGValidator:
                         'biosample_format': biosample_data
                     })
         return biosample_exports
-
 
     def get_supported_types(self) -> List[str]:
         return list(self.supported_sample_types)

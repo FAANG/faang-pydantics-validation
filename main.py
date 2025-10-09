@@ -1,4 +1,5 @@
 import json
+import time
 from unified_validator import UnifiedFAANGValidator
 
 
@@ -16,12 +17,25 @@ def main():
         print(f"Supported sample types: {', '.join(validator.get_supported_types())}")
         print()
 
-        # validation
+        # prefetch ontology terms
+        print("=" * 50)
+        print("STEP 1: Pre-fetching ontology terms...")
+        print("=" * 50)
+
+        validator.prefetch_all_ontology_terms(faang_json_data)
+        print()
+
+        # validation step
+        print("=" * 50)
+        print("STEP 2: Running validation...")
+        print("=" * 50)
+
         results = validator.validate_all_records(
             faang_json_data,
             validate_relationships=True,
             validate_ontology_text=True
         )
+        print()
 
         report = validator.generate_unified_report(results)
         print(report)
