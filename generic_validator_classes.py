@@ -280,6 +280,95 @@ class RelationshipValidator:
     def __init__(self):
         self.biosamples_cache: Dict[str, Dict] = {}
 
+    async def fetch_biosample_async(self, sample_id: str, session: aiohttp.ClientSession) -> tuple[str, Dict]:
+        """
+        Fetch a single BioSample asynchronously.
+        Returns tuple of (sample_id, cache_entry_dict)
+        """
+        if sample_id in self.biosamples_cache:
+            return sample_id, self.biosamples_cache[sample_id]
+
+        try:
+            url = f"https://www.ebi.ac.uk/biosamples/samples/{sample_id}"
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                response.raise_for_status()
+                data = await response.json()
+
+                if 'error' in data:
+                    return sample_id, {}
+
+                cache_entry = {}
+
+                characteristics = data.get('characteristics', {})
+
+                # Extract organism
+                if 'organism' in characteristics:
+                    cache_entry['organism'] = characteristics['organism'][0].get('text', '')
+
+                # Extract material
+                if 'material' in characteristics:
+                    cache_entry['material'] = characteristics['material'][0].get('text', '')
+
+                # Extract relationships
+                relationships = []
+                for rel in data.get('relationships', []):
+                    if rel['source'] == sample_id and rel['type'] in ['child of', 'derived from']:
+                        relationships.append(rel['target'])
+                cache_entry['relationships'] = relationships
+
+                return sample_id, cache_entry
+
+        except Exception as e:
+            print(f"Error fetching BioSample {sample_id} async: {e}")
+            return sample_id, {}
+
+    async def batch_fetch_biosamples(self, biosample_ids: List[str]) -> Dict[str, Dict]:
+        """
+        Fetch multiple BioSample IDs concurrently.
+        Returns dict with sample_id as key and cache_entry as value.
+        """
+        # Filter out IDs already in cache
+        ids_to_fetch = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
+
+        if not ids_to_fetch:
+            # All IDs are cached
+            return {bid: self.biosamples_cache[bid] for bid in biosample_ids}
+
+        # Fetch IDs from BioSamples API concurrently
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.fetch_biosample_async(sample_id, session) for sample_id in ids_to_fetch]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        result_dict = {}
+        for result in results:
+            if isinstance(result, Exception):
+                print(f"Task failed with exception: {result}")
+                continue
+            sample_id, cache_entry = result
+            if cache_entry:  # Only add if we got data
+                result_dict[sample_id] = cache_entry
+
+        # Add cached IDs
+        for sample_id in biosample_ids:
+            if sample_id in self.biosamples_cache and sample_id not in result_dict:
+                result_dict[sample_id] = self.biosamples_cache[sample_id]
+
+        return result_dict
+
+    def batch_fetch_biosamples_sync(self, biosample_ids: List[str]) -> Dict[str, Dict]:
+        """
+        Synchronous wrapper for batch fetching BioSamples.
+        """
+        result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+
+        # Update cache with results
+        for sample_id, cache_entry in result.items():
+            if sample_id not in self.biosamples_cache:
+                self.biosamples_cache[sample_id] = cache_entry
+
+        return result
+    # koosum. end
+
     def is_biosample_id(self, value: str) -> bool:
         """
         Check if value matches BioSample ID pattern.
@@ -566,34 +655,15 @@ class RelationshipValidator:
         return 'unknown'
 
     def fetch_biosample_data(self, biosample_ids: List[str]):
-        for sample_id in biosample_ids:
-            if sample_id in self.biosamples_cache:
-                continue
+        """
+        Fetch BioSample data from EBI BioSamples API (synchronous fallback).
+        This method is now mainly used as a fallback if pre-fetching wasn't done.
+        Extracts: material, organism, and relationships.
+        """
+        # First, try to use the batch fetch if there are multiple IDs
+        if len(biosample_ids) > 1:
+            uncached_ids = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
+            if uncached_ids:
+                self.batch_fetch_biosamples_sync(uncached_ids)
+            return
 
-            try:
-                url = f"https://www.ebi.ac.uk/biosamples/samples/{sample_id}"
-                response = requests.get(url, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-
-                    cache_entry = {}
-
-                    characteristics = data.get('characteristics', {})
-                    if 'organism' in characteristics:
-                        cache_entry['organism'] = characteristics['organism'][0].get('text', '')
-
-                    if 'material' in characteristics:
-                        cache_entry['material'] = characteristics['material'][0].get('text', '')
-
-                    # relationships
-                    relationships = []
-                    for rel in data.get('relationships', []):
-                        if rel['source'] == sample_id and rel['type'] in ['child of', 'derived from']:
-                            relationships.append(rel['target'])
-                    cache_entry['relationships'] = relationships
-
-                    self.biosamples_cache[sample_id] = cache_entry
-                else:
-                    print(f"BioSample {sample_id} returned status {response.status_code}")
-            except Exception as e:
-                print(f"Error fetching BioSample {sample_id}: {e}")

@@ -25,9 +25,17 @@ def main():
         validator.prefetch_all_ontology_terms(faang_json_data)
         print()
 
-        # validation step
+        # pre-fetch BioSample IDs
         print("=" * 50)
-        print("STEP 2: Running validation...")
+        print("STEP 2: Pre-fetching BioSample IDs...")
+        print("=" * 50)
+
+        validator.prefetch_all_biosample_ids(faang_json_data)
+        print()
+
+        # run validation
+        print("=" * 50)
+        print("STEP 3: Running validation...")
         print("=" * 50)
 
         results = validator.validate_all_records(

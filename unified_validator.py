@@ -45,6 +45,39 @@ class UnifiedFAANGValidator:
 
                 break
 
+    def prefetch_all_biosample_ids(self, data: Dict[str, List[Dict[str, Any]]]):
+        """
+        Pre-fetch all BioSample IDs from the data to populate the cache.
+        This speeds up validation by fetching all BioSample data concurrently upfront.
+        """
+        # Get any validator that has a relationship_validator
+        # All validators share the same RelationshipValidator instance via their relationship_validator
+        relationship_validator = None
+        for validator in self.validators.values():
+            if hasattr(validator, 'relationship_validator') and validator.relationship_validator:
+                relationship_validator = validator.relationship_validator
+                break
+
+        if not relationship_validator:
+            print("No relationship validator found for BioSample pre-fetching")
+            return
+
+        # Collect all BioSample IDs from the data
+        biosample_ids = relationship_validator.collect_biosample_ids_from_samples(data)
+
+        if not biosample_ids:
+            print("No BioSample IDs to pre-fetch")
+            return
+
+        print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
+
+        # Fetch all BioSample IDs concurrently
+        relationship_validator.batch_fetch_biosamples_sync(list(biosample_ids))
+
+        print(
+            f"Pre-fetch complete. BioSample cache now contains {len(relationship_validator.biosamples_cache)} entries.")
+
+
     def validate_all_records(
         self,
         data: Dict[str, List[Dict[str, Any]]],
