@@ -232,6 +232,19 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
                                     term_value = term_value.replace('_', ':', 1)
                                 term_ids.add(term_value)
 
+            # check cell type (nested structure)
+            if 'Cell Type' in sample and sample['Cell Type']:
+                cell_types = sample['Cell Type']
+                if isinstance(cell_types, list):
+                    for ct in cell_types:
+                        if isinstance(ct, dict) and 'term' in ct:
+                            term_value = ct['term']
+                            if term_value not in ["restricted access", "not applicable", "not collected",
+                                                  "not provided", ""]:
+                                if '_' in term_value and ':' not in term_value:
+                                    term_value = term_value.replace('_', ':', 1)
+                                term_ids.add(term_value)
+
     return term_ids
 
 

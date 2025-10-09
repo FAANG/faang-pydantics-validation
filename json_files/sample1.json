@@ -1008,5 +1008,455 @@
         "Method Of Euthanasia": "Non-lethal anaesthetic and exsanguination",
         "Anaesthetic Or Sedative Name": "Tricaine methanesulfonate (MS-222)"
     }
+],
+  "single_cell_specimen_old_version": [
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "single_cell_specimen_2 description"
+                },
+                "material": {
+                    "text": "single cell specimen",
+                    "term": "OBI:0002127"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "GEroNIMO"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "tissue_dissociation": {
+                "value": "proteolysis"
+            },
+            "cell_enrichment": {
+                "value": "fluorescence-activated cell sorting (FACS)"
+            },
+            "enrichment_markers": {
+                "value": "CD45+"
+            },
+            "cell_type": [
+                {
+                    "text": "cell",
+                    "term": "CL:0000000"
+                }
+            ],
+            "single_cell_isolation": {
+                "value": "FACS"
+            },
+            "single_cell_entity": {
+                "value": "whole cell"
+            },
+            "single_cell_quality": {
+                "value": "visual inspection"
+            },
+            "cell_number": {
+                "value": 10.0,
+                "units": "cells"
+            },
+            "single_cell_isolation_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "derived_from": {
+                "value": "SAMEA118360669"
+            },
+            "custom": {
+                "sample_name": {
+                    "value": "single_cell_specimen_1"
+                }
+            }
+        },
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "single_cell_specimen_1 description"
+                },
+                "material": {
+                    "text": "single cell specimen",
+                    "term": "OBI:0002127"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "GEroNIMO"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "tissue_dissociation": {
+                "value": "mesh passage"
+            },
+            "cell_enrichment": {
+                "value": "centrifugation"
+            },
+            "enrichment_markers": {
+                "value": "CD45+"
+            },
+            "cell_type": [
+                {
+                    "text": "cell",
+                    "term": "CL:0000000"
+                }
+            ],
+            "single_cell_isolation": {
+                "value": "microfluidics"
+            },
+            "single_cell_entity": {
+                "value": "nucleus"
+            },
+            "single_cell_quality": {
+                "value": "visual inspection"
+            },
+            "cell_number": {
+                "value": 10.0,
+                "units": "cells"
+            },
+            "single_cell_isolation_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "derived_from": {
+                "value": "SAMEA118360667"
+            },
+            "custom": {
+                "sample_name": {
+                    "value": "single_cell_specimen_2"
+                }
+            }
+        },
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "single_cell_specimen_1 description"
+                },
+                "material": {
+                    "text": "single cell specimen",
+                    "term": "OBI:0002127"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "GEroNIMO"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "tissue_dissociation": {
+                "value": "mesh passage"
+            },
+            "cell_enrichment": {
+                "value": "centrifugation"
+            },
+            "enrichment_markers": {
+                "value": "CD45+"
+            },
+            "cell_type": [
+                {
+                    "text": "cell",
+                    "term": "CL:0000000"
+                }
+            ],
+            "single_cell_isolation": {
+                "value": "microfluidics"
+            },
+            "single_cell_entity": {
+                "value": "nucleus"
+            },
+            "single_cell_quality": {
+                "value": "visual inspection"
+            },
+            "cell_number": {
+                "value": 10.0,
+                "units": "cells"
+            },
+            "single_cell_isolation_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "derived_from": {
+                "value": "SAMEA117787491"
+            },
+            "custom": {
+                "sample_name": {
+                    "value": "single_cell_specimen_2"
+                }
+            }
+        }
+    ],
+  "single cell specimen": [
+    {
+        "Sample Name": "single_cell_specimen_1",
+        "Sample Description": "single_cell_specimen_2 description",
+        "Material": "single cell specimen",
+        "Term Source ID": "OBI_0002127",
+        "Project": "FAANG",
+        "Secondary Project": "GEroNIMO",
+        "Availability": "mailto:samples@example.ac.uk",
+        "Same as": "SAMEA117787483",
+        "Tissue Dissociation": "proteolysis",
+        "Cell Enrichment": "fluorescence-activated cell sorting (FACS)",
+        "Enrichment Markers": "CD45+",
+        "Cell Type": [
+          {
+            "text": "cell",
+            "term": "CL:0000000"
+          }
+        ],
+        "Single Cell Isolation": "FACS",
+        "Single Cell Entity": "whole cell",
+        "Single Cell Quality": "visual inspection",
+        "Cell Number": 10,
+        "Unit": "cells",
+        "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+        "Derived From": "SAMEA118360669"
+    },
+    {
+        "Sample Name": "single_cell_specimen_2",
+        "Sample Description": "single_cell_specimen_1 description",
+        "Material": "single cell specimen",
+        "Term Source ID": "OBI_0002127",
+        "Project": "FAANG",
+        "Secondary Project": "GEroNIMO",
+        "Availability": "mailto:samples@example.ac.uk",
+        "Same as": "SAMEA117787483",
+        "Tissue Dissociation": "mesh passage",
+        "Cell Enrichment": "centrifugation",
+        "Enrichment Markers": "CD45+",
+        "Cell Type": [
+          {
+            "text": "cell",
+            "term": "CL:0000000"
+          }
+        ],
+        "Single Cell Isolation": "microfluidics",
+        "Single Cell Entity": "nucleus",
+        "Single Cell Quality": "visual inspection",
+        "Cell Number": 10,
+        "Unit": "cells",
+        "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+        "Derived From": "SAMEA118360667"
+    },
+    {
+        "Sample Name": "single_cell_specimen_2",
+        "Sample Description": "single_cell_specimen_1 description",
+        "Material": "single cell specimen",
+        "Term Source ID": "OBI_0002127",
+        "Project": "FAANG",
+        "Secondary Project": "GEroNIMO",
+        "Availability": "mailto:samples@example.ac.uk",
+        "Same as": "SAMEA117787483",
+        "Tissue Dissociation": "mesh passage",
+        "Cell Enrichment": "centrifugation",
+        "Enrichment Markers": "CD45+",
+         "Cell Type": [
+          {
+            "text": "cell",
+            "term": "CL:0000000"
+          }
+        ],
+        "Single Cell Isolation": "microfluidics",
+        "Single Cell Entity": "nucleus",
+        "Single Cell Quality": "visual inspection",
+        "Cell Number": 10,
+        "Unit": "cells",
+        "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+        "Derived From": "SAMEA117787491"
+    }
+],
+  "pool_of_specimens_old_version": [
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "pool_specimen_1_desc"
+                },
+                "material": {
+                    "text": "pool of specimens",
+                    "term": "OBI:0302716"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "GEroNIMO"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "pool_creation_date": {
+                "value": "2018-07-12",
+                "units": "YYYY-MM-DD"
+            },
+            "pool_creation_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "specimen_volume": {
+                "value": 12.0,
+                "units": "square centimeters"
+            },
+            "specimen_size": {
+                "value": 10.0,
+                "units": "meters"
+            },
+            "specimen_weight": {
+                "value": 0.4,
+                "units": "kilograms"
+            },
+            "specimen_picture_url": [
+                {
+                    "value": "https://www.pexels.com/search/flowers/"
+                },
+                {
+                    "value": "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"
+                }
+            ],
+            "derived_from": [
+                {
+                    "value": "SAMEA118360669"
+                },
+                {
+                    "value": "SAMEA9594201"
+                }
+            ],
+            "custom": {
+                "sample_name": {
+                    "value": "pool_specimen_1"
+                }
+            }
+        },
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "pool_specimen_2_desc"
+                },
+                "material": {
+                    "text": "pool of specimens",
+                    "term": "OBI:0302716"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "GEroNIMO"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "pool_creation_date": {
+                "value": "2018-07-14",
+                "units": "YYYY-MM-DD"
+            },
+            "pool_creation_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "specimen_volume": {
+                "value": 11.0,
+                "units": "square centimeters"
+            },
+            "specimen_size": {
+                "value": 10.0,
+                "units": "meters"
+            },
+            "specimen_weight": {
+                "value": 0.4,
+                "units": "kilograms"
+            },
+            "specimen_picture_url": [
+                {
+                    "value": "https://www.pexels.com/search/flowers/"
+                },
+                {
+                    "value": "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"
+                }
+            ],
+            "derived_from": [
+                {
+                    "value": "SAMEA118360669"
+                },
+                {
+                    "value": "SAMEA115397191"
+                }
+            ],
+            "custom": {
+                "sample_name": {
+                    "value": "pool_specimen_2"
+                }
+            }
+        }
+    ],
+  "pool_of_specimens": [
+  {
+    "Sample Name": "pool_specimen_1",
+    "Sample Description": "pool_specimen_1_desc",
+    "Material": "pool of specimens",
+    "Term Source ID": "OBI_0302716",
+    "Project": "FAANG",
+    "Secondary Project": "GEroNIMO",
+    "Availability": "mailto:samples@example.ac.uk",
+    "Same as": "SAMEA117787483",
+    "Pool Creation Date": "2018-07-12 00:00:00",
+    "Unit": "YYYY-MM-DD",
+    "Pool Creation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+    "Specimen Volume": 12,
+    "Specimen Volume Unit": "square centimeters",
+    "Specimen Size": 10,
+    "Specimen Size Unit": "meters",
+    "Specimen Weight": 0.4,
+    "Specimen Weight Unit": "kilograms",
+    "Specimen Picture URL": ["https://www.pexels.com/search/flowers/", "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"],
+    "Derived From": ["SAMEA118360669", "SAMEA9594201"]
+  },
+  {
+    "Sample Name": "pool_specimen_2",
+    "Sample Description": "pool_specimen_2_desc",
+    "Material": "pool of specimens",
+    "Term Source ID": "OBI_0302716",
+    "Project": "FAANG",
+    "Secondary Project": "GEroNIMO",
+    "Availability": "mailto:samples@example.ac.uk",
+    "Same as": "SAMEA117787483",
+    "Pool Creation Date": "2018-07-14 00:00:00",
+    "Unit": "YYYY-MM-DD",
+    "Pool Creation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+    "Specimen Volume": 11,
+    "Specimen Volume Unit": "square centimeters",
+    "Specimen Size": 10,
+    "Specimen Size Unit": "meters",
+    "Specimen Weight": 0.4,
+    "Specimen Weight Unit": "kilograms",
+    "Specimen Picture URL": ["https://www.pexels.com/search/flowers/", "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"],
+    "Derived From": ["SAMEA118360669", "SAMEA115397191"]
+  }
 ]
 }

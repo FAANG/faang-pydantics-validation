@@ -18,7 +18,6 @@ class TeleosteiEmbryoValidator(BaseValidator):
         return "teleostei_embryo"
 
     def export_to_biosample_format(self, model: FAANGTeleosteiEmbryoSample) -> Dict[str, Any]:
-        """Export teleostei embryo model to BioSamples JSON format"""
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided", ""]:
