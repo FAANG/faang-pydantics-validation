@@ -200,7 +200,7 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
         'Term Source ID',
         'Organism Term Source ID',
         'Sex Term Source ID',
-        'Breed Term Source ID',
+        # 'Breed Term Source ID',
         'Developmental Stage Term Source ID',
         'Organism Part Term Source ID',
         'Organ Model Term Source ID',

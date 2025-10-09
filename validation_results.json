@@ -624,7 +624,7 @@
               "Sample Name": "teleostei_post_hatching_1",
               "Sample Description": "Sample_description for teleostei_ph_1",
               "Material": "specimen from organism",
-              "Term Source ID": "OBI_0001479",
+              "Term Source ID": "OBI_0001479777",
               "Project": "FAANG",
               "Secondary Project": "",
               "Availability": "",
@@ -698,6 +698,7 @@
             },
             "errors": {
               "errors": [
+                "Term Source ID: Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'",
                 "Sampling Weight: Value error, Numeric field must be a valid number, got 'a10'"
               ],
               "warnings": [],
@@ -705,6 +706,9 @@
                 "Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
               ],
               "field_errors": {
+                "Term Source ID": [
+                  "Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'"
+                ],
                 "Sampling Weight": [
                   "Value error, Numeric field must be a valid number, got 'a10'"
                 ]
@@ -726,7 +730,7 @@
       "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 1\nInvalid organoids: 1\nOrganoids with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  ERROR in Organ Model Term Source ID: Value error, Organ model term 'UBERONx:0001153' should be from UBERON or BTO ontology\n  RELATIONSHIP ERROR: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
       "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0",
       "teleostei_embryo": "FAANG Teleostei_Embryo Validation Report\n=========================================\n\nTotal teleostei_embryos processed: 2\nValid teleostei_embryos: 2\nInvalid teleostei_embryos: 0\nTeleostei_Embryos with warnings: 0",
-      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 1\nInvalid teleostei_post_hatchings: 1\nTeleostei_Post_Hatchings with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nTeleostei_Post_Hatching: teleostei_post_hatching_1 (index: 0)\n  ERROR in Sampling Weight: Value error, Numeric field must be a valid number, got 'a10'\n  ONTOLOGY WARNING: Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
+      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 1\nInvalid teleostei_post_hatchings: 1\nTeleostei_Post_Hatchings with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nTeleostei_Post_Hatching: teleostei_post_hatching_1 (index: 0)\n  ERROR in Term Source ID: Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'\n  ERROR in Sampling Weight: Value error, Numeric field must be a valid number, got 'a10'\n  ONTOLOGY WARNING: Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
     }
   },
   "biosample_exports": {
