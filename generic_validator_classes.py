@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 import requests
 import asyncio
 import aiohttp
+import re
 
 from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 
@@ -279,6 +280,42 @@ class RelationshipValidator:
     def __init__(self):
         self.biosamples_cache: Dict[str, Dict] = {}
 
+    def is_biosample_id(self, value: str) -> bool:
+        """
+        Check if value matches BioSample ID pattern.
+        BioSample accessions: SAM + [E|N|D] + optional[A|G] + digits
+        Examples: SAMEA123456, SAMN123456, SAMD123456
+        """
+        if not value or not isinstance(value, str):
+            return False
+        return bool(re.match(r'^SAM[AED][AG]?\d+$', value.strip()))
+
+    def collect_biosample_ids_from_samples(self, all_samples: Dict[str, List[Dict]]) -> Set[str]:
+        """
+        Collect all BioSample IDs from derived_from/child_of fields across all sample types.
+        """
+        biosample_ids = set()
+
+        for sample_type, samples in all_samples.items():
+            for sample in samples:
+                # Check derived_from field
+                if 'Derived From' in sample:
+                    derived_from = sample['Derived From']
+                    if derived_from and self.is_biosample_id(str(derived_from)):
+                        biosample_ids.add(derived_from.strip())
+
+                # Check child_of field (for organisms)
+                if 'Child Of' in sample:
+                    child_of = sample['Child Of']
+                    if isinstance(child_of, list):
+                        for parent in child_of:
+                            if parent and self.is_biosample_id(str(parent)):
+                                biosample_ids.add(parent.strip())
+                    elif child_of and self.is_biosample_id(str(child_of)):
+                        biosample_ids.add(child_of.strip())
+
+        return biosample_ids
+
     def validate_organism_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
         results = {}
 
@@ -305,7 +342,7 @@ class RelationshipValidator:
 
         for org in organisms:
             for parent_id in self.normalize_child_of(org.get('Child Of')):
-                if parent_id.startswith('SAM'):
+                if self.is_biosample_id(parent_id):
                     biosample_ids.add(parent_id)
 
         return biosample_ids
@@ -416,58 +453,82 @@ class RelationshipValidator:
                 f"is listing the child as its parent"
             )
 
-    # handles both 'Derived From' and 'Child Of' relationships
-    # uses ALLOWED_RELATIONSHIPS from constants.py
     def validate_derived_from_relationships(self, all_samples: Dict[str, List[Dict]] = None) -> Dict[str, List[str]]:
         relationship_errors = {}
         relationships = {}
 
-        if all_samples:
-            for sample_type, samples in all_samples.items():
-                for sample in samples:
-                    sample_name = self.extract_sample_name(sample)
-                    if sample_name:
-                        relationships[sample_name] = {}
+        if not all_samples:
+            return relationship_errors
 
-                        # get material type
-                        material = self.extract_material(sample, sample_type)
-                        relationships[sample_name]['material'] = material
+        # Step 1: Collect all relationships and local sample info
+        for sample_type, samples in all_samples.items():
+            for sample in samples:
+                sample_name = self.extract_sample_name(sample)
+                if sample_name:
+                    relationships[sample_name] = {}
 
-                        # get derived_from/child_of relationships
-                        related_records = self.extract_related_record(sample, sample_type)
-                        if related_records:
-                            relationships[sample_name]['relationships'] = related_records
+                    # get material type
+                    material = self.extract_material(sample, sample_type)
+                    relationships[sample_name]['material'] = material
 
-        # validate relationships
+                    # get derived_from/child_of relationships
+                    related_records = self.extract_related_record(sample, sample_type)
+                    if related_records:
+                        relationships[sample_name]['relationships'] = related_records
+
+        # Step 2: Collect and fetch BioSample IDs
+        biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
+        if biosample_ids:
+            self.fetch_biosample_data(list(biosample_ids))
+
+        # Step 3: Validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue
 
-            current_material = rel_info['material']
+            current_material = self.normalize_material_name(rel_info['material'])
             errors = []
 
             if any('restricted access' == ref for ref in rel_info['relationships']):
                 continue
 
             for derived_from_ref in rel_info['relationships']:
-                # check if referenced sample exists
-                if derived_from_ref not in relationships:
-                    errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
-                else:
-                    # check material compatibility
-                    ref_material = relationships[derived_from_ref]['material']
-                    allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
+                # Check if reference exists in local samples OR BioSamples
 
-                    if ref_material not in allowed_materials:
-                        errors.append(
-                            f"Relationships part: referenced entity '{derived_from_ref}' "
-                            f"does not match condition 'should be {' or '.join(allowed_materials)}'"
-                        )
+                # Try local samples first
+                if derived_from_ref in relationships:
+                    ref_material = self.normalize_material_name(relationships[derived_from_ref]['material'])
+                # Try BioSamples cache
+                elif derived_from_ref in self.biosamples_cache:
+                    ref_material = self.normalize_material_name(
+                        self.biosamples_cache[derived_from_ref].get('material', '')
+                    )
+                else:
+                    # Not found in either source
+                    errors.append(f"Relationships part: no entity '{derived_from_ref}' found")
+                    continue
+
+                # Validate material compatibility
+                allowed_materials = ALLOWED_RELATIONSHIPS.get(current_material, [])
+
+                # Normalize allowed materials for comparison
+                allowed_materials_normalized = [self.normalize_material_name(m) for m in allowed_materials]
+
+                if ref_material not in allowed_materials_normalized:
+                    errors.append(
+                        f"Relationships part: referenced entity '{derived_from_ref}' "
+                        f"does not match condition 'should be {' or '.join(allowed_materials)}'"
+                    )
 
             if errors:
                 relationship_errors[sample_name] = errors
 
         return relationship_errors
+
+    def normalize_material_name(self, material: str) -> str:
+        if not material:
+            return ''
+        return material.lower().replace(' ', '_')
 
     def extract_sample_name(self, sample: Dict) -> str:
         return sample.get('Sample Name', '')
@@ -484,17 +545,17 @@ class RelationshipValidator:
 
         if 'Derived From' in sample:
             derived_from = sample['Derived From']
-            if derived_from and derived_from.strip():
-                refs.append(derived_from.strip())
+            if derived_from and str(derived_from).strip():
+                refs.append(str(derived_from).strip())
 
         if 'Child Of' in sample:
             child_of = sample['Child Of']
             if isinstance(child_of, list):
                 for parent in child_of:
-                    if parent and parent.strip():
-                        refs.append(parent.strip())
-            elif child_of and child_of.strip():
-                refs.append(child_of.strip())
+                    if parent and str(parent).strip():
+                        refs.append(str(parent).strip())
+            elif child_of and str(child_of).strip():
+                refs.append(str(child_of).strip())
 
         return [ref for ref in refs if ref and ref.strip()]
 
