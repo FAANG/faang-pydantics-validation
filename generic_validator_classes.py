@@ -412,7 +412,7 @@ class RelationshipValidator:
 
         biosample_ids = self.collect_biosample_ids(organisms)
         if biosample_ids:
-            self.fetch_biosample_data(list(biosample_ids))
+            self.batch_fetch_biosamples_sync(list(biosample_ids))
 
         # validate each organism's relationships
         for org in organisms:
@@ -568,7 +568,7 @@ class RelationshipValidator:
         # Step 2: Collect and fetch BioSample IDs
         biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
         if biosample_ids:
-            self.fetch_biosample_data(list(biosample_ids))
+            self.batch_fetch_biosamples_sync(list(biosample_ids))
 
         # Step 3: Validate relationships
         for sample_name, rel_info in relationships.items():
@@ -654,16 +654,4 @@ class RelationshipValidator:
             return sample_name.strip()
         return 'unknown'
 
-    def fetch_biosample_data(self, biosample_ids: List[str]):
-        """
-        Fetch BioSample data from EBI BioSamples API (synchronous fallback).
-        This method is now mainly used as a fallback if pre-fetching wasn't done.
-        Extracts: material, organism, and relationships.
-        """
-        # First, try to use the batch fetch if there are multiple IDs
-        if len(biosample_ids) > 1:
-            uncached_ids = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
-            if uncached_ids:
-                self.batch_fetch_biosamples_sync(uncached_ids)
-            return
 
