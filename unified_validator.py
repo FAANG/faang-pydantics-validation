@@ -5,6 +5,7 @@ from organoid_validator import OrganoidValidator
 from specimen_validator import SpecimenValidator
 from teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
 from single_cell_specimen_validator import SingleCellSpecimenValidator
+from pool_of_specimens_validator import PoolOfSpecimensValidator
 from generic_validator_classes import collect_ontology_terms_from_data
 
 
@@ -16,7 +17,8 @@ class UnifiedFAANGValidator:
             'specimen_from_organism': SpecimenValidator(),
             'teleostei_embryo': TeleosteiEmbryoValidator(),
             'teleostei_post_hatching': TeleosteiPostHatchingValidator(),
-            'single_cell_specimen': SingleCellSpecimenValidator()
+            'single_cell_specimen': SingleCellSpecimenValidator(),
+            'pool_of_specimens': PoolOfSpecimensValidator()
             # 'cell_culture': CellCultureValidator(),
             # 'cell_line': CellLineValidator(),
         }

@@ -73,12 +73,12 @@ class PoolOfSpecimensValidator(BaseValidator):
                 {"text": pic} for pic in model.specimen_picture_url
             ]
 
-        # Relationships - derived from (multiple sources)
+        # Relationships - derived from (multiple specimens)
         biosample_data["relationships"] = []
-        for source in model.derived_from:
+        for specimen in model.derived_from:
             biosample_data["relationships"].append({
                 "type": "derived from",
-                "target": source
+                "target": specimen
             })
 
         return biosample_data
