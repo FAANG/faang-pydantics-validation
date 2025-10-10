@@ -187,9 +187,6 @@ class OntologyValidator:
         return result_dict
 
     def batch_fetch_from_ols_sync(self, term_ids: List[str]) -> Dict[str, List[Dict]]:
-        """
-        Synchronous wrapper for batch fetching
-        """
         return asyncio.run(self.batch_fetch_from_ols(term_ids))
 
 
@@ -281,10 +278,6 @@ class RelationshipValidator:
         self.biosamples_cache: Dict[str, Dict] = {}
 
     async def fetch_biosample_async(self, sample_id: str, session: aiohttp.ClientSession) -> tuple[str, Dict]:
-        """
-        Fetch a single BioSample asynchronously.
-        Returns tuple of (sample_id, cache_entry_dict)
-        """
         if sample_id in self.biosamples_cache:
             return sample_id, self.biosamples_cache[sample_id]
 
@@ -301,15 +294,13 @@ class RelationshipValidator:
 
                 characteristics = data.get('characteristics', {})
 
-                # Extract organism
                 if 'organism' in characteristics:
                     cache_entry['organism'] = characteristics['organism'][0].get('text', '')
 
-                # Extract material
                 if 'material' in characteristics:
                     cache_entry['material'] = characteristics['material'][0].get('text', '')
 
-                # Extract relationships
+                # relationships
                 relationships = []
                 for rel in data.get('relationships', []):
                     if rel['source'] == sample_id and rel['type'] in ['child of', 'derived from']:
@@ -323,18 +314,13 @@ class RelationshipValidator:
             return sample_id, {}
 
     async def batch_fetch_biosamples(self, biosample_ids: List[str]) -> Dict[str, Dict]:
-        """
-        Fetch multiple BioSample IDs concurrently.
-        Returns dict with sample_id as key and cache_entry as value.
-        """
-        # Filter out IDs already in cache
+        # filter IDs already in cache
         ids_to_fetch = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
 
         if not ids_to_fetch:
-            # All IDs are cached
             return {bid: self.biosamples_cache[bid] for bid in biosample_ids}
 
-        # Fetch IDs from BioSamples API concurrently
+        # fetch BioSamples data concurrently
         async with aiohttp.ClientSession() as session:
             tasks = [self.fetch_biosample_async(sample_id, session) for sample_id in ids_to_fetch]
             results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -345,10 +331,10 @@ class RelationshipValidator:
                 print(f"Task failed with exception: {result}")
                 continue
             sample_id, cache_entry = result
-            if cache_entry:  # Only add if we got data
+            if cache_entry:
                 result_dict[sample_id] = cache_entry
 
-        # Add cached IDs
+        # add cached IDs
         for sample_id in biosample_ids:
             if sample_id in self.biosamples_cache and sample_id not in result_dict:
                 result_dict[sample_id] = self.biosamples_cache[sample_id]
@@ -356,12 +342,9 @@ class RelationshipValidator:
         return result_dict
 
     def batch_fetch_biosamples_sync(self, biosample_ids: List[str]) -> Dict[str, Dict]:
-        """
-        Synchronous wrapper for batch fetching BioSamples.
-        """
         result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
 
-        # Update cache with results
+        # update cache with results
         for sample_id, cache_entry in result.items():
             if sample_id not in self.biosamples_cache:
                 self.biosamples_cache[sample_id] = cache_entry
