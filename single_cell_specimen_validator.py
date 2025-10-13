@@ -95,7 +95,7 @@ class SingleCellSpecimenValidator(BaseValidator):
         # Relationships - derived from
         biosample_data["relationships"] = [{
             "type": "derived from",
-            "target": model.derived_from
+            "target": model.derived_from[0]
         }]
 
         return biosample_data

@@ -68,7 +68,7 @@ class FAANGSingleCellSpecimenSample(SampleCoreMetadata):
         ..., alias="Single Cell Isolation Protocol"
     )
 
-    derived_from: str = Field(..., alias="Derived From")
+    derived_from: List[str] = Field(..., alias="Derived From")
 
     # recommended fields
     enrichment_markers: Optional[Literal[
@@ -115,11 +115,29 @@ class FAANGSingleCellSpecimenSample(SampleCoreMetadata):
     def validate_cell_number_value(cls, v):
         return validate_non_negative_numeric(v, "Cell number", allow_restricted=False)
 
+    @field_validator('derived_from', mode='before')
+    def normalize_derived_from(cls, v):
+        if v is None:
+            raise ValueError("Derived from is required")
+
+        if isinstance(v, str):
+            if not v.strip():
+                raise ValueError("Derived from value is required and cannot be empty")
+            return [v.strip()]
+
+        if isinstance(v, list):
+            non_empty = [item.strip() for item in v if item and str(item).strip()]
+            if not non_empty:
+                raise ValueError("Derived from is required and cannot be empty")
+            return non_empty
+
+        raise ValueError("Derived from must be a string or list of strings")
+
     @field_validator('derived_from')
-    def validate_derived_from_value(cls, v):
-        if not v or v.strip() == "":
-            raise ValueError("Derived from value is required and cannot be empty")
-        return v.strip()
+    def validate_single_parent(cls, v):
+        if len(v) != 1:
+            raise ValueError("Single cell specimen must be derived from exactly one specimen")
+        return v
 
     # convert empty strings to None for optional fields
     @field_validator(

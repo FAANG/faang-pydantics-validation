@@ -9,7 +9,7 @@ from validation_utils import (
     validate_non_negative_numeric,
     strip_and_convert_empty_to_none
 )
-from typing import Optional, Union, Literal
+from typing import Optional, Union, Literal, List
 from datetime import datetime
 from .standard_ruleset import SampleCoreMetadata
 
@@ -33,7 +33,7 @@ class FAANGOrganoidSample(SampleCoreMetadata):
     type_of_organoid_culture: Literal["2D", "3D"] = Field(..., alias="Type Of Organoid Culture")
     growth_environment: Literal["matrigel", "liquid suspension", "adherent"] = Field(..., alias="Growth Environment")
     growth_environment_unit: Optional[str] = Field(None, alias="Growth Environment Unit")
-    derived_from: str = Field(..., alias="Derived From")
+    derived_from: List[str] = Field(..., alias="Derived From")
 
     # Optional fields
     organ_part_model: Optional[str] = Field(None, alias="Organ Part Model")
@@ -170,11 +170,30 @@ class FAANGOrganoidSample(SampleCoreMetadata):
     def validate_number_of_frozen_cells(cls, v):
         return validate_non_negative_numeric(v, "Number of frozen cells", allow_restricted=False)
 
+
+    @field_validator('derived_from', mode='before')
+    def normalize_derived_from(cls, v):
+        if v is None:
+            raise ValueError("Derived from is required")
+
+        if isinstance(v, str):
+            if not v.strip():
+                raise ValueError("Derived from value is required and cannot be empty")
+            return [v.strip()]
+
+        if isinstance(v, list):
+            non_empty = [item.strip() for item in v if item and str(item).strip()]
+            if not non_empty:
+                raise ValueError("Derived from is required and cannot be empty")
+            return non_empty
+
+        raise ValueError("Derived from must be a string or list of strings")
+
     @field_validator('derived_from')
-    def validate_derived_from_value(cls, v):
-        if not v or v.strip() == "":
-            raise ValueError("Derived from value is required and cannot be empty")
-        return v.strip()
+    def validate_single_parent(cls, v):
+        if len(v) != 1:
+            raise ValueError("Organoid samples must be derived from exactly one specimen")
+        return v
 
     # convert empty strings to None for optional fields
     @field_validator(

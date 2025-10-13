@@ -69,18 +69,29 @@ class FAANGPoolOfSpecimensSample(SampleCoreMetadata):
     def validate_protocol_url_field(cls, v):
         return validate_protocol_url(v, allow_restricted=True)
 
+    @field_validator('derived_from', mode='before')
+    def normalize_derived_from(cls, v):
+        if v is None:
+            raise ValueError("Derived from is required")
+
+        if isinstance(v, str):
+            if not v.strip():
+                raise ValueError("Derived from value is required and cannot be empty")
+            return [v.strip()]
+
+        if isinstance(v, list):
+            non_empty = [item.strip() for item in v if item and str(item).strip()]
+            if not non_empty:
+                raise ValueError("Derived from must contain at least one valid value")
+            return non_empty
+
+        raise ValueError("Derived from must be a string or list of strings")
+
     @field_validator('derived_from')
-    def validate_derived_from_list(cls, v):
-        if not v or not isinstance(v, list) or len(v) == 0:
-            raise ValueError("Derived from is required and must contain at least one specimen")
-
-        # Filter out empty strings
-        non_empty = [item.strip() for item in v if item and str(item).strip()]
-
-        if not non_empty:
-            raise ValueError("Derived from must contain at least one valid specimen")
-
-        return non_empty
+    def validate_multiple_parents(cls, v):
+        if len(v) < 1:
+            raise ValueError("Pool of specimens must be derived from at least one specimen")
+        return v
 
     @field_validator('specimen_volume', 'specimen_size', 'specimen_weight', mode='before')
     def validate_numeric_fields(cls, v):

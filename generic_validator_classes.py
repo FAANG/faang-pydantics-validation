@@ -370,11 +370,18 @@ class RelationshipValidator:
 
         for sample_type, samples in all_samples.items():
             for sample in samples:
-                # Check derived_from field
+                # check derived_from field (can be string or list)
                 if 'Derived From' in sample:
                     derived_from = sample['Derived From']
-                    if derived_from and self.is_biosample_id(str(derived_from)):
-                        biosample_ids.add(derived_from.strip())
+
+                    # Handle list of derived_from values
+                    if isinstance(derived_from, list):
+                        for item in derived_from:
+                            if item and self.is_biosample_id(str(item)):
+                                biosample_ids.add(str(item).strip())
+                    # Handle single string value
+                    elif derived_from and self.is_biosample_id(str(derived_from)):
+                        biosample_ids.add(str(derived_from).strip())
 
                 # Check child_of field (for organisms)
                 if 'Child Of' in sample:
@@ -382,9 +389,9 @@ class RelationshipValidator:
                     if isinstance(child_of, list):
                         for parent in child_of:
                             if parent and self.is_biosample_id(str(parent)):
-                                biosample_ids.add(parent.strip())
+                                biosample_ids.add(str(parent).strip())
                     elif child_of and self.is_biosample_id(str(child_of)):
-                        biosample_ids.add(child_of.strip())
+                        biosample_ids.add(str(child_of).strip())
 
         return biosample_ids
 
@@ -615,11 +622,18 @@ class RelationshipValidator:
     def extract_related_record(self, sample: Dict, sample_type: str) -> List[str]:
         refs = []
 
+        # Derived From always a list after Pydantic validation
         if 'Derived From' in sample:
             derived_from = sample['Derived From']
-            if derived_from and str(derived_from).strip():
+
+            if isinstance(derived_from, list):
+                for item in derived_from:
+                    if item and str(item).strip():
+                        refs.append(str(item).strip())
+            elif derived_from and str(derived_from).strip():
                 refs.append(str(derived_from).strip())
 
+        # Child Of (organisms)
         if 'Child Of' in sample:
             child_of = sample['Child Of']
             if isinstance(child_of, list):

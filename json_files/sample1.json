@@ -156,7 +156,7 @@
       "Stored Oxygen Level Unit": "",
       "Incubation Temperature": "",
       "Incubation Temperature Unit": "",
-      "Derived From": "OCU_INRAE_PND18_S1"
+      "Derived From": ["OCU_INRAE_PND18_S1"]
     },
     {
       "Sample Name": "OCU_INRAE_S2",
@@ -189,7 +189,7 @@
       "Stored Oxygen Level Unit": "",
       "Incubation Temperature": "",
       "Incubation Temperature Unit": "",
-      "Derived From": "OCU_INRAE_PND18_S19"
+      "Derived From": ["OCU_INRAE_PND18_S19"]
     }
   ],
   "specimen_from_organism": [
@@ -238,7 +238,7 @@
       "Average Incubation Humidity Unit": "",
       "Embryonic Stage": "",
       "Embryonic Stage Unit": "",
-      "Derived From": "OCU_INRAE_PND18"
+      "Derived From": ["OCU_INRAE_PND18"]
     }
   ],
 
@@ -286,7 +286,7 @@
       "Average Incubation Humidity Unit": "",
       "Embryonic Stage": "",
       "Embryonic Stage Unit": "",
-      "Derived From": "OCU_INRAE_PND18",
+      "Derived From": ["OCU_INRAE_PND18"],
       "Origin": "Domesticated diploid",
       "Reproductive Strategy": "gonochoric",
       "Hatching": "pre",
@@ -352,7 +352,7 @@
       "Average Incubation Humidity Unit": "",
       "Embryonic Stage": "",
       "Embryonic Stage Unit": "",
-      "Derived From": "OCU_INRAE_PND18",
+      "Derived From": ["OCU_INRAE_PND18"],
       "Origin": "Domesticated diploid",
       "Reproductive Strategy": "gonochoric",
       "Hatching": "pre",
@@ -421,7 +421,7 @@
         "Average Incubation Humidity Unit": "",
         "Embryonic Stage": "",
         "Embryonic Stage Unit": "",
-        "Derived From": "OCU_INRAE_PND18",
+        "Derived From": ["OCU_INRAE_PND18"],
         "Origin": "Domesticated diploid",
         "Reproductive Strategy": "gonochoric",
         "Gonad Type": "testis",
@@ -503,7 +503,7 @@
         "Average Incubation Humidity Unit": "",
         "Embryonic Stage": "",
         "Embryonic Stage Unit": "",
-        "Derived From": "OCU_INRAE_PND18",
+        "Derived From": ["OCU_INRAE_PND18"],
         "Origin": "Domesticated diploid",
         "Reproductive Strategy": "gonochoric",
         "Gonad Type": "testis",
@@ -569,7 +569,7 @@
         "Cell Number": 10,
         "Unit": "cells",
         "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-        "Derived From": "SAMEA118360669"
+        "Derived From": ["SAMEA118360669"]
     },
     {
         "Sample Name": "single_cell_specimen_2",
@@ -595,7 +595,7 @@
         "Cell Number": 10,
         "Unit": "cells",
         "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-        "Derived From": "SAMEA118360667"
+        "Derived From": ["SAMEA118360667"]
     },
     {
         "Sample Name": "single_cell_specimen_3",
@@ -621,7 +621,7 @@
         "Cell Number": 10,
         "Unit": "cells",
         "Single Cell Isolation Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-        "Derived From": "SAMEA117787491"
+        "Derived From": ["SAMEA117787491"]
     }
 ],
   "pool_of_specimens_old_version": [

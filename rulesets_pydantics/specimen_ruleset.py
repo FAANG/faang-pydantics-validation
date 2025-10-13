@@ -118,7 +118,7 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
 
     specimen_collection_protocol: Union[str, Literal["restricted access"]] = Field(...,
                                                                                    alias="Specimen Collection Protocol")
-    derived_from: str = Field(..., alias="Derived From")
+    derived_from: List[str] = Field(..., alias="Derived From")
 
     # recommended fields
     health_status: Optional[List[HealthStatus]] = Field(None, alias="Health Status",
@@ -245,11 +245,29 @@ class FAANGSpecimenFromOrganismSample(SampleCoreMetadata):
     def validate_animal_age(cls, v):
         return validate_non_negative_numeric(v, "Animal age", allow_restricted=True)
 
+    @field_validator('derived_from', mode='before')
+    def normalize_derived_from(cls, v):
+        if v is None:
+            raise ValueError("Derived from is required")
+
+        if isinstance(v, str):
+            if not v.strip():
+                raise ValueError("Derived from value is required and cannot be empty")
+            return [v.strip()]
+
+        if isinstance(v, list):
+            non_empty = [item.strip() for item in v if item and str(item).strip()]
+            if not non_empty:
+                raise ValueError("Derived from is required and cannot be empty")
+            return non_empty
+
+        raise ValueError("Derived from must be a string or list of strings")
+
     @field_validator('derived_from')
-    def validate_derived_from_value(cls, v):
-        if not v or v.strip() == "":
-            raise ValueError("Derived from value is required and cannot be empty")
-        return v.strip()
+    def validate_single_parent(cls, v):
+        if len(v) != 1:
+            raise ValueError("Specimen samples must be derived from exactly one organism")
+        return v
 
 
     # numeric fields
