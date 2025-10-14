@@ -734,7 +734,7 @@
         }
       ],
       "Purification Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-      "Derived From": "SAMEA118360670"
+      "Derived From": ["SAMEA118360670"]
     }
   ]
 }

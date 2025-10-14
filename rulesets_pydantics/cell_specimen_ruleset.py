@@ -50,9 +50,7 @@ class FAANGCellSpecimenSample(SampleCoreMetadata):
         ..., alias="Purification Protocol"
     )
 
-    derived_from: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Derived From"
-    )
+    derived_from: List[str] = Field(..., alias="Derived From")
 
     # optional fields
     markers: Optional[str] = Field(None, alias="Markers")
@@ -66,11 +64,29 @@ class FAANGCellSpecimenSample(SampleCoreMetadata):
     def validate_protocol_url_field(cls, v):
         return validate_protocol_url(v, allow_restricted=True)
 
+    @field_validator('derived_from', mode='before')
+    def normalize_derived_from(cls, v):
+        if v is None:
+            raise ValueError("Derived from is required")
+
+        if isinstance(v, str):
+            if not v.strip():
+                raise ValueError("Derived from value is required and cannot be empty")
+            return [v.strip()]
+
+        if isinstance(v, list):
+            non_empty = [item.strip() for item in v if item and str(item).strip()]
+            if not non_empty:
+                raise ValueError("Derived from is required and cannot be empty")
+            return non_empty
+
+        raise ValueError("Derived from must be a string or list of strings")
+
     @field_validator('derived_from')
-    def validate_derived_from_field(cls, v):
-        if not v or (isinstance(v, str) and v.strip() == ""):
-            raise ValueError("Derived from is required and cannot be empty")
-        return v.strip() if isinstance(v, str) else v
+    def validate_single_parent(cls, v):
+        if len(v) != 1:
+            raise ValueError("Cell specimen must be derived from exactly one specimen")
+        return v
 
     # convert empty strings to None for optional fields
     @field_validator(
