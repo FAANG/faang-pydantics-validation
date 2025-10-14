@@ -734,7 +734,157 @@
         }
       ],
       "Purification Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-      "Derived From": ["SAMEA118360670"]
+      "Derived From": [
+        "SAMEA118360670"
+      ]
+    }
+  ],
+  "cell_culture_old_version": [
+    {
+      "samples_core": {
+        "sample_description": {
+          "value": "cell_culture_desc1"
+        },
+        "material": {
+          "text": "cell culture",
+          "term": "OBI:0001876"
+        },
+        "project": {
+          "value": "FAANG"
+        },
+        "secondary_project": [
+          {
+            "value": "EFFICACE"
+          }
+        ],
+        "availability": {
+          "value": "mailto:samples@example.ac.uk"
+        },
+        "same_as": {
+          "value": "SAMEA117787483"
+        }
+      },
+      "culture_type": {
+        "text": "cell culture",
+        "term": "BTO:0000214"
+      },
+      "cell_type": {
+        "text": "cell",
+        "term": "CL:0000000"
+      },
+      "cell_culture_protocol": {
+        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+      },
+      "culture_conditions": {
+        "value": "on feeder cells"
+      },
+      "number_of_passages": {
+        "value": 11.0
+      },
+      "derived_from": {
+        "value": "SAMEA118360669"
+      },
+      "custom": {
+        "sample_name": {
+          "value": "cell_culture_1"
+        }
+      }
+    },
+    {
+      "samples_core": {
+        "sample_description": {
+          "value": "cell_culture_desc2"
+        },
+        "material": {
+          "text": "cell culture",
+          "term": "OBI:0001876"
+        },
+        "project": {
+          "value": "FAANG"
+        },
+        "secondary_project": [
+          {
+            "value": "EFFICACE"
+          }
+        ],
+        "availability": {
+          "value": "mailto:samples@example.ac.uk"
+        },
+        "same_as": {
+          "value": "SAMEA117787484"
+        }
+      },
+      "culture_type": {
+        "text": "cell lysate",
+        "term": "BTO:0004304"
+      },
+      "cell_type": {
+        "text": "apical part of cell",
+        "term": "GO:0045177"
+      },
+      "cell_culture_protocol": {
+        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+      },
+      "culture_conditions": {
+        "value": "on feeder cells"
+      },
+      "number_of_passages": {
+        "value": 10.0
+      },
+      "derived_from": {
+        "value": "SAMEA118360669"
+      },
+      "custom": {
+        "sample_name": {
+          "value": "cell_culture_2"
+        }
+      }
+    }
+  ],
+  "cell_culture": [
+    {
+      "Sample Name": "cell_culture_1",
+      "Sample Description": "cell_culture_desc1",
+      "Material": "cell culture",
+      "Term Source ID": "OBI_0001876",
+      "Project": "FAANG",
+      "Secondary Project": "EFFICACE",
+      "Availability": "mailto:samples@example.ac.uk",
+      "Same as": "SAMEA117787483",
+      "Culture Type": "cell culture",
+      "Culture Type Term Source ID": "BTO:0000214",
+      "Cell Type": [
+        {
+          "text": "cell",
+          "term": "CL:0000000"
+        }
+      ],
+      "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+      "Culture Conditions": "on feeder cells",
+      "Number Of Passages": "11",
+      "Derived From": ["SAMEA118360669"]
+    },
+    {
+      "Sample Name": "cell_culture_2",
+      "Sample Description": "cell_culture_desc2",
+      "Material": "cell culture",
+      "Term Source ID": "OBI_0001876",
+      "Project": "FAANG",
+      "Secondary Project": "EFFICACE",
+      "Availability": "mailto:samples@example.ac.uk",
+      "Same as": "SAMEA117787484",
+      "Culture Type": "cell lysate",
+      "Culture Type Term Source ID": "BTO:0004304",
+      "Cell Type": [
+        {
+          "text": "apical part of cell",
+          "term": "GO:0045177"
+        }
+      ],
+      "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+      "Culture Conditions": "on feeder cells",
+      "Number Of Passages": "10",
+      "Derived From": ["SAMEA118360669"]
     }
   ]
 }

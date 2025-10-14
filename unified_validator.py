@@ -7,6 +7,7 @@ from teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
 from single_cell_specimen_validator import SingleCellSpecimenValidator
 from pool_of_specimens_validator import PoolOfSpecimensValidator
 from cell_specimen_validator import CellSpecimenValidator
+from cell_culture_validator import CellCultureValidator
 from generic_validator_classes import collect_ontology_terms_from_data
 
 
@@ -20,8 +21,8 @@ class UnifiedFAANGValidator:
             'teleostei_post_hatching': TeleosteiPostHatchingValidator(),
             'single_cell_specimen': SingleCellSpecimenValidator(),
             'pool_of_specimens': PoolOfSpecimensValidator(),
-            'cell_specimen': CellSpecimenValidator()
-            # 'cell_culture': CellCultureValidator(),
+            'cell_specimen': CellSpecimenValidator(),
+            'cell_culture': CellCultureValidator()
             # 'cell_line': CellLineValidator(),
         }
         self.supported_sample_types = set(self.validators.keys())
