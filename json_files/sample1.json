@@ -641,138 +641,6 @@
       ]
     }
   ],
-  "pool_of_specimens_old_version": [
-    {
-      "samples_core": {
-        "sample_description": {
-          "value": "pool_specimen_1_desc"
-        },
-        "material": {
-          "text": "pool of specimens",
-          "term": "OBI:0302716"
-        },
-        "project": {
-          "value": "FAANG"
-        },
-        "secondary_project": [
-          {
-            "value": "GEroNIMO"
-          }
-        ],
-        "availability": {
-          "value": "mailto:samples@example.ac.uk"
-        },
-        "same_as": {
-          "value": "SAMEA117787483"
-        }
-      },
-      "pool_creation_date": {
-        "value": "2018-07-12",
-        "units": "YYYY-MM-DD"
-      },
-      "pool_creation_protocol": {
-        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
-      },
-      "specimen_volume": {
-        "value": 12.0,
-        "units": "square centimeters"
-      },
-      "specimen_size": {
-        "value": 10.0,
-        "units": "meters"
-      },
-      "specimen_weight": {
-        "value": 0.4,
-        "units": "kilograms"
-      },
-      "specimen_picture_url": [
-        {
-          "value": "https://www.pexels.com/search/flowers/"
-        },
-        {
-          "value": "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"
-        }
-      ],
-      "derived_from": [
-        {
-          "value": "SAMEA118360669"
-        },
-        {
-          "value": "SAMEA9594201"
-        }
-      ],
-      "custom": {
-        "sample_name": {
-          "value": "pool_specimen_1"
-        }
-      }
-    },
-    {
-      "samples_core": {
-        "sample_description": {
-          "value": "pool_specimen_2_desc"
-        },
-        "material": {
-          "text": "pool of specimens",
-          "term": "OBI:0302716"
-        },
-        "project": {
-          "value": "FAANG"
-        },
-        "secondary_project": [
-          {
-            "value": "GEroNIMO"
-          }
-        ],
-        "availability": {
-          "value": "mailto:samples@example.ac.uk"
-        },
-        "same_as": {
-          "value": "SAMEA117787483"
-        }
-      },
-      "pool_creation_date": {
-        "value": "2018-07-14",
-        "units": "YYYY-MM-DD"
-      },
-      "pool_creation_protocol": {
-        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
-      },
-      "specimen_volume": {
-        "value": 11.0,
-        "units": "square centimeters"
-      },
-      "specimen_size": {
-        "value": 10.0,
-        "units": "meters"
-      },
-      "specimen_weight": {
-        "value": 0.4,
-        "units": "kilograms"
-      },
-      "specimen_picture_url": [
-        {
-          "value": "https://www.pexels.com/search/flowers/"
-        },
-        {
-          "value": "https://www.pexels.com/photo/close-photography-of-red-and-pink-rose-56866/"
-        }
-      ],
-      "derived_from": [
-        {
-          "value": "SAMEA118360669"
-        },
-        {
-          "value": "SAMEA115397191"
-        }
-      ],
-      "custom": {
-        "sample_name": {
-          "value": "pool_specimen_2"
-        }
-      }
-    }
-  ],
   "pool_of_specimens": [
     {
       "Sample Name": "pool_specimen_1",
@@ -829,98 +697,6 @@
       ]
     }
   ],
-  "cell_specimen_old_version": [
-    {
-      "samples_core": {
-        "sample_description": {
-          "value": "purified cell"
-        },
-        "material": {
-          "text": "cell specimen",
-          "term": "OBI:0001468"
-        },
-        "project": {
-          "value": "FAANG"
-        },
-        "secondary_project": [
-          {
-            "value": "EFFICACE"
-          }
-        ],
-        "availability": {
-          "value": "mailto:samples@example.ac.uk"
-        },
-        "same_as": {
-          "value": "SAMEA117787483"
-        }
-      },
-      "markers": {
-        "value": "marker 1"
-      },
-      "cell_type": [
-        {
-          "text": "cell",
-          "term": "CL:0000000"
-        }
-      ],
-      "purification_protocol": {
-        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
-      },
-      "derived_from": {
-        "value": "SAMEA118360669"
-      },
-      "custom": {
-        "sample_name": {
-          "value": "purified_1"
-        }
-      }
-    },
-    {
-      "samples_core": {
-        "sample_description": {
-          "value": "purified cell"
-        },
-        "material": {
-          "text": "cell specimen",
-          "term": "OBI:0001468"
-        },
-        "project": {
-          "value": "FAANG"
-        },
-        "secondary_project": [
-          {
-            "value": "EFFICACE"
-          }
-        ],
-        "availability": {
-          "value": "mailto:samples@example.ac.uk"
-        },
-        "same_as": {
-          "value": "SAMEA117787484"
-        }
-      },
-      "markers": {
-        "value": "marker 2"
-      },
-      "cell_type": [
-        {
-          "text": "cell",
-          "term": "CL:0000000"
-        }
-      ],
-      "purification_protocol": {
-        "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
-      },
-      "derived_from": {
-        "value": "SAMEA118360669"
-      },
-      "custom": {
-        "sample_name": {
-          "value": "purified_2"
-        }
-      }
-    }
-  ],
   "cell_specimen": [
     {
       "Sample Name": "purified_1",
@@ -932,8 +708,12 @@
       "Availability": "mailto:samples@example.ac.uk",
       "Same as": "SAMEA117787483",
       "Markers": "marker 1",
-      "Cell Type": "cell",
-      "Cell Type Term Source ID": "CL:0000000",
+      "Cell Type": [
+        {
+          "text": "cell",
+          "term": "CL:0000000"
+        }
+      ],
       "Purification Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
       "Derived From": "SAMEA118360669"
     },
@@ -947,10 +727,14 @@
       "Availability": "mailto:samples@example.ac.uk",
       "Same as": "SAMEA117787484",
       "Markers": "marker 2",
-      "Cell Type": "cell",
-      "Cell Type Term Source ID": "CL:0000000",
+      "Cell Type": [
+        {
+          "text": "cell",
+          "term": "CL:0000000"
+        }
+      ],
       "Purification Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
-      "Derived From": "SAMEA118360669"
+      "Derived From": "SAMEA118360670"
     }
   ]
 }
