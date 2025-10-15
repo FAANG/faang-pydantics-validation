@@ -8,6 +8,7 @@ from single_cell_specimen_validator import SingleCellSpecimenValidator
 from pool_of_specimens_validator import PoolOfSpecimensValidator
 from cell_specimen_validator import CellSpecimenValidator
 from cell_culture_validator import CellCultureValidator
+from cell_line_validator import CellLineValidator
 from generic_validator_classes import collect_ontology_terms_from_data
 
 
@@ -22,8 +23,8 @@ class UnifiedFAANGValidator:
             'single cell specimen': SingleCellSpecimenValidator(),
             'pool of specimens': PoolOfSpecimensValidator(),
             'cell specimen': CellSpecimenValidator(),
-            'cell culture': CellCultureValidator()
-            # 'cell_line': CellLineValidator(),
+            'cell culture': CellCultureValidator(),
+            'cell line': CellLineValidator()
         }
         self.supported_sample_types = set(self.validators.keys())
 

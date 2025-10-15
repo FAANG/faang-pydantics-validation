@@ -862,7 +862,9 @@
       "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
       "Culture Conditions": "on feeder cells",
       "Number Of Passages": "11",
-      "Derived From": ["SAMEA118360669"]
+      "Derived From": [
+        "SAMEA118360669"
+      ]
     },
     {
       "Sample Name": "cell_culture_2",
@@ -884,7 +886,9 @@
       "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
       "Culture Conditions": "on feeder cells",
       "Number Of Passages": "10",
-      "Derived From": ["SAMEA118360669"]
+      "Derived From": [
+        "SAMEA118360669"
+      ]
     },
     {
       "Sample Name": "cell_culture_3",
@@ -906,7 +910,245 @@
       "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
       "Culture Conditions": "on feeder cells",
       "Number Of Passages": "10",
-      "Derived From": ["SAMEA118360669"]
+      "Derived From": [
+        "SAMEA118360669"
+      ]
+    }
+  ],
+  "cell_line_old_version": [
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "cell_line_desc1"
+                },
+                "material": {
+                    "text": "cell line",
+                    "term": "CLO:0000031"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "EFFICACE"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787483"
+                }
+            },
+            "organism": {
+                "text": "root",
+                "term": "NCBITaxon:1"
+            },
+            "sex": {
+                "text": "female genotypic sex",
+                "term": "PATO:0020002"
+            },
+            "cell_line": {
+                "value": "cell_line 1"
+            },
+            "biomaterial_provider": {
+                "value": "astek ltd"
+            },
+            "catalogue_number": {
+                "value": "ACC 701"
+            },
+            "number_of_passages": {
+                "value": 11.0
+            },
+            "date_established": {
+                "value": "2012-01-02",
+                "units": "YYYY-MM-DD"
+            },
+            "publication": {
+                "value": "doi://10.1139/o09-005"
+            },
+            "breed": {
+                "text": "Equus caballus",
+                "term": "NCBITaxon:9796"
+            },
+            "cell_type": {
+                "text": "cell",
+                "term": "CL:0000000"
+            },
+            "culture_conditions": {
+                "value": "on feeder cells"
+            },
+            "culture_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "disease": {
+                "text": "normal",
+                "term": "PATO:0000461"
+            },
+            "karyotype": {
+                "value": "Karyotype of the cell line"
+            },
+            "derived_from": {
+                "value": "SAMEA118360669"
+            },
+            "custom": {
+                "sample_name": {
+                    "value": "cell_line_1"
+                }
+            }
+        },
+        {
+            "samples_core": {
+                "sample_description": {
+                    "value": "cell_line_desc2"
+                },
+                "material": {
+                    "text": "cell line",
+                    "term": "CLO:0000031"
+                },
+                "project": {
+                    "value": "FAANG"
+                },
+                "secondary_project": [
+                    {
+                        "value": "EFFICACE"
+                    }
+                ],
+                "availability": {
+                    "value": "mailto:samples@example.ac.uk"
+                },
+                "same_as": {
+                    "value": "SAMEA117787484"
+                }
+            },
+            "organism": {
+                "text": "cellular organisms",
+                "term": "NCBITaxon:131567"
+            },
+            "sex": {
+                "text": "female genotypic sex",
+                "term": "PATO:0020002"
+            },
+            "cell_line": {
+                "value": "cell_line 2"
+            },
+            "biomaterial_provider": {
+                "value": "astek ltd"
+            },
+            "catalogue_number": {
+                "value": "ACC 701"
+            },
+            "number_of_passages": {
+                "value": 12.0
+            },
+            "date_established": {
+                "value": "2012-01-03",
+                "units": "YYYY-MM-DD"
+            },
+            "publication": {
+                "value": "doi://10.1139/o09-006"
+            },
+            "breed": {
+                "text": "Equus caballus",
+                "term": "NCBITaxon:9796"
+            },
+            "cell_type": {
+                "text": "apical part of cell",
+                "term": "GO:0045177"
+            },
+            "culture_conditions": {
+                "value": "on feeder cells"
+            },
+            "culture_protocol": {
+                "value": "https://data.faang.org/protocol/samples/1928MD.pdf"
+            },
+            "disease": {
+                "text": "normal",
+                "term": "PATO:0000461"
+            },
+            "karyotype": {
+                "value": "Karyotype of the cell line"
+            },
+            "derived_from": {
+                "value": "SAMEA118360670"
+            },
+            "custom": {
+                "sample_name": {
+                    "value": "cell_line_2"
+                }
+            }
+        }
+    ],
+  "cell line": [
+    {
+      "Sample Name": "cell_line_1",
+      "Sample Description": "cell_line_desc1",
+      "Material": "cell line",
+      "Term Source ID": "CLO_0000031",
+      "Project": "FAANG",
+      "Secondary Project": "EFFICACE",
+      "Availability": "mailto:samples@example.ac.uk",
+      "Same as": "SAMEA117787483",
+      "Organism": "root",
+      "Organism Term Source ID": "NCBITaxon:1",
+      "Sex": "female genotypic sex",
+      "Sex Term Source ID": "PATO:0020002\n  ",
+      "Cell Line": "cell_line 1",
+      "Biomaterial Provider": "astek ltd",
+      "Catalogue Number": "ACC 701",
+      "Number of Passages": "11",
+      "Date Established": "2012-01-02 00:00:00",
+      "Unit": "YYYY-MM-DD",
+      "Publication": "doi://10.1139/o09-005",
+      "Breed": "Equus caballus",
+      "Breed Term Source ID": "NCBITaxon:9796",
+      "Cell Type": [
+        {
+          "text": "cell",
+          "term": "CL:0000000"
+        }
+      ],
+      "Culture Conditions": "on feeder cells",
+      "Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+      "Disease": "normal",
+      "Disease Term Source ID": "PATO:0000461",
+      "Karyotype": "Karyotype of the cell line",
+      "Derived From": "SAMEA118360669"
+    },
+    {
+      "Sample Name": "cell_line_2",
+      "Sample Description": "cell_line_desc2",
+      "Material": "cell line",
+      "Term Source ID": "CLO_0000031",
+      "Project": "FAANG",
+      "Secondary Project": "EFFICACE",
+      "Availability": "mailto:samples@example.ac.uk",
+      "Same as": "SAMEA117787484",
+      "Organism": "cellular organisms",
+      "Organism Term Source ID": "NCBITaxon:131567",
+      "Sex": "female genotypic sex",
+      "Sex Term Source ID": "PATO:0020002\n  ",
+      "Cell Line": "cell_line 2",
+      "Biomaterial Provider": "astek ltd",
+      "Catalogue Number": "ACC 701",
+      "Number of Passages": "12",
+      "Date Established": "2012-01-03 00:00:00",
+      "Unit": "YYYY-MM-DD",
+      "Publication": "doi://10.1139/o09-006",
+      "Breed": "Equus caballus",
+      "Breed Term Source ID": "NCBITaxon:9796",
+      "Cell Type": [
+        {
+          "text": "apical part of cell",
+          "term": "GO:0045177"
+        }
+      ],
+      "Culture Conditions": "on feeder cells",
+      "Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+      "Disease": "normal",
+      "Disease Term Source ID": "PATO:0000461",
+      "Karyotype": "Karyotype of the cell line",
+      "Derived From": "SAMEA118360670"
     }
   ]
 }
