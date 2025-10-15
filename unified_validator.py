@@ -15,6 +15,7 @@ from generic_validator_classes import collect_ontology_terms_from_data
 
 class UnifiedFAANGValidator:
     def __init__(self):
+        # sample validators
         self.validators = {
             'organism': OrganismValidator(),
             'organoid': OrganoidValidator(),
@@ -30,11 +31,12 @@ class UnifiedFAANGValidator:
         self.supported_sample_types = set(self.validators.keys())
 
         # metadata validators
-        self.submission_validator = SubmissionValidator()
-        self.person_validator = PersonValidator()
-        self.organization_validator = OrganizationValidator()
-
-
+        self.metadata_validators = {
+            'submission': SubmissionValidator(),
+            'person': PersonValidator(),
+            'organization': OrganizationValidator()
+        }
+        self.supported_metadata_types = set(self.metadata_validators.keys())
 
     def prefetch_all_ontology_terms(self, data: Dict[str, List[Dict[str, Any]]]):
         # collect unique term IDs
@@ -60,12 +62,8 @@ class UnifiedFAANGValidator:
                 break
 
     def prefetch_all_biosample_ids(self, data: Dict[str, List[Dict[str, Any]]]):
-        """
-        Pre-fetch all BioSample IDs from the data to populate the cache.
-        This speeds up validation by fetching all BioSample data concurrently upfront.
-        """
-        # Get any validator that has a relationship_validator
-        # All validators share the same RelationshipValidator instance via their relationship_validator
+        # get any validator that has a relationship_validator
+        # all validators share the same RelationshipValidator instance
         relationship_validator = None
         for validator in self.validators.values():
             if hasattr(validator, 'relationship_validator') and validator.relationship_validator:
@@ -76,7 +74,6 @@ class UnifiedFAANGValidator:
             print("No relationship validator found for BioSample pre-fetching")
             return
 
-        # Collect all BioSample IDs from the data
         biosample_ids = relationship_validator.collect_biosample_ids_from_samples(data)
 
         if not biosample_ids:
@@ -85,7 +82,7 @@ class UnifiedFAANGValidator:
 
         print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
 
-        # Fetch all BioSample IDs concurrently
+        # fetch all BioSample IDs concurrently
         relationship_validator.batch_fetch_biosamples_sync(list(biosample_ids))
 
         print(
@@ -101,6 +98,7 @@ class UnifiedFAANGValidator:
 
         all_results = {
             'sample_types_processed': [],
+            'metadata_types_processed': [],
             'total_summary': {
                 'total_samples': 0,
                 'valid_samples': 0,
@@ -108,72 +106,103 @@ class UnifiedFAANGValidator:
                 'warnings': 0,
                 'relationship_errors': 0
             },
+            'metadata_summary': {
+                'total_metadata': 0,
+                'valid_metadata': 0,
+                'invalid_metadata': 0
+            },
             'results_by_type': {},
-            'reports_by_type': {}
+            'metadata_results': {},
+            'reports_by_type': {},
+            'metadata_reports': {}
         }
 
         # process each record type
         print("Sample types in data:", list(data.keys()))
         for sample_type, samples in data.items():
-            if sample_type not in self.supported_sample_types:
-                print(f"Warning: Sample type '{sample_type}' is not supported. Skipping.")
-                continue
+            if sample_type in self.supported_sample_types:
+                if not samples:
+                    print(f"No samples found for type '{sample_type}'. Skipping.")
+                    continue
 
-            if not samples:
-                print(f"No samples found for type '{sample_type}'. Skipping.")
-                continue
+                print(f"Validating {len(samples)} {sample_type} samples...")
 
-            print(f"Validating {len(samples)} {sample_type} samples...")
+                validator = self.validators[sample_type]
 
-            validator = self.validators[sample_type]
+                # validate samples with appropriate parameters
+                validation_kwargs = {
+                    'validate_relationships': validate_relationships,
+                    'all_samples': data
+                }
 
-            # Validate samples with appropriate parameters
-            validation_kwargs = {
-                'validate_relationships': validate_relationships,
-                'all_samples': data
-            }
+                # Add specific parameters for sample types that support ontology text validation
+                if sample_type in ['organoid', 'specimen_from_organism']:
+                    validation_kwargs['validate_ontology_text'] = validate_ontology_text
 
-            # Add specific parameters for sample types that support ontology text validation
-            if sample_type in ['organoid', 'specimen_from_organism']:
-                validation_kwargs['validate_ontology_text'] = validate_ontology_text
+                results = validator.validate_records(samples, **validation_kwargs)
 
-            results = validator.validate_records(samples, **validation_kwargs)
+                # Store results
+                all_results['sample_types_processed'].append(sample_type)
+                all_results['results_by_type'][sample_type] = results
 
-            # Store results
-            all_results['sample_types_processed'].append(sample_type)
-            all_results['results_by_type'][sample_type] = results
+                # Generate report
+                report = validator.generate_validation_report(results)
+                all_results['reports_by_type'][sample_type] = report
 
-            # Generate report
-            report = validator.generate_validation_report(results)
-            all_results['reports_by_type'][sample_type] = report
-
-            # Update total summary
-            summary = results['summary']
-            all_results['total_summary']['total_samples'] += summary['total']
-            all_results['total_summary']['valid_samples'] += summary['valid']
-            all_results['total_summary']['invalid_samples'] += summary['invalid']
-            all_results['total_summary']['warnings'] += summary['warnings']
-            all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
+                # Update total summary
+                summary = results['summary']
+                all_results['total_summary']['total_samples'] += summary['total']
+                all_results['total_summary']['valid_samples'] += summary['valid']
+                all_results['total_summary']['invalid_samples'] += summary['invalid']
+                all_results['total_summary']['warnings'] += summary['warnings']
+                all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
 
         # metadata validation
-        if 'submission' in data:
-            results['submission'] = self.submission_validator.validate_records(data['submission'])
+        for metadata_type, metadata_records in data.items():
+            if metadata_type in self.supported_metadata_types:
+                print(f"Validating {metadata_type} metadata...")
 
-        if 'person' in data:
-            results['person'] = self.person_validator.validate_records(data['person'])
+                validator = self.metadata_validators[metadata_type]
+                results = validator.validate_records(metadata_records)
 
-        if 'organization' in data:
-            results['organization'] = self.organization_validator.validate_records(data['organization'])
+                # Store results
+                all_results['metadata_types_processed'].append(metadata_type)
+                all_results['metadata_results'][metadata_type] = results
+
+                # Generate report
+                report = validator.generate_validation_report(results)
+                all_results['metadata_reports'][metadata_type] = report
+
+                # Update metadata summary (only if no error)
+                if 'error' not in results:
+                    summary = results['summary']
+                    all_results['metadata_summary']['total_metadata'] += summary['total']
+                    all_results['metadata_summary']['valid_metadata'] += summary['valid']
+                    all_results['metadata_summary']['invalid_metadata'] += summary['invalid']
+                else:
+                    # If there's an error (no data), still count it
+                    all_results['metadata_summary']['invalid_metadata'] += 1
 
         return all_results
 
     def generate_unified_report(self, validation_results: Dict[str, Any]) -> str:
         report_lines = []
 
-        # Individual reports by type
-        for sample_type in validation_results['sample_types_processed']:
-            report_lines.append(f"\n{validation_results['reports_by_type'][sample_type]}")
-            report_lines.append("\n" + "-" * 60)
+
+        # Sample Summary
+
+
+        # Individual metadata reports
+        if validation_results['metadata_types_processed']:
+            for metadata_type in validation_results['metadata_types_processed']:
+                report_lines.append(f"\n{validation_results['metadata_reports'][metadata_type]}")
+                report_lines.append("\n" + "-" * 60)
+
+        # Individual sample reports
+        if validation_results['sample_types_processed']:
+            for sample_type in validation_results['sample_types_processed']:
+                report_lines.append(f"\n{validation_results['reports_by_type'][sample_type]}")
+                report_lines.append("\n" + "-" * 60)
 
         return "\n".join(report_lines)
 
@@ -196,5 +225,8 @@ class UnifiedFAANGValidator:
                     })
         return biosample_exports
 
-    def get_supported_types(self) -> List[str]:
-        return list(self.supported_sample_types)
+    def get_supported_types(self) -> Dict[str, List[str]]:
+        return {
+            'sample_types': list(self.supported_sample_types),
+            'metadata_types': list(self.supported_metadata_types)
+        }

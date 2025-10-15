@@ -12,7 +12,12 @@ class SubmissionValidator:
             return {
                 'valid': [],
                 'invalid': [],
-                'error': "Error: data for 'submission' sheet was not provided"
+                'error': "Error: data for 'submission' sheet was not provided",
+                'summary': {
+                    'total': 0,
+                    'valid': 0,
+                    'invalid': 0
+                }
             }
 
         results = {
@@ -38,11 +43,38 @@ class SubmissionValidator:
                 results['invalid'].append({
                     'index': i,
                     'data': record,
-                    'errors': [err['msg'] for err in e.errors()]
+                    'errors': {
+                        'field_errors': {err['loc'][0]: err['msg'] for err in e.errors()},
+                        'errors': [f"{err['loc'][0]}: {err['msg']}" for err in e.errors()]
+                    }
                 })
                 results['summary']['invalid'] += 1
 
         return results
+
+    def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
+        """Generate a human-readable validation report"""
+        report = []
+        report.append("FAANG Submission Validation Report")
+        report.append("=" * 40)
+
+        if 'error' in validation_results:
+            report.append(f"\nERROR: {validation_results['error']}")
+            return "\n".join(report)
+
+        report.append(f"\nTotal submissions processed: {validation_results['summary']['total']}")
+        report.append(f"Valid submissions: {validation_results['summary']['valid']}")
+        report.append(f"Invalid submissions: {validation_results['summary']['invalid']}")
+
+        if validation_results['invalid']:
+            report.append("\n\nValidation Errors:")
+            report.append("-" * 20)
+            for item in validation_results['invalid']:
+                report.append(f"\nSubmission (index: {item['index']})")
+                for error in item['errors']['errors']:
+                    report.append(f"  ERROR: {error}")
+
+        return "\n".join(report)
 
 
 class PersonValidator:
@@ -51,7 +83,12 @@ class PersonValidator:
             return {
                 'valid': [],
                 'invalid': [],
-                'error': "Error: data for 'person' sheet was not provided"
+                'error': "Error: data for 'person' sheet was not provided",
+                'summary': {
+                    'total': 0,
+                    'valid': 0,
+                    'invalid': 0
+                }
             }
 
         results = {
@@ -77,11 +114,38 @@ class PersonValidator:
                 results['invalid'].append({
                     'index': i,
                     'data': record,
-                    'errors': [err['msg'] for err in e.errors()]
+                    'errors': {
+                        'field_errors': {err['loc'][0]: err['msg'] for err in e.errors()},
+                        'errors': [f"{err['loc'][0]}: {err['msg']}" for err in e.errors()]
+                    }
                 })
                 results['summary']['invalid'] += 1
 
         return results
+
+    def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
+        """Generate a human-readable validation report"""
+        report = []
+        report.append("FAANG Person Validation Report")
+        report.append("=" * 40)
+
+        if 'error' in validation_results:
+            report.append(f"\nERROR: {validation_results['error']}")
+            return "\n".join(report)
+
+        report.append(f"\nTotal persons processed: {validation_results['summary']['total']}")
+        report.append(f"Valid persons: {validation_results['summary']['valid']}")
+        report.append(f"Invalid persons: {validation_results['summary']['invalid']}")
+
+        if validation_results['invalid']:
+            report.append("\n\nValidation Errors:")
+            report.append("-" * 20)
+            for item in validation_results['invalid']:
+                report.append(f"\nPerson (index: {item['index']})")
+                for error in item['errors']['errors']:
+                    report.append(f"  ERROR: {error}")
+
+        return "\n".join(report)
 
 
 class OrganizationValidator:
@@ -90,7 +154,12 @@ class OrganizationValidator:
             return {
                 'valid': [],
                 'invalid': [],
-                'error': "Error: data for 'organization' sheet was not provided"
+                'error': "Error: data for 'organization' sheet was not provided",
+                'summary': {
+                    'total': 0,
+                    'valid': 0,
+                    'invalid': 0
+                }
             }
 
         results = {
@@ -116,8 +185,35 @@ class OrganizationValidator:
                 results['invalid'].append({
                     'index': i,
                     'data': record,
-                    'errors': [err['msg'] for err in e.errors()]
+                    'errors': {
+                        'field_errors': {err['loc'][0]: err['msg'] for err in e.errors()},
+                        'errors': [f"{err['loc'][0]}: {err['msg']}" for err in e.errors()]
+                    }
                 })
                 results['summary']['invalid'] += 1
 
         return results
+
+    def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
+        """Generate a human-readable validation report"""
+        report = []
+        report.append("FAANG Organization Validation Report")
+        report.append("=" * 40)
+
+        if 'error' in validation_results:
+            report.append(f"\nERROR: {validation_results['error']}")
+            return "\n".join(report)
+
+        report.append(f"\nTotal organizations processed: {validation_results['summary']['total']}")
+        report.append(f"Valid organizations: {validation_results['summary']['valid']}")
+        report.append(f"Invalid organizations: {validation_results['summary']['invalid']}")
+
+        if validation_results['invalid']:
+            report.append("\n\nValidation Errors:")
+            report.append("-" * 20)
+            for item in validation_results['invalid']:
+                report.append(f"\nOrganization (index: {item['index']})")
+                for error in item['errors']['errors']:
+                    report.append(f"  ERROR: {error}")
+
+        return "\n".join(report)

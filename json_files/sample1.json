@@ -1150,7 +1150,7 @@
       "Organism": "cellular organisms",
       "Organism Term Source ID": "NCBITaxon:131567",
       "Sex": "female genotypic sex",
-      "Sex Term Source ID": "PATO:0020002\n  ",
+      "Sex Term Source ID": "PATO:0020002 ",
       "Cell Line": "cell_line 2",
       "Biomaterial Provider": "astek ltd",
       "Catalogue Number": "ACC 701",
