@@ -187,7 +187,23 @@ class OntologyValidator:
         return result_dict
 
     def batch_fetch_from_ols_sync(self, term_ids: List[str]) -> Dict[str, List[Dict]]:
-        return asyncio.run(self.batch_fetch_from_ols(term_ids))
+        # Check if all terms are already cached
+        terms_to_fetch = [tid for tid in term_ids if tid not in self._cache]
+
+        if not terms_to_fetch:
+            # All terms are cached, return them directly
+            return {tid: self._cache[tid] for tid in term_ids}
+
+        # Need to fetch some terms - check if we're in an event loop
+        try:
+            asyncio.get_running_loop()
+            # We're already in an event loop (e.g., FastAPI)
+            # Should have pre-fetched, but return cached data to avoid error
+            print(f"Warning: {len(terms_to_fetch)} terms not in cache. Using cached data only.")
+            return {tid: self._cache.get(tid, []) for tid in term_ids}
+        except RuntimeError:
+            # No event loop running, safe to use asyncio.run()
+            return asyncio.run(self.batch_fetch_from_ols(term_ids))
 
 
 def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
@@ -342,15 +358,29 @@ class RelationshipValidator:
         return result_dict
 
     def batch_fetch_biosamples_sync(self, biosample_ids: List[str]) -> Dict[str, Dict]:
-        result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+        # Check if all IDs are already cached
+        ids_to_fetch = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
 
-        # update cache with results
-        for sample_id, cache_entry in result.items():
-            if sample_id not in self.biosamples_cache:
-                self.biosamples_cache[sample_id] = cache_entry
+        if not ids_to_fetch:
+            # All IDs are cached, return them directly
+            return {bid: self.biosamples_cache[bid] for bid in biosample_ids}
 
-        return result
-    # koosum. end
+        # Need to fetch some IDs - check if we're in an event loop
+        try:
+            asyncio.get_running_loop()
+            # We're already in an event loop (e.g., FastAPI)
+            print(f"Warning: {len(ids_to_fetch)} BioSample IDs not in cache. Using cached data only.")
+            return {bid: self.biosamples_cache.get(bid, {}) for bid in biosample_ids}
+        except RuntimeError:
+            # No event loop running, safe to use asyncio.run()
+            result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+
+            # update cache with results
+            for sample_id, cache_entry in result.items():
+                if sample_id not in self.biosamples_cache:
+                    self.biosamples_cache[sample_id] = cache_entry
+
+            return result
 
     def is_biosample_id(self, value: str) -> bool:
         """

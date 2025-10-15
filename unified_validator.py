@@ -61,6 +61,30 @@ class UnifiedFAANGValidator:
 
                 break
 
+    async def prefetch_all_ontology_terms_async(self, data: Dict[str, List[Dict[str, Any]]]):
+        """Async version for use in FastAPI endpoints"""
+        # collect unique term IDs
+        term_ids = collect_ontology_terms_from_data(data)
+
+        if not term_ids:
+            print("No ontology terms to pre-fetch")
+            return
+
+        # use the first validator's ontology_validator to fetch all terms
+        for validator in self.validators.values():
+            if validator.ontology_validator:
+                # Use the async method directly instead of sync wrapper
+                result = await validator.ontology_validator.batch_fetch_from_ols(list(term_ids))
+                validator.ontology_validator._cache.update(result)
+                print(f"Pre-fetch complete. Cache now contains {len(validator.ontology_validator._cache)} terms.")
+
+                # share cache with all other validators to avoid redundant fetching
+                for other_validator in self.validators.values():
+                    if other_validator.ontology_validator and other_validator.ontology_validator != validator.ontology_validator:
+                        other_validator.ontology_validator._cache = validator.ontology_validator._cache
+
+                break
+
     def prefetch_all_biosample_ids(self, data: Dict[str, List[Dict[str, Any]]]):
         # get any validator that has a relationship_validator
         # all validators share the same RelationshipValidator instance
@@ -88,6 +112,37 @@ class UnifiedFAANGValidator:
         print(
             f"Pre-fetch complete. BioSample cache now contains {len(relationship_validator.biosamples_cache)} entries.")
 
+    async def prefetch_all_biosample_ids_async(self, data: Dict[str, List[Dict[str, Any]]]):
+        """
+        Async version for use in FastAPI endpoints.
+        Pre-fetch all BioSample IDs from the data to populate the cache.
+        """
+        # Get any validator that has a relationship_validator
+        relationship_validator = None
+        for validator in self.validators.values():
+            if hasattr(validator, 'relationship_validator') and validator.relationship_validator:
+                relationship_validator = validator.relationship_validator
+                break
+
+        if not relationship_validator:
+            print("No relationship validator found for BioSample pre-fetching")
+            return
+
+        # Collect all BioSample IDs from the data
+        biosample_ids = relationship_validator.collect_biosample_ids_from_samples(data)
+
+        if not biosample_ids:
+            print("No BioSample IDs to pre-fetch")
+            return
+
+        print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
+
+        # Fetch all BioSample IDs concurrently using async method
+        result = await relationship_validator.batch_fetch_biosamples(list(biosample_ids))
+        relationship_validator.biosamples_cache.update(result)
+
+        print(
+            f"Pre-fetch complete. BioSample cache now contains {len(relationship_validator.biosamples_cache)} entries.")
 
     def validate_all_records(
         self,
