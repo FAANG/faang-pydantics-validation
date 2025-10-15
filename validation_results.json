@@ -9,9 +9,9 @@
     ],
     "total_summary": {
       "total_samples": 10,
-      "valid_samples": 8,
-      "invalid_samples": 2,
-      "warnings": 3,
+      "valid_samples": 7,
+      "invalid_samples": 3,
+      "warnings": 2,
       "relationship_errors": 2
     },
     "results_by_type": {
@@ -521,98 +521,6 @@
       "teleostei_post_hatching": {
         "valid_teleostei_post_hatchings": [
           {
-            "index": 0,
-            "sample_name": "teleostei_post_hatching_1",
-            "model": "sample_description='Sample_description for teleostei_ph_1' material='specimen from organism' term_source_id='OBI_0001479' project='FAANG' secondary_project=None availability='' same_as='' sample_name='teleostei_post_hatching_1' specimen_collection_date='2005-05' specimen_collection_date_unit='YYYY-MM' geographic_location='Denmark' animal_age_at_collection=23.5 animal_age_at_collection_unit='month' developmental_stage='adult' developmental_stage_term_source_id='EFO_0001272' organism_part='adipose tissue' organism_part_term_source_id='UBERON_0001013' specimen_collection_protocol='ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf' derived_from='OCU_INRAE_PND18' health_status=[HealthStatus(text='normal', term='PATO_0000462')] fasted_status=None number_of_pieces=None number_of_pieces_unit=None specimen_volume=None specimen_volume_unit=None specimen_size=None specimen_size_unit=None specimen_weight=None specimen_weight_unit=None specimen_picture_url=None gestational_age_at_sample_collection=None gestational_age_at_sample_collection_unit=None average_incubation_temperature=None average_incubation_temperature_unit=None average_incubation_humidity=None average_incubation_humidity_unit=None embryonic_stage=None embryonic_stage_unit=None origin='Domesticated diploid' reproductive_strategy='gonochoric' gonad_type='testis' hatching='pre' maturity_state='Mature' maturity_state_term_source_id='PATO:0001701' time_post_fertilisation=1.0 time_post_fertilisation_unit='days' post_hatching_animal_density=1.0 post_hatching_animal_density_unit='Kg/L' food_restriction=10.0 food_restriction_unit='hours' post_hatching_water_temperature_average=10.0 post_hatching_water_temperature_average_unit='Degrees celsius' average_water_salinity=11.0 average_water_salinity_unit='parts per thousand' photoperiod='natural light' sampling_weight=10.0 sampling_weight_unit='grams' method_of_euthanasia='Non-lethal anaesthetic and exsanguination' generations_from_wild=2.0 generations_from_wild_unit='generations from wild' diet='chicken' standard_length=2.0 standard_length_unit='centimeters' total_length=11.0 total_length_unit='centimeters' fork_length=2.0 fork_length_unit='centimeters' experimental_strain_id='id:1' genetic_background='generic_bg1' water_rearing_system='Closed water system (recirculatory)' average_water_oxygen=10.0 average_water_oxygen_unit='%' sampling_day_start_time=None sampling_day_end_time=None anaesthetic_or_sedative_name='Tricaine methanesulfonate (MS-222)'",
-            "data": {
-              "Health Status": [
-                {
-                  "text": "normal",
-                  "term": "PATO_0000462"
-                }
-              ],
-              "Sample Name": "teleostei_post_hatching_1",
-              "Sample Description": "Sample_description for teleostei_ph_1",
-              "Material": "specimen from organism",
-              "Term Source ID": "OBI_0001479",
-              "Project": "FAANG",
-              "Secondary Project": "",
-              "Availability": "",
-              "Same as": "",
-              "Specimen Collection Date": "2005-05",
-              "Unit": "YYYY-MM",
-              "Geographic Location": "Denmark",
-              "Animal Age At Collection": 23.5,
-              "Animal Age At Collection Unit": "month",
-              "Developmental Stage": "adult",
-              "Developmental Stage Term Source ID": "EFO_0001272",
-              "Organism Part": "adipose tissue",
-              "Organism Part Term Source ID": "UBERON_0001013",
-              "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
-              "Fasted Status": "",
-              "Number of Pieces": "",
-              "Number of Pieces Unit": "",
-              "Specimen Volume": "",
-              "Specimen Volume Unit": "",
-              "Specimen Size": "",
-              "Specimen Size Unit": "",
-              "Specimen Weight": "",
-              "Specimen Weight Unit": "",
-              "Specimen Picture URL": "",
-              "Gestational Age At Sample Collection": "",
-              "Gestational Age At Sample Collection Unit": "",
-              "Average Incubation temperature": "",
-              "Average Incubation temperature Unit": "",
-              "Average Incubation Humidity": "",
-              "Average Incubation Humidity Unit": "",
-              "Embryonic Stage": "",
-              "Embryonic Stage Unit": "",
-              "Derived From": "OCU_INRAE_PND18",
-              "Origin": "Domesticated diploid",
-              "Reproductive Strategy": "gonochoric",
-              "Gonad Type": "testis",
-              "Generations From Wild": 2,
-              "Generations From Wild Unit": "generations from wild",
-              "Experimental Strain Id": "id:1",
-              "Genetic Background": "generic_bg1",
-              "Hatching": "pre",
-              "Maturity State": "Mature",
-              "Maturity State Term Source ID": "PATO:0001701",
-              "Time Post Fertilisation": 1,
-              "Time Post Fertilisation Unit": "days",
-              "Water Rearing System": "Closed water system (recirculatory)",
-              "Post-hatching Animal Density": 1,
-              "Post-hatching Animal Density Unit": "Kg/L",
-              "Diet": "chicken",
-              "Food Restriction": 10,
-              "Food Restriction Unit": "hours",
-              "Post-hatching Water Temperature Average": 10,
-              "Post-hatching Water Temperature Average Unit": "Degrees celsius",
-              "Average Water Oxygen": 10,
-              "Average Water Oxygen Unit": "%",
-              "Average Water Salinity": 11,
-              "Average Water Salinity Unit": "parts per thousand",
-              "Photoperiod": "natural light",
-              "Standard Length": 2,
-              "Standard Length Unit": "centimeters",
-              "Total Length": 11,
-              "Total Length Unit": "centimeters",
-              "Fork Length": 2,
-              "Fork Length Unit": "centimeters",
-              "Sampling Weight": 10,
-              "Sampling Weight Unit": "grams",
-              "Sampling Day Start Time": "",
-              "Sampling Day End Time": "",
-              "Method Of Euthanasia": "Non-lethal anaesthetic and exsanguination",
-              "Anaesthetic Or Sedative Name": "Tricaine methanesulfonate (MS-222)"
-            },
-            "warnings": [],
-            "relationship_errors": [],
-            "ontology_warnings": [
-              "Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
-            ]
-          },
-          {
             "index": 1,
             "sample_name": "teleostei_post_hatching_2",
             "model": "sample_description='Sample_description for teleostei_ph_2' material='specimen from organism' term_source_id='OBI_0001479' project='FAANG' secondary_project=None availability='' same_as='' sample_name='teleostei_post_hatching_2' specimen_collection_date='2005-05' specimen_collection_date_unit='YYYY-MM' geographic_location='Denmark' animal_age_at_collection=23.5 animal_age_at_collection_unit='month' developmental_stage='adult' developmental_stage_term_source_id='EFO_0001272' organism_part='adipose tissue' organism_part_term_source_id='UBERON_0001013' specimen_collection_protocol='ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf' derived_from='OCU_INRAE_PND18' health_status=[HealthStatus(text='normal', term='PATO_0000461')] fasted_status=None number_of_pieces=None number_of_pieces_unit=None specimen_volume=None specimen_volume_unit=None specimen_size=None specimen_size_unit=None specimen_weight=None specimen_weight_unit=None specimen_picture_url=None gestational_age_at_sample_collection=None gestational_age_at_sample_collection_unit=None average_incubation_temperature=None average_incubation_temperature_unit=None average_incubation_humidity=None average_incubation_humidity_unit=None embryonic_stage=None embryonic_stage_unit=None origin='Domesticated diploid' reproductive_strategy='gonochoric' gonad_type='testis' hatching='pre' maturity_state='Mature' maturity_state_term_source_id='PATO:0001701' time_post_fertilisation=2.0 time_post_fertilisation_unit='days' post_hatching_animal_density=1.0 post_hatching_animal_density_unit='Kg/L' food_restriction=10.0 food_restriction_unit='hours' post_hatching_water_temperature_average=10.0 post_hatching_water_temperature_average_unit='Degrees celsius' average_water_salinity=11.0 average_water_salinity_unit='parts per thousand' photoperiod='natural light' sampling_weight=10.0 sampling_weight_unit='grams' method_of_euthanasia='Non-lethal anaesthetic and exsanguination' generations_from_wild=2.0 generations_from_wild_unit='generations from wild' diet='chicken' standard_length=2.0 standard_length_unit='centimeters' total_length=12.0 total_length_unit='centimeters' fork_length=2.0 fork_length_unit='centimeters' experimental_strain_id='id:2' genetic_background='generic_bg2' water_rearing_system='Closed water system (recirculatory)' average_water_oxygen=10.0 average_water_oxygen_unit='%' sampling_day_start_time=None sampling_day_end_time=None anaesthetic_or_sedative_name='Tricaine methanesulfonate (MS-222)'",
@@ -702,12 +610,117 @@
             "relationship_errors": []
           }
         ],
-        "invalid_teleostei_post_hatchings": [],
+        "invalid_teleostei_post_hatchings": [
+          {
+            "index": 0,
+            "sample_name": "teleostei_post_hatching_1",
+            "data": {
+              "Health Status": [
+                {
+                  "text": "normal",
+                  "term": "PATO_0000462"
+                }
+              ],
+              "Sample Name": "teleostei_post_hatching_1",
+              "Sample Description": "Sample_description for teleostei_ph_1",
+              "Material": "specimen from organism",
+              "Term Source ID": "OBI_0001479777",
+              "Project": "FAANG",
+              "Secondary Project": "",
+              "Availability": "",
+              "Same as": "",
+              "Specimen Collection Date": "2005-05",
+              "Unit": "YYYY-MM",
+              "Geographic Location": "Denmark",
+              "Animal Age At Collection": 23.5,
+              "Animal Age At Collection Unit": "month",
+              "Developmental Stage": "adult",
+              "Developmental Stage Term Source ID": "EFO_0001272",
+              "Organism Part": "adipose tissue",
+              "Organism Part Term Source ID": "UBERON_0001013",
+              "Specimen Collection Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf",
+              "Fasted Status": "",
+              "Number of Pieces": "",
+              "Number of Pieces Unit": "",
+              "Specimen Volume": "",
+              "Specimen Volume Unit": "",
+              "Specimen Size": "",
+              "Specimen Size Unit": "",
+              "Specimen Weight": "",
+              "Specimen Weight Unit": "",
+              "Specimen Picture URL": "",
+              "Gestational Age At Sample Collection": "",
+              "Gestational Age At Sample Collection Unit": "",
+              "Average Incubation temperature": "",
+              "Average Incubation temperature Unit": "",
+              "Average Incubation Humidity": "",
+              "Average Incubation Humidity Unit": "",
+              "Embryonic Stage": "",
+              "Embryonic Stage Unit": "",
+              "Derived From": "OCU_INRAE_PND18",
+              "Origin": "Domesticated diploid",
+              "Reproductive Strategy": "gonochoric",
+              "Gonad Type": "testis",
+              "Generations From Wild": 2,
+              "Generations From Wild Unit": "generations from wild",
+              "Experimental Strain Id": "id:1",
+              "Genetic Background": "generic_bg1",
+              "Hatching": "pre",
+              "Maturity State": "Mature",
+              "Maturity State Term Source ID": "PATO:0001701",
+              "Time Post Fertilisation": 1,
+              "Time Post Fertilisation Unit": "days",
+              "Water Rearing System": "Closed water system (recirculatory)",
+              "Post-hatching Animal Density": 1,
+              "Post-hatching Animal Density Unit": "Kg/L",
+              "Diet": "chicken",
+              "Food Restriction": 10,
+              "Food Restriction Unit": "hours",
+              "Post-hatching Water Temperature Average": 10,
+              "Post-hatching Water Temperature Average Unit": "Degrees celsius",
+              "Average Water Oxygen": 10,
+              "Average Water Oxygen Unit": "%",
+              "Average Water Salinity": 11,
+              "Average Water Salinity Unit": "parts per thousand",
+              "Photoperiod": "natural light",
+              "Standard Length": 2,
+              "Standard Length Unit": "centimeters",
+              "Total Length": 11,
+              "Total Length Unit": "centimeters",
+              "Fork Length": 2,
+              "Fork Length Unit": "centimeters",
+              "Sampling Weight": "a10",
+              "Sampling Weight Unit": "grams",
+              "Sampling Day Start Time": "",
+              "Sampling Day End Time": "",
+              "Method Of Euthanasia": "Non-lethal anaesthetic and exsanguination",
+              "Anaesthetic Or Sedative Name": "Tricaine methanesulfonate (MS-222)"
+            },
+            "errors": {
+              "errors": [
+                "Term Source ID: Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'",
+                "Sampling Weight: Value error, Numeric field must be a valid number, got 'a10'"
+              ],
+              "warnings": [],
+              "ontology_warnings": [
+                "Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
+              ],
+              "field_errors": {
+                "Term Source ID": [
+                  "Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'"
+                ],
+                "Sampling Weight": [
+                  "Value error, Numeric field must be a valid number, got 'a10'"
+                ]
+              }
+            }
+          }
+        ],
         "summary": {
           "total": 2,
-          "valid": 2,
-          "invalid": 0,
-          "warnings": 1,
+          "valid": 1,
+          "invalid": 1,
+          "warnings": 0,
           "relationship_errors": 0
         }
       }
@@ -717,7 +730,7 @@
       "organoid": "FAANG Organoid Validation Report\n=================================\n\nTotal organoids processed: 2\nValid organoids: 1\nInvalid organoids: 1\nOrganoids with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nOrganoid: OCU_INRAE_S2 (index: 1)\n  ERROR in Organ Model Term Source ID: Value error, Organ model term 'UBERONx:0001153' should be from UBERON or BTO ontology\n  RELATIONSHIP ERROR: Relationships part: no entity 'OCU_INRAE_PND18_S19' found",
       "specimen_from_organism": "FAANG Specimen_From_Organism Validation Report\n===============================================\n\nTotal specimen_from_organisms processed: 1\nValid specimen_from_organisms: 1\nInvalid specimen_from_organisms: 0\nSpecimen_From_Organisms with warnings: 0",
       "teleostei_embryo": "FAANG Teleostei_Embryo Validation Report\n=========================================\n\nTotal teleostei_embryos processed: 2\nValid teleostei_embryos: 2\nInvalid teleostei_embryos: 0\nTeleostei_Embryos with warnings: 0",
-      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 2\nInvalid teleostei_post_hatchings: 0\nTeleostei_Post_Hatchings with warnings: 1\n\n\nWarnings and Non-Critical Issues:\n------------------------------\n\nTeleostei_Post_Hatching: teleostei_post_hatching_1 (index: 0)\n  ONTOLOGY: Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
+      "teleostei_post_hatching": "FAANG Teleostei_Post_Hatching Validation Report\n================================================\n\nTotal teleostei_post_hatchings processed: 2\nValid teleostei_post_hatchings: 1\nInvalid teleostei_post_hatchings: 1\nTeleostei_Post_Hatchings with warnings: 0\n\n\nValidation Errors:\n--------------------\n\nTeleostei_Post_Hatching: teleostei_post_hatching_1 (index: 0)\n  ERROR in Term Source ID: Input should be 'OBI_0100026', 'OBI_0001479', 'OBI_0001468', 'OBI_0002127', 'OBI_0302716', 'OBI_0001876', 'CLO_0000031', 'NCIT_C172259' or 'restricted access'\n  ERROR in Sampling Weight: Value error, Numeric field must be a valid number, got 'a10'\n  ONTOLOGY WARNING: Provided value 'normal' doesn't precisely match 'absent' for term 'PATO:0000462' in field 'health_status'"
     }
   },
   "biosample_exports": {
@@ -1245,202 +1258,6 @@
       }
     ],
     "teleostei_post_hatching": [
-      {
-        "sample_name": "teleostei_post_hatching_1",
-        "biosample_format": {
-          "characteristics": {
-            "material": [
-              {
-                "text": "specimen from organism",
-                "ontologyTerms": [
-                  "http://purl.obolibrary.org/obo/OBI_0001479"
-                ]
-              }
-            ],
-            "specimen collection date": [
-              {
-                "text": "2005-05",
-                "unit": "YYYY-MM"
-              }
-            ],
-            "geographic location": [
-              {
-                "text": "Denmark"
-              }
-            ],
-            "animal age at collection": [
-              {
-                "text": "23.5",
-                "unit": "month"
-              }
-            ],
-            "developmental stage": [
-              {
-                "text": "adult",
-                "ontologyTerms": [
-                  "http://purl.obolibrary.org/obo/EFO_0001272"
-                ]
-              }
-            ],
-            "organism part": [
-              {
-                "text": "adipose tissue",
-                "ontologyTerms": [
-                  "http://purl.obolibrary.org/obo/UBERON_0001013"
-                ]
-              }
-            ],
-            "specimen collection protocol": [
-              {
-                "text": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/samples/WUR_SOP_animal_sampling_20160405.pdf"
-              }
-            ],
-            "health status at collection": [
-              {
-                "text": "normal",
-                "ontologyTerms": [
-                  "http://purl.obolibrary.org/obo/PATO_0000462"
-                ]
-              }
-            ],
-            "origin": [
-              {
-                "text": "Domesticated diploid"
-              }
-            ],
-            "reproductive strategy": [
-              {
-                "text": "gonochoric"
-              }
-            ],
-            "gonad type": [
-              {
-                "text": "testis"
-              }
-            ],
-            "hatching": [
-              {
-                "text": "pre"
-              }
-            ],
-            "maturity state": [
-              {
-                "text": "Mature",
-                "ontologyTerms": [
-                  "http://purl.obolibrary.org/obo/PATO_0001701"
-                ]
-              }
-            ],
-            "time post fertilisation": [
-              {
-                "text": "1.0",
-                "unit": "days"
-              }
-            ],
-            "post-hatching animal density": [
-              {
-                "text": "1.0",
-                "unit": "Kg/L"
-              }
-            ],
-            "food restriction": [
-              {
-                "text": "10.0",
-                "unit": "hours"
-              }
-            ],
-            "post-hatching water temperature average": [
-              {
-                "text": "10.0",
-                "unit": "Degrees celsius"
-              }
-            ],
-            "average water salinity": [
-              {
-                "text": "11.0",
-                "unit": "parts per thousand"
-              }
-            ],
-            "photoperiod": [
-              {
-                "text": "natural light"
-              }
-            ],
-            "sampling weight": [
-              {
-                "text": "10.0",
-                "unit": "grams"
-              }
-            ],
-            "method of euthanasia": [
-              {
-                "text": "Non-lethal anaesthetic and exsanguination"
-              }
-            ],
-            "generations from wild": [
-              {
-                "text": "2.0",
-                "unit": "generations from wild"
-              }
-            ],
-            "diet": [
-              {
-                "text": "chicken"
-              }
-            ],
-            "experimental strain ID": [
-              {
-                "text": "id:1"
-              }
-            ],
-            "genetic background": [
-              {
-                "text": "generic_bg1"
-              }
-            ],
-            "water rearing system": [
-              {
-                "text": "Closed water system (recirculatory)"
-              }
-            ],
-            "standard length": [
-              {
-                "text": "2.0",
-                "unit": "centimeters"
-              }
-            ],
-            "total length": [
-              {
-                "text": "11.0",
-                "unit": "centimeters"
-              }
-            ],
-            "fork length": [
-              {
-                "text": "2.0",
-                "unit": "centimeters"
-              }
-            ],
-            "average water oxygen": [
-              {
-                "text": "10.0",
-                "unit": "%"
-              }
-            ],
-            "anaesthetic or sedative name": [
-              {
-                "text": "Tricaine methanesulfonate (MS-222)"
-              }
-            ]
-          },
-          "relationships": [
-            {
-              "type": "derived from",
-              "target": "OCU_INRAE_PND18"
-            }
-          ]
-        }
-      },
       {
         "sample_name": "teleostei_post_hatching_2",
         "biosample_format": {

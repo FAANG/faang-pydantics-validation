@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Type, Optional, Tuple
+from typing import Dict, Any, Type
 from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, RelationshipValidator
@@ -17,66 +17,7 @@ class TeleosteiEmbryoValidator(BaseValidator):
     def get_sample_type_name(self) -> str:
         return "teleostei_embryo"
 
-    def validate_teleostei_embryo_sample(
-        self,
-        data: Dict[str, Any],
-        validate_relationships: bool = True,
-    ) -> Tuple[Optional[FAANGTeleosteiEmbryoSample], Dict[str, List[str]]]:
-
-        model, errors = self.validate_single_record(data)
-        return model, errors
-
-    def validate_with_pydantic(
-        self,
-        teleostei_embryos: List[Dict[str, Any]],
-        validate_relationships: bool = True,
-        all_samples: Dict[str, List[Dict]] = None,
-        validate_ontology_text: bool = True,
-    ) -> Dict[str, Any]:
-
-        return self.validate_records(
-            teleostei_embryos,
-            validate_relationships=validate_relationships,
-            all_samples=all_samples,
-            validate_ontology_text=validate_ontology_text
-        )
-
-    def validate_records(
-        self,
-        sheet_records: List[Dict[str, Any]],
-        validate_relationships: bool = True,
-        all_samples: Dict[str, List[Dict]] = None,
-        validate_ontology_text: bool = True,
-        **kwargs
-    ) -> Dict[str, Any]:
-
-        # base validation results
-        results = super().validate_records(sheet_records, validate_relationships=False, all_samples=all_samples)
-
-        # relationship validation
-        if validate_relationships and all_samples:
-            relationship_errors = self.relationship_validator.validate_derived_from_relationships(all_samples)
-
-            # relationship errors for valid teleostei embryos
-            for embryo in results['valid_teleostei_embryos']:
-                sample_name = embryo['sample_name']
-                if sample_name in relationship_errors:
-                    embryo['relationship_errors'] = relationship_errors[sample_name]
-                    results['summary']['relationship_errors'] += 1
-
-            # relationship errors for invalid teleostei embryos
-            for embryo in results['invalid_teleostei_embryos']:
-                sample_name = embryo['sample_name']
-                if sample_name in relationship_errors:
-                    if 'relationship_errors' not in embryo['errors']:
-                        embryo['errors']['relationship_errors'] = []
-                    embryo['errors']['relationship_errors'] = relationship_errors[sample_name]
-                    results['summary']['relationship_errors'] += 1
-
-        return results
-
     def export_to_biosample_format(self, model: FAANGTeleosteiEmbryoSample) -> Dict[str, Any]:
-        """Export teleostei embryo model to BioSamples JSON format"""
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided", ""]:
@@ -206,7 +147,7 @@ class TeleosteiEmbryoValidator(BaseValidator):
         # Relationships - derived from
         biosample_data["relationships"] = [{
             "type": "derived from",
-            "target": model.derived_from
+            "target": model.derived_from[0]
         }]
 
         return biosample_data

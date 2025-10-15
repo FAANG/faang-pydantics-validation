@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Type, Tuple, Optional
+from typing import List, Dict, Any, Type
 from pydantic import BaseModel
 from base_validator import BaseValidator
 from generic_validator_classes import OntologyValidator, BreedSpeciesValidator, RelationshipValidator
@@ -18,56 +18,24 @@ class OrganismValidator(BaseValidator):
     def get_sample_type_name(self) -> str:
         return "organism"
 
-    def validate_organism_sample(
-        self,
-        data: Dict[str, Any],
-        validate_relationships: bool = True,
-    ) -> Tuple[Optional[FAANGOrganismSample], Dict[str, List[str]]]:
+    def _get_relationship_errors(self, all_samples: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
+        """
+        Override base method to use organism-specific relationship validation.
+        Converts ValidationResult objects to list of error strings.
+        """
+        organisms = all_samples.get('organism', [])
+        if not organisms:
+            return {}
 
-        model, errors = self.validate_single_record(data, validate_relationships)
-        return model, errors
+        # validate_organism_relationships returns Dict[str, ValidationResult]
+        raw_errors = self.relationship_validator.validate_organism_relationships(organisms)
 
-    def validate_with_pydantic(
-        self,
-        organisms: List[Dict[str, Any]],
-        validate_relationships: bool = True,
-    ) -> Dict[str, Any]:
-
-        return self.validate_records(organisms, validate_relationships=validate_relationships)
-
-    def validate_records(
-        self,
-        organisms: List[Dict[str, Any]],
-        validate_relationships: bool = True,
-        all_samples: Dict[str, List[Dict]] = None,
-        **kwargs
-    ) -> Dict[str, Any]:
-
-        # base validation results
-        results = super().validate_records(organisms, validate_relationships=False, all_samples=all_samples)
-
-        if validate_relationships and organisms:
-            relationship_errors = self.relationship_validator.validate_organism_relationships(organisms)
-
-            # add relationship errors to valid organisms
-            for org in results['valid_organisms']:
-                sample_name = org['sample_name']
-                if sample_name in relationship_errors:
-                    org['relationship_errors'] = relationship_errors[sample_name].errors
-                    if relationship_errors[sample_name].errors:
-                        results['summary']['relationship_errors'] += 1
-
-            # add relationship errors to invalid organisms
-            for org in results['invalid_organisms']:
-                sample_name = org['sample_name']
-                if sample_name in relationship_errors:
-                    if 'relationship_errors' not in org['errors']:
-                        org['errors']['relationship_errors'] = []
-                    org['errors']['relationship_errors'] = relationship_errors[sample_name].errors
-                    if relationship_errors[sample_name].errors:
-                        results['summary']['relationship_errors'] += 1
-
-        return results
+        # Convert ValidationResult objects to list of strings
+        return {
+            sample_name: result.errors
+            for sample_name, result in raw_errors.items()
+            if result.errors  # Only include samples that have errors
+        }
 
     def export_to_biosample_format(self, model: FAANGOrganismSample) -> Dict[str, Any]:
 
