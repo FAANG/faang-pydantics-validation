@@ -196,14 +196,24 @@ class OntologyValidator:
 
         # Need to fetch some terms - check if we're in an event loop
         try:
-            asyncio.get_running_loop()
+            loop = asyncio.get_running_loop()
             # We're already in an event loop (e.g., FastAPI)
-            # Should have pre-fetched, but return cached data to avoid error
-            print(f"Warning: {len(terms_to_fetch)} terms not in cache. Using cached data only.")
-            return {tid: self._cache.get(tid, []) for tid in term_ids}
-        except RuntimeError:
-            # No event loop running, safe to use asyncio.run()
-            return asyncio.run(self.batch_fetch_from_ols(term_ids))
+            # Create task to fetch in the current loop
+            print(f"Fetching {len(terms_to_fetch)} additional terms from OLS...")
+            task = loop.create_task(self.batch_fetch_from_ols(terms_to_fetch))
+            # This will raise an error since we can't await here
+            # The proper solution is to ensure ALL terms are pre-fetched
+            raise RuntimeError(
+                f"Cannot fetch ontology terms synchronously from async context. "
+                f"Missing {len(terms_to_fetch)} terms. Ensure pre-fetching is complete."
+            )
+        except RuntimeError as e:
+            if "no running event loop" in str(e).lower():
+                # No event loop running, safe to use asyncio.run()
+                return asyncio.run(self.batch_fetch_from_ols(term_ids))
+            else:
+                # Re-raise the error about missing pre-fetch
+                raise
 
 
 def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
@@ -220,6 +230,8 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
         'Organ Model Term Source ID',
         'Organ Part Model Term Source ID',
         'Maturity State Term Source ID',
+        'Culture Type Term Source ID',
+        'Disease Term Source ID',
     ]
 
     for sample_type, samples in data.items():
@@ -367,20 +379,27 @@ class RelationshipValidator:
 
         # Need to fetch some IDs - check if we're in an event loop
         try:
-            asyncio.get_running_loop()
+            loop = asyncio.get_running_loop()
             # We're already in an event loop (e.g., FastAPI)
-            print(f"Warning: {len(ids_to_fetch)} BioSample IDs not in cache. Using cached data only.")
-            return {bid: self.biosamples_cache.get(bid, {}) for bid in biosample_ids}
-        except RuntimeError:
-            # No event loop running, safe to use asyncio.run()
-            result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+            print(f"Missing {len(ids_to_fetch)} BioSample IDs in cache")
+            raise RuntimeError(
+                f"Cannot fetch BioSamples synchronously from async context. "
+                f"Missing {len(ids_to_fetch)} IDs. Ensure pre-fetching is complete."
+            )
+        except RuntimeError as e:
+            if "no running event loop" in str(e).lower():
+                # No event loop running, safe to use asyncio.run()
+                result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
 
-            # update cache with results
-            for sample_id, cache_entry in result.items():
-                if sample_id not in self.biosamples_cache:
-                    self.biosamples_cache[sample_id] = cache_entry
+                # update cache with results
+                for sample_id, cache_entry in result.items():
+                    if sample_id not in self.biosamples_cache:
+                        self.biosamples_cache[sample_id] = cache_entry
 
-            return result
+                return result
+            else:
+                # Re-raise the error about missing pre-fetch
+                raise
 
     def is_biosample_id(self, value: str) -> bool:
         """
@@ -430,9 +449,9 @@ class RelationshipValidator:
 
         organism_map = {self.get_organism_identifier(org): org for org in organisms}
 
-        biosample_ids = self.collect_biosample_ids(organisms)
-        if biosample_ids:
-            self.batch_fetch_biosamples_sync(list(biosample_ids))
+        # biosample_ids = self.collect_biosample_ids(organisms)
+        # if biosample_ids:
+        #     self.batch_fetch_biosamples_sync(list(biosample_ids))
 
         # validate each organism's relationships
         for org in organisms:
@@ -585,10 +604,10 @@ class RelationshipValidator:
                     if related_records:
                         relationships[sample_name]['relationships'] = related_records
 
-        # Step 2: Collect and fetch BioSample IDs
-        biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
-        if biosample_ids:
-            self.batch_fetch_biosamples_sync(list(biosample_ids))
+        # # Step 2: Collect and fetch BioSample IDs
+        # biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
+        # if biosample_ids:
+        #     self.batch_fetch_biosamples_sync(list(biosample_ids))
 
         # Step 3: Validate relationships
         for sample_name, rel_info in relationships.items():
