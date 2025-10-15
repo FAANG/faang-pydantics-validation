@@ -196,7 +196,7 @@
       ]
     }
   ],
-  "specimen_from_organism": [
+  "specimen from organism": [
     {
       "Health Status": [
         {
@@ -247,7 +247,7 @@
       ]
     }
   ],
-  "teleostei_embryo": [
+  "teleostei embryo": [
     {
       "Health Status": [
         {
@@ -385,7 +385,7 @@
       "Generations From Wild Unit": "generations from wild"
     }
   ],
-  "teleostei_post_hatching": [
+  "teleostei post-hatching": [
     {
       "Health Status": [
         {
@@ -555,7 +555,7 @@
       "Anaesthetic Or Sedative Name": "Tricaine methanesulfonate (MS-222)"
     }
   ],
-  "single_cell_specimen": [
+  "single cell specimen": [
     {
       "Sample Name": "single_cell_specimen_1",
       "Sample Description": "single_cell_specimen_2 description",
@@ -641,7 +641,7 @@
       ]
     }
   ],
-  "pool_of_specimens": [
+  "pool of specimens": [
     {
       "Sample Name": "pool_specimen_1",
       "Sample Description": "pool_specimen_1_desc",
@@ -697,7 +697,7 @@
       ]
     }
   ],
-  "cell_specimen": [
+  "cell specimen": [
     {
       "Sample Name": "purified_1",
       "Sample Description": "purified cell",
@@ -841,7 +841,7 @@
       }
     }
   ],
-  "cell_culture": [
+  "cell culture": [
     {
       "Sample Name": "cell_culture_1",
       "Sample Description": "cell_culture_desc1",

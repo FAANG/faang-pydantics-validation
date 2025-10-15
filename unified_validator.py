@@ -16,13 +16,13 @@ class UnifiedFAANGValidator:
         self.validators = {
             'organism': OrganismValidator(),
             'organoid': OrganoidValidator(),
-            'specimen_from_organism': SpecimenValidator(),
-            'teleostei_embryo': TeleosteiEmbryoValidator(),
-            'teleostei_post_hatching': TeleosteiPostHatchingValidator(),
-            'single_cell_specimen': SingleCellSpecimenValidator(),
-            'pool_of_specimens': PoolOfSpecimensValidator(),
-            'cell_specimen': CellSpecimenValidator(),
-            'cell_culture': CellCultureValidator()
+            'specimen from organism': SpecimenValidator(),
+            'teleostei embryo': TeleosteiEmbryoValidator(),
+            'teleostei post-hatching': TeleosteiPostHatchingValidator(),
+            'single cell specimen': SingleCellSpecimenValidator(),
+            'pool of specimens': PoolOfSpecimensValidator(),
+            'cell specimen': CellSpecimenValidator(),
+            'cell culture': CellCultureValidator()
             # 'cell_line': CellLineValidator(),
         }
         self.supported_sample_types = set(self.validators.keys())
