@@ -1,4 +1,27 @@
 {
+  "submission": [
+    {
+      "Submission Title": "Macleod horse samples - FAANG example file",
+      "Submission Description": "Example sample information using the FAANG metadata spec"
+    }
+  ],
+  "person": [
+    {
+      "Person Last Name": "Harrison",
+      "Person Initials": "P.W.",
+      "Person First Name": "Peter",
+      "Person Email": "peter@ebi.ac.uk",
+      "Person Role": "submitter"
+    }
+  ],
+  "organization": [
+    {
+      "Organization Name": "EMBL-EBI",
+      "Organization Address": "Wellcome Genome Campus, Hinxton, Cambridge, CB10 1SD, United Kingdom",
+      "Organization URI": "http://www.ebi.ac.uk/",
+      "Organization Role": "curator"
+    }
+  ],
   "organism": [
     {
       "Sample Name": "ECA_UKY_H11",

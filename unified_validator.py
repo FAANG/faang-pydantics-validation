@@ -9,6 +9,7 @@ from pool_of_specimens_validator import PoolOfSpecimensValidator
 from cell_specimen_validator import CellSpecimenValidator
 from cell_culture_validator import CellCultureValidator
 from cell_line_validator import CellLineValidator
+from metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
 from generic_validator_classes import collect_ontology_terms_from_data
 
 
@@ -27,6 +28,13 @@ class UnifiedFAANGValidator:
             'cell line': CellLineValidator()
         }
         self.supported_sample_types = set(self.validators.keys())
+
+        # metadata validators
+        self.submission_validator = SubmissionValidator()
+        self.person_validator = PersonValidator()
+        self.organization_validator = OrganizationValidator()
+
+
 
     def prefetch_all_ontology_terms(self, data: Dict[str, List[Dict[str, Any]]]):
         # collect unique term IDs
@@ -146,6 +154,16 @@ class UnifiedFAANGValidator:
             all_results['total_summary']['invalid_samples'] += summary['invalid']
             all_results['total_summary']['warnings'] += summary['warnings']
             all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
+
+        # metadata validation
+        if 'submission' in data:
+            results['submission'] = self.submission_validator.validate_records(data['submission'])
+
+        if 'person' in data:
+            results['person'] = self.person_validator.validate_records(data['person'])
+
+        if 'organization' in data:
+            results['organization'] = self.organization_validator.validate_records(data['organization'])
 
         return all_results
 
