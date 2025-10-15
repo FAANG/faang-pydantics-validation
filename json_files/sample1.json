@@ -885,6 +885,28 @@
       "Culture Conditions": "on feeder cells",
       "Number Of Passages": "10",
       "Derived From": ["SAMEA118360669"]
+    },
+    {
+      "Sample Name": "cell_culture_3",
+      "Sample Description": "cell_culture_desc3",
+      "Material": "cell culture",
+      "Term Source ID": "OBI_0001876",
+      "Project": "FAANG",
+      "Secondary Project": "EFFICACE",
+      "Availability": "mailto:samples@example.ac.uk",
+      "Same as": "SAMEA117787484",
+      "Culture Type": "cell lysate",
+      "Culture Type Term Source ID": "BTO:0004304",
+      "Cell Type": [
+        {
+          "text": "anatomical entity",
+          "term": "UBERON:0001062"
+        }
+      ],
+      "Cell Culture Protocol": "https://data.faang.org/protocol/samples/1928MD.pdf",
+      "Culture Conditions": "on feeder cells",
+      "Number Of Passages": "10",
+      "Derived From": ["SAMEA118360669"]
     }
   ]
 }
