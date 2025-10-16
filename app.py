@@ -1,8 +1,3 @@
-"""
-FastAPI application for FAANG sample validation
-Run with: uvicorn app:app --reload --port 8000
-"""
-
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -24,14 +19,12 @@ validator = UnifiedFAANGValidator()
 
 # Request/Response Models
 class ValidationRequest(BaseModel):
-    """Request body for validation endpoint"""
     data: Dict[str, List[Dict[str, Any]]]
     validate_relationships: bool = True
     validate_ontology_text: bool = True
 
 
 class ValidationResponse(BaseModel):
-    """Response model for validation results"""
     status: str
     message: str
     results: Optional[Dict[str, Any]] = None
@@ -41,7 +34,6 @@ class ValidationResponse(BaseModel):
 # Health check endpoint
 @app.get("/")
 async def root():
-    """Health check endpoint"""
     return {
         "status": "healthy",
         "service": "FAANG Validation API",
@@ -53,7 +45,6 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Detailed health check"""
     return {
         "status": "healthy",
         "validators": {
@@ -65,7 +56,6 @@ async def health_check():
 
 @app.get("/supported-types")
 async def get_supported_types():
-    """Get list of supported sample and metadata types"""
     return validator.get_supported_types()
 
 
@@ -93,17 +83,14 @@ async def validate_data(request: ValidationRequest):
     ```
     """
     try:
-        # Pre-fetch ontology terms if validation is enabled
         if request.validate_ontology_text:
             print("Pre-fetching ontology terms...")
             await validator.prefetch_all_ontology_terms_async(request.data)
 
-        # Pre-fetch BioSample IDs if relationship validation is enabled
         if request.validate_relationships:
             print("Pre-fetching BioSample IDs...")
             await validator.prefetch_all_biosample_ids_async(request.data)
 
-        # Run validation
         print("Running validation...")
         results = validator.validate_all_records(
             request.data,
@@ -111,7 +98,7 @@ async def validate_data(request: ValidationRequest):
             validate_ontology_text=request.validate_ontology_text
         )
 
-        # Generate report
+        # report
         report = validator.generate_unified_report(results)
 
         return ValidationResponse(
@@ -136,28 +123,16 @@ async def validate_data(request: ValidationRequest):
 
 @app.post("/validate-file")
 async def validate_file(file: UploadFile = File(...)):
-    """
-    Upload and validate a JSON file containing FAANG data
-
-    **Parameters:**
-    - file: JSON file containing sample/metadata data
-
-    **Returns:**
-    - Validation results and report
-    """
     try:
-        # Read and parse JSON file
         contents = await file.read()
         data = json.loads(contents)
 
-        # Pre-fetch data (using async versions)
         print("Pre-fetching ontology terms...")
         await validator.prefetch_all_ontology_terms_async(data)
 
         print("Pre-fetching BioSample IDs...")
         await validator.prefetch_all_biosample_ids_async(data)
 
-        # Run validation
         print("Running validation...")
         results = validator.validate_all_records(
             data,
@@ -165,7 +140,7 @@ async def validate_file(file: UploadFile = File(...)):
             validate_ontology_text=True
         )
 
-        # Generate report
+        # report
         report = validator.generate_unified_report(results)
 
         return {
@@ -199,7 +174,6 @@ async def validate_file(file: UploadFile = File(...)):
 
 @app.post("/validate-submission")
 async def validate_submission_only(submission_data: List[Dict[str, Any]]):
-    """Validate only submission metadata"""
     try:
         from metadata_validator import SubmissionValidator
         validator = SubmissionValidator()
@@ -217,7 +191,6 @@ async def validate_submission_only(submission_data: List[Dict[str, Any]]):
 
 @app.post("/validate-person")
 async def validate_person_only(person_data: List[Dict[str, Any]]):
-    """Validate only person metadata"""
     try:
         from metadata_validator import PersonValidator
         validator = PersonValidator()
@@ -235,7 +208,6 @@ async def validate_person_only(person_data: List[Dict[str, Any]]):
 
 @app.post("/validate-organization")
 async def validate_organization_only(organization_data: List[Dict[str, Any]]):
-    """Validate only organization metadata"""
     try:
         from metadata_validator import OrganizationValidator
         validator = OrganizationValidator()
