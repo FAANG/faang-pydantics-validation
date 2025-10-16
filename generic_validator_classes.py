@@ -402,37 +402,27 @@ class RelationshipValidator:
                 raise
 
     def is_biosample_id(self, value: str) -> bool:
-        """
-        Check if value matches BioSample ID pattern.
-        BioSample accessions: SAM + [E|N|D] + optional[A|G] + digits
-        Examples: SAMEA123456, SAMN123456, SAMD123456
-        """
         if not value or not isinstance(value, str):
             return False
         return bool(re.match(r'^SAM[AED][AG]?\d+$', value.strip()))
 
     def collect_biosample_ids_from_samples(self, all_samples: Dict[str, List[Dict]]) -> Set[str]:
-        """
-        Collect all BioSample IDs from derived_from/child_of fields across all sample types.
-        """
         biosample_ids = set()
 
         for sample_type, samples in all_samples.items():
             for sample in samples:
-                # check derived_from field (can be string or list)
+                # check derived_from field
                 if 'Derived From' in sample:
                     derived_from = sample['Derived From']
 
-                    # Handle list of derived_from values
                     if isinstance(derived_from, list):
                         for item in derived_from:
                             if item and self.is_biosample_id(str(item)):
                                 biosample_ids.add(str(item).strip())
-                    # Handle single string value
                     elif derived_from and self.is_biosample_id(str(derived_from)):
                         biosample_ids.add(str(derived_from).strip())
 
-                # Check child_of field (for organisms)
+                # child_of field (organisms)
                 if 'Child Of' in sample:
                     child_of = sample['Child Of']
                     if isinstance(child_of, list):
@@ -441,6 +431,12 @@ class RelationshipValidator:
                                 biosample_ids.add(str(parent).strip())
                     elif child_of and self.is_biosample_id(str(child_of)):
                         biosample_ids.add(str(child_of).strip())
+
+                # same_as field (SampleCoreMetadata)
+                if 'Same as' in sample:
+                    same_as = sample['Same as']
+                    if same_as and self.is_biosample_id(str(same_as)):
+                        biosample_ids.add(str(same_as).strip())
 
         return biosample_ids
 

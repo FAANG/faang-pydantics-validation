@@ -53,7 +53,6 @@ class SubmissionValidator:
         return results
 
     def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
-        """Generate a human-readable validation report"""
         report = []
         report.append("FAANG Submission Validation Report")
         report.append("=" * 40)
@@ -124,7 +123,6 @@ class PersonValidator:
         return results
 
     def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
-        """Generate a human-readable validation report"""
         report = []
         report.append("FAANG Person Validation Report")
         report.append("=" * 40)
@@ -195,7 +193,6 @@ class OrganizationValidator:
         return results
 
     def generate_validation_report(self, validation_results: Dict[str, Any]) -> str:
-        """Generate a human-readable validation report"""
         report = []
         report.append("FAANG Organization Validation Report")
         report.append("=" * 40)

@@ -118,11 +118,8 @@ class UnifiedFAANGValidator:
         print(
             f"Pre-fetch complete. BioSample cache now contains {len(self.shared_relationship_validator.biosamples_cache)} entries.")
 
+    # async version for FastAPI endpoint
     async def prefetch_all_biosample_ids_async(self, data: Dict[str, List[Dict[str, Any]]]):
-        """
-        Async version for use in FastAPI endpoints.
-        Pre-fetch all BioSample IDs from the data to populate the cache.
-        """
         # shared relationship validator
         biosample_ids = self.shared_relationship_validator.collect_biosample_ids_from_samples(data)
 
@@ -132,7 +129,7 @@ class UnifiedFAANGValidator:
 
         print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
 
-        # Fetch all BioSample IDs concurrently using async method
+        # fetch all BioSample IDs concurrently using async method
         result = await self.shared_relationship_validator.batch_fetch_biosamples(list(biosample_ids))
         self.shared_relationship_validator.biosamples_cache.update(result)
 
