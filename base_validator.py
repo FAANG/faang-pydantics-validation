@@ -8,10 +8,14 @@ ontology_warnings_context: ContextVar[List[str]] = ContextVar('ontology_warnings
 
 
 class BaseValidator(ABC):
-    def __init__(self):
-        self.ontology_validator = None
-        self.relationship_validator = None
-        self._initialize_validators()
+    def __init__(self, ontology_validator=None, relationship_validator=None):
+        # Accept shared validators or create new ones
+        self.ontology_validator = ontology_validator
+        self.relationship_validator = relationship_validator
+
+        # Only initialize if not provided
+        if self.ontology_validator is None or self.relationship_validator is None:
+            self._initialize_validators()
 
     @abstractmethod
     def _initialize_validators(self):

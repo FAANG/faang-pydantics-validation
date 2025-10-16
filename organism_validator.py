@@ -8,9 +8,10 @@ from rulesets_pydantics.organism_ruleset import FAANGOrganismSample
 class OrganismValidator(BaseValidator):
 
     def _initialize_validators(self):
-        self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.breed_validator = BreedSpeciesValidator(self.ontology_validator)
-        self.relationship_validator = RelationshipValidator()
+        if self.ontology_validator is None:
+            self.ontology_validator = OntologyValidator(cache_enabled=True)
+        if self.relationship_validator is None:
+            self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGOrganismSample

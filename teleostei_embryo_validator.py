@@ -8,8 +8,10 @@ from rulesets_pydantics.teleostei_embryo_ruleset import FAANGTeleosteiEmbryoSamp
 class TeleosteiEmbryoValidator(BaseValidator):
 
     def _initialize_validators(self):
-        self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.relationship_validator = RelationshipValidator()
+        if self.ontology_validator is None:
+            self.ontology_validator = OntologyValidator(cache_enabled=True)
+        if self.relationship_validator is None:
+            self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGTeleosteiEmbryoSample

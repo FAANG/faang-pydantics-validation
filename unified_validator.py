@@ -10,23 +10,61 @@ from cell_specimen_validator import CellSpecimenValidator
 from cell_culture_validator import CellCultureValidator
 from cell_line_validator import CellLineValidator
 from metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
-from generic_validator_classes import collect_ontology_terms_from_data
+from generic_validator_classes import (
+    collect_ontology_terms_from_data,
+    OntologyValidator,
+    RelationshipValidator
+)
 
 
 class UnifiedFAANGValidator:
     def __init__(self):
-        # sample validators
+        # shared validator instances
+        self.shared_ontology_validator = OntologyValidator(cache_enabled=True)
+        self.shared_relationship_validator = RelationshipValidator()
+
+        # sample validators - pass shared instances
         self.validators = {
-            'organism': OrganismValidator(),
-            'organoid': OrganoidValidator(),
-            'specimen from organism': SpecimenValidator(),
-            'teleostei embryo': TeleosteiEmbryoValidator(),
-            'teleostei post-hatching': TeleosteiPostHatchingValidator(),
-            'single cell specimen': SingleCellSpecimenValidator(),
-            'pool of specimens': PoolOfSpecimensValidator(),
-            'cell specimen': CellSpecimenValidator(),
-            'cell culture': CellCultureValidator(),
-            'cell line': CellLineValidator()
+            'organism': OrganismValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'organoid': OrganoidValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'specimen from organism': SpecimenValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'teleostei embryo': TeleosteiEmbryoValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'teleostei post-hatching': TeleosteiPostHatchingValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'single cell specimen': SingleCellSpecimenValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'pool of specimens': PoolOfSpecimensValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'cell specimen': CellSpecimenValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'cell culture': CellCultureValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            ),
+            'cell line': CellLineValidator(
+                ontology_validator=self.shared_ontology_validator,
+                relationship_validator=self.shared_relationship_validator
+            )
         }
         self.supported_sample_types = set(self.validators.keys())
 
@@ -46,23 +84,12 @@ class UnifiedFAANGValidator:
             print("No ontology terms to pre-fetch")
             return
 
+        # shared ontology validator
+        self.shared_ontology_validator.batch_fetch_from_ols_sync(list(term_ids))
+        print(f"Pre-fetch complete. Cache now contains {len(self.shared_ontology_validator._cache)} terms.")
 
-        # use the first validator's ontology_validator to fetch all terms since all validators share the same cache
-        # we only fetch once
-        for validator in self.validators.values():
-            if validator.ontology_validator:
-                validator.ontology_validator.batch_fetch_from_ols_sync(list(term_ids))
-                print(f"Pre-fetch complete. Cache now contains {len(validator.ontology_validator._cache)} terms.")
-
-                # share cache with all other validators to avoid redundant fetching
-                for other_validator in self.validators.values():
-                    if other_validator.ontology_validator and other_validator.ontology_validator != validator.ontology_validator:
-                        other_validator.ontology_validator._cache = validator.ontology_validator._cache
-
-                break
-
+    # async version for use in FastAPI endpoints
     async def prefetch_all_ontology_terms_async(self, data: Dict[str, List[Dict[str, Any]]]):
-        """Async version for use in FastAPI endpoints"""
         # collect unique term IDs
         term_ids = collect_ontology_terms_from_data(data)
 
@@ -70,35 +97,14 @@ class UnifiedFAANGValidator:
             print("No ontology terms to pre-fetch")
             return
 
-        # use the first validator's ontology_validator to fetch all terms
-        for validator in self.validators.values():
-            if validator.ontology_validator:
-                # Use the async method directly instead of sync wrapper
-                result = await validator.ontology_validator.batch_fetch_from_ols(list(term_ids))
-                validator.ontology_validator._cache.update(result)
-                print(f"Pre-fetch complete. Cache now contains {len(validator.ontology_validator._cache)} terms.")
-
-                # share cache with all other validators to avoid redundant fetching
-                for other_validator in self.validators.values():
-                    if other_validator.ontology_validator and other_validator.ontology_validator != validator.ontology_validator:
-                        other_validator.ontology_validator._cache = validator.ontology_validator._cache
-
-                break
+        # Use shared ontology validator
+        result = await self.shared_ontology_validator.batch_fetch_from_ols(list(term_ids))
+        self.shared_ontology_validator._cache.update(result)
+        print(f"Pre-fetch complete. Cache now contains {len(self.shared_ontology_validator._cache)} terms.")
 
     def prefetch_all_biosample_ids(self, data: Dict[str, List[Dict[str, Any]]]):
-        # get any validator that has a relationship_validator
-        # all validators share the same RelationshipValidator instance
-        relationship_validator = None
-        for validator in self.validators.values():
-            if hasattr(validator, 'relationship_validator') and validator.relationship_validator:
-                relationship_validator = validator.relationship_validator
-                break
-
-        if not relationship_validator:
-            print("No relationship validator found for BioSample pre-fetching")
-            return
-
-        biosample_ids = relationship_validator.collect_biosample_ids_from_samples(data)
+        # shared relationship validator
+        biosample_ids = self.shared_relationship_validator.collect_biosample_ids_from_samples(data)
 
         if not biosample_ids:
             print("No BioSample IDs to pre-fetch")
@@ -107,29 +113,18 @@ class UnifiedFAANGValidator:
         print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
 
         # fetch all BioSample IDs concurrently
-        relationship_validator.batch_fetch_biosamples_sync(list(biosample_ids))
+        self.shared_relationship_validator.batch_fetch_biosamples_sync(list(biosample_ids))
 
         print(
-            f"Pre-fetch complete. BioSample cache now contains {len(relationship_validator.biosamples_cache)} entries.")
+            f"Pre-fetch complete. BioSample cache now contains {len(self.shared_relationship_validator.biosamples_cache)} entries.")
 
     async def prefetch_all_biosample_ids_async(self, data: Dict[str, List[Dict[str, Any]]]):
         """
         Async version for use in FastAPI endpoints.
         Pre-fetch all BioSample IDs from the data to populate the cache.
         """
-        # Get any validator that has a relationship_validator
-        relationship_validator = None
-        for validator in self.validators.values():
-            if hasattr(validator, 'relationship_validator') and validator.relationship_validator:
-                relationship_validator = validator.relationship_validator
-                break
-
-        if not relationship_validator:
-            print("No relationship validator found for BioSample pre-fetching")
-            return
-
-        # Collect all BioSample IDs from the data
-        biosample_ids = relationship_validator.collect_biosample_ids_from_samples(data)
+        # shared relationship validator
+        biosample_ids = self.shared_relationship_validator.collect_biosample_ids_from_samples(data)
 
         if not biosample_ids:
             print("No BioSample IDs to pre-fetch")
@@ -138,11 +133,11 @@ class UnifiedFAANGValidator:
         print(f"Found {len(biosample_ids)} BioSample IDs to fetch")
 
         # Fetch all BioSample IDs concurrently using async method
-        result = await relationship_validator.batch_fetch_biosamples(list(biosample_ids))
-        relationship_validator.biosamples_cache.update(result)
+        result = await self.shared_relationship_validator.batch_fetch_biosamples(list(biosample_ids))
+        self.shared_relationship_validator.biosamples_cache.update(result)
 
         print(
-            f"Pre-fetch complete. BioSample cache now contains {len(relationship_validator.biosamples_cache)} entries.")
+            f"Pre-fetch complete. BioSample cache now contains {len(self.shared_relationship_validator.biosamples_cache)} entries.")
 
     def validate_all_records(
         self,
@@ -242,10 +237,6 @@ class UnifiedFAANGValidator:
 
     def generate_unified_report(self, validation_results: Dict[str, Any]) -> str:
         report_lines = []
-
-
-        # Sample Summary
-
 
         # Individual metadata reports
         if validation_results['metadata_types_processed']:

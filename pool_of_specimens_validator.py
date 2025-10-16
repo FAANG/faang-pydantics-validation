@@ -8,8 +8,10 @@ from rulesets_pydantics.pool_of_specimens_ruleset import FAANGPoolOfSpecimensSam
 class PoolOfSpecimensValidator(BaseValidator):
 
     def _initialize_validators(self):
-        self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.relationship_validator = RelationshipValidator()
+        if self.ontology_validator is None:
+            self.ontology_validator = OntologyValidator(cache_enabled=True)
+        if self.relationship_validator is None:
+            self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGPoolOfSpecimensSample
