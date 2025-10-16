@@ -61,27 +61,6 @@ async def get_supported_types():
 
 @app.post("/validate", response_model=ValidationResponse)
 async def validate_data(request: ValidationRequest):
-    """
-    Validate FAANG sample and metadata data
-
-    **Parameters:**
-    - data: Dictionary with sample/metadata type as key and list of records as value
-    - validate_relationships: Whether to validate sample relationships (default: True)
-    - validate_ontology_text: Whether to validate ontology text consistency (default: True)
-
-    **Example Request:**
-    ```json
-    {
-        "data": {
-            "organism": [...],
-            "submission": [...],
-            "person": [...]
-        },
-        "validate_relationships": true,
-        "validate_ontology_text": true
-    }
-    ```
-    """
     try:
         if request.validate_ontology_text:
             print("Pre-fetching ontology terms...")
