@@ -48,7 +48,8 @@ class BaseValidator(ABC):
             'errors': [],
             'warnings': [],
             'ontology_warnings': [],
-            'field_errors': {}
+            'field_errors': {},
+            'field_warnings': {}
         }
 
         model_class = self.get_model_class()
@@ -93,8 +94,11 @@ class BaseValidator(ABC):
             if getattr(model_instance, field, None) is None:
                 field_info = model_class.model_fields.get(field)
                 field_display_name = field_info.alias if field_info and field_info.alias else field
-                errors_dict['warnings'].append(
-                    f"Field '{field_display_name}' is recommended but was not provided"
+
+                if field_display_name not in errors_dict['field_warnings']:
+                    errors_dict['field_warnings'][field_display_name] = []
+                errors_dict['field_warnings'][field_display_name].append(
+                    "is recommended but was not provided"
                 )
 
         return model_instance, errors_dict
@@ -132,6 +136,7 @@ class BaseValidator(ABC):
                     'model': model,
                     'data': record,
                     'warnings': errors['warnings'],
+                    'field_warnings': errors['field_warnings'],
                     'relationship_errors': []
                 }
 
@@ -142,7 +147,7 @@ class BaseValidator(ABC):
                 results[f'valid_{sample_type}s'].append(valid_entry)
                 results['summary']['valid'] += 1
 
-                if errors['warnings'] or errors['ontology_warnings']:
+                if errors['warnings'] or errors['ontology_warnings'] or errors['field_warnings']:
                     results['summary']['warnings'] += 1
             else:
                 results[f'invalid_{sample_type}s'].append({
@@ -217,6 +222,11 @@ class BaseValidator(ABC):
                     if not any(error.startswith(field) for field in sample['errors'].get('field_errors', {})):
                         report.append(f"  ERROR: {error}")
 
+                # field warnings for invalid samples (NEW)
+                for field, field_warnings in sample['errors'].get('field_warnings', {}).items():
+                    for warning in field_warnings:
+                        report.append(f"  WARNING in {field}: {warning}")
+
                 # relationship errors for invalid samples
                 if sample['errors'].get('relationship_errors'):
                     for error in sample['errors']['relationship_errors']:
@@ -232,17 +242,26 @@ class BaseValidator(ABC):
             warnings_found = False
             for sample in validation_results[f'valid_{sample_type}s']:
                 if (sample.get('warnings') or sample.get('relationship_errors') or
-                    sample.get('ontology_warnings')):
+                    sample.get('ontology_warnings') or sample.get('field_warnings')):
                     if not warnings_found:
                         report.append("\n\nWarnings and Non-Critical Issues:")
                         report.append("-" * 30)
                         warnings_found = True
 
                     report.append(f"\n{sample_type_title}: {sample['sample_name']} (index: {sample['index']})")
+
+                    # Show field warnings with field names (CHANGED)
+                    for field, field_warnings in sample.get('field_warnings', {}).items():
+                        for warning in field_warnings:
+                            report.append(f"  WARNING in {field}: {warning}")
+
+                    # Keep general warnings if any
                     for warning in sample.get('warnings', []):
                         report.append(f"  WARNING: {warning}")
+
                     for error in sample.get('relationship_errors', []):
                         report.append(f"  RELATIONSHIP: {error}")
+
                     for warning in sample.get('ontology_warnings', []):
                         report.append(f"  ONTOLOGY: {warning}")
 
