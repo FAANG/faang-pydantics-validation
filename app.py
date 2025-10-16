@@ -13,11 +13,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Initialize validator (singleton pattern)
 validator = UnifiedFAANGValidator()
 
 
-# Request/Response Models
 class ValidationRequest(BaseModel):
     data: Dict[str, List[Dict[str, Any]]]
     validate_relationships: bool = True
@@ -149,100 +147,6 @@ async def validate_file(file: UploadFile = File(...)):
                 "type": type(e).__name__
             }
         )
-
-
-@app.post("/validate-submission")
-async def validate_submission_only(submission_data: List[Dict[str, Any]]):
-    try:
-        from metadata_validator import SubmissionValidator
-        validator = SubmissionValidator()
-        results = validator.validate_records(submission_data)
-        report = validator.generate_validation_report(results)
-
-        return {
-            "status": "success",
-            "results": results,
-            "report": report
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/validate-person")
-async def validate_person_only(person_data: List[Dict[str, Any]]):
-    try:
-        from metadata_validator import PersonValidator
-        validator = PersonValidator()
-        results = validator.validate_records(person_data)
-        report = validator.generate_validation_report(results)
-
-        return {
-            "status": "success",
-            "results": results,
-            "report": report
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/validate-organization")
-async def validate_organization_only(organization_data: List[Dict[str, Any]]):
-    try:
-        from metadata_validator import OrganizationValidator
-        validator = OrganizationValidator()
-        results = validator.validate_records(organization_data)
-        report = validator.generate_validation_report(results)
-
-        return {
-            "status": "success",
-            "results": results,
-            "report": report
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/validate-samples/{sample_type}")
-async def validate_specific_sample_type(
-    sample_type: str,
-    samples: List[Dict[str, Any]],
-    validate_relationships: bool = True
-):
-    """
-    Validate a specific sample type
-
-    **Supported types:** organism, organoid, specimen from organism, cell line, etc.
-    """
-    try:
-        if sample_type not in validator.validators:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported sample type: {sample_type}. Supported types: {list(validator.validators.keys())}"
-            )
-
-        sample_validator = validator.validators[sample_type]
-
-        # Prepare data dict for validation
-        all_samples = {sample_type: samples}
-
-        results = sample_validator.validate_records(
-            samples,
-            validate_relationships=validate_relationships,
-            all_samples=all_samples
-        )
-
-        report = sample_validator.generate_validation_report(results)
-
-        return {
-            "status": "success",
-            "sample_type": sample_type,
-            "results": results,
-            "report": report
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/export-valid-samples")
