@@ -445,10 +445,6 @@ class RelationshipValidator:
 
         organism_map = {self.get_organism_identifier(org): org for org in organisms}
 
-        # biosample_ids = self.collect_biosample_ids(organisms)
-        # if biosample_ids:
-        #     self.batch_fetch_biosamples_sync(list(biosample_ids))
-
         # validate each organism's relationships
         for org in organisms:
             sample_name = self.get_organism_identifier(org)
@@ -584,7 +580,7 @@ class RelationshipValidator:
         if not all_samples:
             return relationship_errors
 
-        # Step 1: Collect all relationships and local sample info
+        # collect all relationships and local sample info
         for sample_type, samples in all_samples.items():
             for sample in samples:
                 sample_name = self.extract_sample_name(sample)
@@ -600,12 +596,7 @@ class RelationshipValidator:
                     if related_records:
                         relationships[sample_name]['relationships'] = related_records
 
-        # # Step 2: Collect and fetch BioSample IDs
-        # biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
-        # if biosample_ids:
-        #     self.batch_fetch_biosamples_sync(list(biosample_ids))
-
-        # Step 3: Validate relationships
+        # validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue

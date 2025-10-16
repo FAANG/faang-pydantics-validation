@@ -268,10 +268,6 @@ async def validate_specific_sample_type(
 
 @app.get("/export-valid-samples")
 async def export_valid_samples_endpoint():
-    """
-    Export valid samples to BioSample format
-    Note: This requires validation to be run first
-    """
     return {
         "message": "Use POST /validate endpoint first, then access results.biosample_exports from the response"
     }
