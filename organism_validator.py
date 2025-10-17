@@ -8,9 +8,10 @@ from rulesets_pydantics.organism_ruleset import FAANGOrganismSample
 class OrganismValidator(BaseValidator):
 
     def _initialize_validators(self):
-        self.ontology_validator = OntologyValidator(cache_enabled=True)
-        self.breed_validator = BreedSpeciesValidator(self.ontology_validator)
-        self.relationship_validator = RelationshipValidator()
+        if self.ontology_validator is None:
+            self.ontology_validator = OntologyValidator(cache_enabled=True)
+        if self.relationship_validator is None:
+            self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
         return FAANGOrganismSample
@@ -19,22 +20,17 @@ class OrganismValidator(BaseValidator):
         return "organism"
 
     def _get_relationship_errors(self, all_samples: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
-        """
-        Override base method to use organism-specific relationship validation.
-        Converts ValidationResult objects to list of error strings.
-        """
         organisms = all_samples.get('organism', [])
         if not organisms:
             return {}
 
-        # validate_organism_relationships returns Dict[str, ValidationResult]
         raw_errors = self.relationship_validator.validate_organism_relationships(organisms)
 
-        # Convert ValidationResult objects to list of strings
+        # return only records that have errors
         return {
             sample_name: result.errors
             for sample_name, result in raw_errors.items()
-            if result.errors  # Only include samples that have errors
+            if result.errors
         }
 
     def export_to_biosample_format(self, model: FAANGOrganismSample) -> Dict[str, Any]:
@@ -52,39 +48,33 @@ class OrganismValidator(BaseValidator):
             "characteristics": {}
         }
 
-        # Material
         biosample_data["characteristics"]["material"] = [{
             "text": model.material,
             "ontologyTerms": [convert_term_to_url(model.term_source_id)]
         }]
 
-        # Organism
         biosample_data["characteristics"]["organism"] = [{
             "text": model.organism,
             "ontologyTerms": [convert_term_to_url(model.organism_term_source_id)]
         }]
 
-        # Sex
         biosample_data["characteristics"]["sex"] = [{
             "text": model.sex,
             "ontologyTerms": [convert_term_to_url(model.sex_term_source_id)]
         }]
 
-        # Birth date
         if model.birth_date and model.birth_date.strip():
             biosample_data["characteristics"]["birth date"] = [{
                 "text": model.birth_date,
                 "unit": model.birth_date_unit or ""
             }]
 
-        # Breed
         if model.breed and model.breed.strip():
             biosample_data["characteristics"]["breed"] = [{
                 "text": model.breed,
                 "ontologyTerms": [convert_term_to_url(model.breed_term_source_id)]
             }]
 
-        # Health status
         if model.health_status:
             biosample_data["characteristics"]["health status"] = []
             for status in model.health_status:
@@ -93,7 +83,6 @@ class OrganismValidator(BaseValidator):
                     "ontologyTerms": [f"http://purl.obolibrary.org/obo/{status.term.replace(':', '_')}"]
                 })
 
-        # Relationships
         if model.child_of:
             biosample_data["relationships"] = []
             for parent in model.child_of:

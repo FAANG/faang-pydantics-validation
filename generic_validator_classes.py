@@ -187,7 +187,33 @@ class OntologyValidator:
         return result_dict
 
     def batch_fetch_from_ols_sync(self, term_ids: List[str]) -> Dict[str, List[Dict]]:
-        return asyncio.run(self.batch_fetch_from_ols(term_ids))
+        # Check if all terms are already cached
+        terms_to_fetch = [tid for tid in term_ids if tid not in self._cache]
+
+        if not terms_to_fetch:
+            # All terms are cached, return them directly
+            return {tid: self._cache[tid] for tid in term_ids}
+
+        # Need to fetch some terms - check if we're in an event loop
+        try:
+            loop = asyncio.get_running_loop()
+            # We're already in an event loop (e.g., FastAPI)
+            # Create task to fetch in the current loop
+            print(f"Fetching {len(terms_to_fetch)} additional terms from OLS...")
+            task = loop.create_task(self.batch_fetch_from_ols(terms_to_fetch))
+            # This will raise an error since we can't await here
+            # The proper solution is to ensure ALL terms are pre-fetched
+            raise RuntimeError(
+                f"Cannot fetch ontology terms synchronously from async context. "
+                f"Missing {len(terms_to_fetch)} terms. Ensure pre-fetching is complete."
+            )
+        except RuntimeError as e:
+            if "no running event loop" in str(e).lower():
+                # No event loop running, safe to use asyncio.run()
+                return asyncio.run(self.batch_fetch_from_ols(term_ids))
+            else:
+                # Re-raise the error about missing pre-fetch
+                raise
 
 
 def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
@@ -204,6 +230,8 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
         'Organ Model Term Source ID',
         'Organ Part Model Term Source ID',
         'Maturity State Term Source ID',
+        'Culture Type Term Source ID',
+        'Disease Term Source ID',
     ]
 
     for sample_type, samples in data.items():
@@ -342,48 +370,59 @@ class RelationshipValidator:
         return result_dict
 
     def batch_fetch_biosamples_sync(self, biosample_ids: List[str]) -> Dict[str, Dict]:
-        result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+        # Check if all IDs are already cached
+        ids_to_fetch = [bid for bid in biosample_ids if bid not in self.biosamples_cache]
 
-        # update cache with results
-        for sample_id, cache_entry in result.items():
-            if sample_id not in self.biosamples_cache:
-                self.biosamples_cache[sample_id] = cache_entry
+        if not ids_to_fetch:
+            # All IDs are cached, return them directly
+            return {bid: self.biosamples_cache[bid] for bid in biosample_ids}
 
-        return result
-    # koosum. end
+        # Need to fetch some IDs - check if we're in an event loop
+        try:
+            loop = asyncio.get_running_loop()
+            # We're already in an event loop (e.g., FastAPI)
+            print(f"Missing {len(ids_to_fetch)} BioSample IDs in cache")
+            raise RuntimeError(
+                f"Cannot fetch BioSamples synchronously from async context. "
+                f"Missing {len(ids_to_fetch)} IDs. Ensure pre-fetching is complete."
+            )
+        except RuntimeError as e:
+            if "no running event loop" in str(e).lower():
+                # No event loop running, safe to use asyncio.run()
+                result = asyncio.run(self.batch_fetch_biosamples(biosample_ids))
+
+                # update cache with results
+                for sample_id, cache_entry in result.items():
+                    if sample_id not in self.biosamples_cache:
+                        self.biosamples_cache[sample_id] = cache_entry
+
+                return result
+            else:
+                # Re-raise the error about missing pre-fetch
+                raise
 
     def is_biosample_id(self, value: str) -> bool:
-        """
-        Check if value matches BioSample ID pattern.
-        BioSample accessions: SAM + [E|N|D] + optional[A|G] + digits
-        Examples: SAMEA123456, SAMN123456, SAMD123456
-        """
         if not value or not isinstance(value, str):
             return False
         return bool(re.match(r'^SAM[AED][AG]?\d+$', value.strip()))
 
     def collect_biosample_ids_from_samples(self, all_samples: Dict[str, List[Dict]]) -> Set[str]:
-        """
-        Collect all BioSample IDs from derived_from/child_of fields across all sample types.
-        """
         biosample_ids = set()
 
         for sample_type, samples in all_samples.items():
             for sample in samples:
-                # check derived_from field (can be string or list)
+                # check derived_from field
                 if 'Derived From' in sample:
                     derived_from = sample['Derived From']
 
-                    # Handle list of derived_from values
                     if isinstance(derived_from, list):
                         for item in derived_from:
                             if item and self.is_biosample_id(str(item)):
                                 biosample_ids.add(str(item).strip())
-                    # Handle single string value
                     elif derived_from and self.is_biosample_id(str(derived_from)):
                         biosample_ids.add(str(derived_from).strip())
 
-                # Check child_of field (for organisms)
+                # child_of field (organisms)
                 if 'Child Of' in sample:
                     child_of = sample['Child Of']
                     if isinstance(child_of, list):
@@ -393,16 +432,18 @@ class RelationshipValidator:
                     elif child_of and self.is_biosample_id(str(child_of)):
                         biosample_ids.add(str(child_of).strip())
 
+                # same_as field (SampleCoreMetadata)
+                if 'Same as' in sample:
+                    same_as = sample['Same as']
+                    if same_as and self.is_biosample_id(str(same_as)):
+                        biosample_ids.add(str(same_as).strip())
+
         return biosample_ids
 
     def validate_organism_relationships(self, organisms: List[Dict[str, Any]]) -> Dict[str, ValidationResult]:
         results = {}
 
         organism_map = {self.get_organism_identifier(org): org for org in organisms}
-
-        biosample_ids = self.collect_biosample_ids(organisms)
-        if biosample_ids:
-            self.batch_fetch_biosamples_sync(list(biosample_ids))
 
         # validate each organism's relationships
         for org in organisms:
@@ -539,7 +580,7 @@ class RelationshipValidator:
         if not all_samples:
             return relationship_errors
 
-        # Step 1: Collect all relationships and local sample info
+        # collect all relationships and local sample info
         for sample_type, samples in all_samples.items():
             for sample in samples:
                 sample_name = self.extract_sample_name(sample)
@@ -555,12 +596,7 @@ class RelationshipValidator:
                     if related_records:
                         relationships[sample_name]['relationships'] = related_records
 
-        # Step 2: Collect and fetch BioSample IDs
-        biosample_ids = self.collect_biosample_ids_from_samples(all_samples)
-        if biosample_ids:
-            self.batch_fetch_biosamples_sync(list(biosample_ids))
-
-        # Step 3: Validate relationships
+        # validate relationships
         for sample_name, rel_info in relationships.items():
             if 'relationships' not in rel_info:
                 continue

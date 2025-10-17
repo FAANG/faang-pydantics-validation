@@ -14,7 +14,9 @@ def main():
 
         print("FAANG Sample Validation")
         print("=" * 50)
-        print(f"Supported sample types: {', '.join(validator.get_supported_types())}")
+        supported = validator.get_supported_types()
+        print(f"Supported sample types: {', '.join(supported['sample_types'])}")
+        print(f"Supported metadata types: {', '.join(supported['metadata_types'])}")
         print()
 
         # prefetch ontology terms
@@ -51,18 +53,27 @@ def main():
         # BioSample format
         biosample_exports = validator.export_valid_samples_to_biosample(results)
 
-        # if biosample_exports:
-        #     print("\n" + "=" * 60)
-        #     print("BIOSAMPLE EXPORTS")
-        #     print("=" * 60)
+        # Optional: Print metadata validation details
+        # print("\n" + "=" * 60)
+        # print("METADATA VALIDATION STATUS")
+        # print("=" * 60)
         #
-        #     for sample_type, exports in biosample_exports.items():
-        #         print(f"\n{sample_type.upper()} SAMPLES:")
-        #         print("-" * 30)
+        # for metadata_type in results['metadata_types_processed']:
+        #     metadata_result = results['metadata_results'][metadata_type]
+        #     if 'error' in metadata_result:
+        #         print(f"\n{metadata_type.upper()}: ERROR")
+        #         print(f"  {metadata_result['error']}")
+        #     else:
+        #         print(f"\n{metadata_type.upper()}:")
+        #         print(f"  Total: {metadata_result['summary']['total']}")
+        #         print(f"  Valid: {metadata_result['summary']['valid']}")
+        #         print(f"  Invalid: {metadata_result['summary']['invalid']}")
         #
-        #         for export in exports:
-        #             print(f"\nSample: {export['sample_name']}")
-        #             print(json.dumps(export['biosample_format'], indent=2))
+        #         # Show valid metadata details
+        #         if metadata_result['valid']:
+        #             print(f"  Valid {metadata_type} records:")
+        #             for item in metadata_result['valid']:
+        #                 print(f"    - Index {item['index']}: {item['data']}")
 
         # save results to file
         save_results = True
