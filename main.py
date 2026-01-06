@@ -1,6 +1,5 @@
 import json
-import time
-from unified_validator import UnifiedFAANGValidator
+from validation.unified_validator import UnifiedFAANGValidator
 
 
 def main():
