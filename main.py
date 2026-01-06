@@ -1,5 +1,5 @@
 import json
-from validation.unified_validator import UnifiedFAANGValidator
+from validation.sample.unified_validator import UnifiedFAANGValidator
 
 
 def main():

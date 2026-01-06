@@ -5,7 +5,7 @@ from typing import Dict, List, Any, Optional
 import json
 import traceback
 
-from validation.unified_validator import UnifiedFAANGValidator
+from validation.sample.unified_validator import UnifiedFAANGValidator
 
 app = FastAPI(
     title="FAANG Validation API",
