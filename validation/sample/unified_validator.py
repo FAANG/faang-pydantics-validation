@@ -1,16 +1,16 @@
 from typing import Dict, List, Any
-from validation.teleostei_embryo_validator import TeleosteiEmbryoValidator
-from validation.organism_validator import OrganismValidator
-from validation.organoid_validator import OrganoidValidator
-from validation.specimen_validator import SpecimenValidator
-from validation.teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
-from validation.single_cell_specimen_validator import SingleCellSpecimenValidator
-from validation.pool_of_specimens_validator import PoolOfSpecimensValidator
-from validation.cell_specimen_validator import CellSpecimenValidator
-from validation.cell_culture_validator import CellCultureValidator
-from validation.cell_line_validator import CellLineValidator
-from validation.metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
-from validation.generic_validator_classes import (
+from validation.sample.teleostei_embryo_validator import TeleosteiEmbryoValidator
+from validation.sample.organism_validator import OrganismValidator
+from validation.sample.organoid_validator import OrganoidValidator
+from validation.sample.specimen_validator import SpecimenValidator
+from validation.sample.teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
+from validation.sample.single_cell_specimen_validator import SingleCellSpecimenValidator
+from validation.sample.pool_of_specimens_validator import PoolOfSpecimensValidator
+from validation.sample.cell_specimen_validator import CellSpecimenValidator
+from validation.sample.cell_culture_validator import CellCultureValidator
+from validation.sample.cell_line_validator import CellLineValidator
+from validation.sample.metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
+from validation.sample.generic_validator_classes import (
     collect_ontology_terms_from_data,
     OntologyValidator,
     RelationshipValidator

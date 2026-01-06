@@ -1,11 +1,11 @@
 from typing import Dict, Any, Type
 from pydantic import BaseModel
-from validation.base_validator import BaseValidator
-from validation.generic_validator_classes import OntologyValidator, RelationshipValidator
-from rulesets_pydantics.sample.specimen_ruleset import FAANGSpecimenFromOrganismSample
+from validation.sample.base_validator import BaseValidator
+from validation.sample.generic_validator_classes import OntologyValidator, RelationshipValidator
+from rulesets_pydantics.sample.teleostei_embryo_ruleset import FAANGTeleosteiEmbryoSample
 
 
-class SpecimenValidator(BaseValidator):
+class TeleosteiEmbryoValidator(BaseValidator):
 
     def _initialize_validators(self):
         if self.ontology_validator is None:
@@ -14,12 +14,12 @@ class SpecimenValidator(BaseValidator):
             self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGSpecimenFromOrganismSample
+        return FAANGTeleosteiEmbryoSample
 
     def get_sample_type_name(self) -> str:
-        return "specimen_from_organism"
+        return "teleostei_embryo"
 
-    def export_to_biosample_format(self, model: FAANGSpecimenFromOrganismSample) -> Dict[str, Any]:
+    def export_to_biosample_format(self, model: FAANGTeleosteiEmbryoSample) -> Dict[str, Any]:
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided", ""]:
@@ -34,7 +34,7 @@ class SpecimenValidator(BaseValidator):
             "characteristics": {}
         }
 
-        # Material - should be specimen from organism
+        # Material
         biosample_data["characteristics"]["material"] = [{
             "text": model.material,
             "ontologyTerms": [convert_term_to_url(model.term_source_id)]
@@ -83,63 +83,67 @@ class SpecimenValidator(BaseValidator):
                     "ontologyTerms": [convert_term_to_url(status.term)]
                 })
 
-        # Optional numeric fields
-        if model.fasted_status:
-            biosample_data["characteristics"]["fasted status"] = [{
-                "text": model.fasted_status
-            }]
+        # Teleostei-specific fields
+        biosample_data["characteristics"]["origin"] = [{
+            "text": model.origin
+        }]
 
-        if model.number_of_pieces:
-            biosample_data["characteristics"]["number of pieces"] = [{
-                "text": str(model.number_of_pieces),
-                "unit": model.number_of_pieces_unit
-            }]
+        biosample_data["characteristics"]["reproductive strategy"] = [{
+            "text": model.reproductive_strategy
+        }]
 
-        if model.specimen_volume:
-            biosample_data["characteristics"]["specimen volume"] = [{
-                "text": str(model.specimen_volume),
-                "unit": model.specimen_volume_unit
-            }]
+        biosample_data["characteristics"]["hatching"] = [{
+            "text": model.hatching
+        }]
 
-        if model.specimen_size:
-            biosample_data["characteristics"]["specimen size"] = [{
-                "text": str(model.specimen_size),
-                "unit": model.specimen_size_unit
-            }]
+        biosample_data["characteristics"]["time post fertilisation"] = [{
+            "text": str(model.time_post_fertilisation),
+            "unit": model.time_post_fertilisation_unit
+        }]
 
-        if model.specimen_weight:
-            biosample_data["characteristics"]["specimen weight"] = [{
-                "text": str(model.specimen_weight),
-                "unit": model.specimen_weight_unit
-            }]
+        biosample_data["characteristics"]["pre-hatching water temperature average"] = [{
+            "text": str(model.pre_hatching_water_temperature_average),
+            "unit": model.pre_hatching_water_temperature_average_unit
+        }]
 
-        if model.specimen_picture_url:
-            biosample_data["characteristics"]["specimen picture url"] = [
-                {"text": pic} for pic in model.specimen_picture_url
-            ]
+        biosample_data["characteristics"]["post-hatching water temperature average"] = [{
+            "text": str(model.post_hatching_water_temperature_average),
+            "unit": model.post_hatching_water_temperature_average_unit
+        }]
 
-        if model.gestational_age_at_sample_collection:
-            biosample_data["characteristics"]["gestational age at sample collection"] = [{
-                "text": str(model.gestational_age_at_sample_collection),
-                "unit": model.gestational_age_at_sample_collection_unit
-            }]
+        biosample_data["characteristics"]["degree days"] = [{
+            "text": str(model.degree_days),
+            "unit": model.degree_days_unit
+        }]
 
-        if model.average_incubation_temperature:
-            biosample_data["characteristics"]["average incubation temperature"] = [{
-                "text": str(model.average_incubation_temperature),
-                "unit": model.average_incubation_temperature_unit
-            }]
+        biosample_data["characteristics"]["growth media"] = [{
+            "text": model.growth_media
+        }]
 
-        if model.average_incubation_humidity:
-            biosample_data["characteristics"]["average incubation humidity"] = [{
-                "text": str(model.average_incubation_humidity),
-                "unit": model.average_incubation_humidity_unit
-            }]
+        biosample_data["characteristics"]["medium replacement frequency"] = [{
+            "text": str(model.medium_replacement_frequency),
+            "unit": model.medium_replacement_frequency_unit
+        }]
 
-        if model.embryonic_stage:
-            biosample_data["characteristics"]["embryonic stage"] = [{
-                "text": model.embryonic_stage,
-                "unit": model.embryonic_stage_unit
+        biosample_data["characteristics"]["percentage total somite number"] = [{
+            "text": str(model.percentage_total_somite_number),
+            "unit": model.percentage_total_somite_number_unit
+        }]
+
+        biosample_data["characteristics"]["average water salinity"] = [{
+            "text": str(model.average_water_salinity),
+            "unit": model.average_water_salinity_unit
+        }]
+
+        biosample_data["characteristics"]["photoperiod"] = [{
+            "text": model.photoperiod
+        }]
+
+        # Optional field
+        if model.generations_from_wild is not None:
+            biosample_data["characteristics"]["generations from wild"] = [{
+                "text": str(model.generations_from_wild),
+                "unit": model.generations_from_wild_unit or ""
             }]
 
         # Relationships - derived from

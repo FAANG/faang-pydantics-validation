@@ -1,11 +1,11 @@
 from typing import Dict, Any, Type
 from pydantic import BaseModel
-from validation.base_validator import BaseValidator
-from validation.generic_validator_classes import OntologyValidator, RelationshipValidator
-from rulesets_pydantics.sample.cell_culture_ruleset import FAANGCellCultureSample
+from validation.sample.base_validator import BaseValidator
+from validation.sample.generic_validator_classes import OntologyValidator, RelationshipValidator
+from rulesets_pydantics.sample.cell_specimen_ruleset import FAANGCellSpecimenSample
 
 
-class CellCultureValidator(BaseValidator):
+class CellSpecimenValidator(BaseValidator):
 
     def _initialize_validators(self):
         if self.ontology_validator is None:
@@ -14,12 +14,12 @@ class CellCultureValidator(BaseValidator):
             self.relationship_validator = RelationshipValidator()
 
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGCellCultureSample
+        return FAANGCellSpecimenSample
 
     def get_sample_type_name(self) -> str:
-        return "cell_culture"
+        return "cell_specimen"
 
-    def export_to_biosample_format(self, model: FAANGCellCultureSample) -> Dict[str, Any]:
+    def export_to_biosample_format(self, model: FAANGCellSpecimenSample) -> Dict[str, Any]:
 
         def convert_term_to_url(term_id: str) -> str:
             if not term_id or term_id in ["restricted access", "not applicable", "not collected", "not provided", ""]:
@@ -34,19 +34,19 @@ class CellCultureValidator(BaseValidator):
             "characteristics": {}
         }
 
-        # Material - should be cell culture
+        # Material - should be cell specimen
         biosample_data["characteristics"]["material"] = [{
             "text": model.material,
             "ontologyTerms": [convert_term_to_url(model.term_source_id)]
         }]
 
-        # Culture type
-        biosample_data["characteristics"]["culture type"] = [{
-            "text": model.culture_type,
-            "ontologyTerms": [convert_term_to_url(model.culture_type_term_source_id)]
-        }]
+        # Markers (optional)
+        if model.markers:
+            biosample_data["characteristics"]["markers"] = [{
+                "text": model.markers
+            }]
 
-        # Cell type
+        # Cell type (array)
         biosample_data["characteristics"]["cell type"] = []
         for cell_type in model.cell_type:
             biosample_data["characteristics"]["cell type"].append({
@@ -54,19 +54,9 @@ class CellCultureValidator(BaseValidator):
                 "ontologyTerms": [convert_term_to_url(cell_type.term)]
             })
 
-        # Cell culture protocol
-        biosample_data["characteristics"]["cell culture protocol"] = [{
-            "text": model.cell_culture_protocol
-        }]
-
-        # Culture conditions
-        biosample_data["characteristics"]["culture conditions"] = [{
-            "text": model.culture_conditions
-        }]
-
-        # Number of passages
-        biosample_data["characteristics"]["number of passages"] = [{
-            "text": str(model.number_of_passages)
+        # Purification protocol
+        biosample_data["characteristics"]["purification protocol"] = [{
+            "text": model.purification_protocol
         }]
 
         # Relationships - derived from
