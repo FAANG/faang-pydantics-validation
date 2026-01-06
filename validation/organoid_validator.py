@@ -1,8 +1,8 @@
 from typing import Dict, Any, Type
 from pydantic import BaseModel
-from base_validator import BaseValidator
-from generic_validator_classes import OntologyValidator, RelationshipValidator
-from rulesets_pydantics.organoid_ruleset import FAANGOrganoidSample
+from validation.base_validator import BaseValidator
+from validation.generic_validator_classes import OntologyValidator, RelationshipValidator
+from rulesets_pydantics.sample.organoid_ruleset import FAANGOrganoidSample
 
 
 class OrganoidValidator(BaseValidator):

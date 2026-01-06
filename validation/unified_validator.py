@@ -1,16 +1,16 @@
 from typing import Dict, List, Any
-from teleostei_embryo_validator import TeleosteiEmbryoValidator
-from organism_validator import OrganismValidator
-from organoid_validator import OrganoidValidator
-from specimen_validator import SpecimenValidator
-from teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
-from single_cell_specimen_validator import SingleCellSpecimenValidator
-from pool_of_specimens_validator import PoolOfSpecimensValidator
-from cell_specimen_validator import CellSpecimenValidator
-from cell_culture_validator import CellCultureValidator
-from cell_line_validator import CellLineValidator
-from metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
-from generic_validator_classes import (
+from validation.teleostei_embryo_validator import TeleosteiEmbryoValidator
+from validation.organism_validator import OrganismValidator
+from validation.organoid_validator import OrganoidValidator
+from validation.specimen_validator import SpecimenValidator
+from validation.teleostei_post_hatching_validator import TeleosteiPostHatchingValidator
+from validation.single_cell_specimen_validator import SingleCellSpecimenValidator
+from validation.pool_of_specimens_validator import PoolOfSpecimensValidator
+from validation.cell_specimen_validator import CellSpecimenValidator
+from validation.cell_culture_validator import CellCultureValidator
+from validation.cell_line_validator import CellLineValidator
+from validation.metadata_validator import SubmissionValidator, PersonValidator, OrganizationValidator
+from validation.generic_validator_classes import (
     collect_ontology_terms_from_data,
     OntologyValidator,
     RelationshipValidator

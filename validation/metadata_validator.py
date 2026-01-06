@@ -1,8 +1,8 @@
 from typing import List, Dict, Any, Type
 from pydantic import ValidationError, BaseModel
-from rulesets_pydantics.submission_ruleset import FAANGSubmission
-from rulesets_pydantics.person_ruleset import FAANGPerson
-from rulesets_pydantics.organization_ruleset import FAANGOrganization
+from rulesets_pydantics.sample.submission_ruleset import FAANGSubmission
+from rulesets_pydantics.sample.person_ruleset import FAANGPerson
+from rulesets_pydantics.sample.organization_ruleset import FAANGOrganization
 
 
 class BaseMetadataValidator:

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from generic_validator_classes import OntologyValidator
+from validation.generic_validator_classes import OntologyValidator
 from validation_utils import (
     normalize_ontology_term,
     is_restricted_value,
@@ -8,7 +8,7 @@ from validation_utils import (
     validate_non_negative_numeric,
     strip_and_convert_empty_to_none
 )
-from typing import List, Optional, Union, Literal
+from typing import List, Union, Literal
 from .standard_ruleset import SampleCoreMetadata
 
 class CellType(BaseModel):

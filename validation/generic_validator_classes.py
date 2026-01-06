@@ -9,7 +9,7 @@ from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDAT
 
 # import context variable from base_validator
 try:
-    from base_validator import ontology_warnings_context
+    from validation.base_validator import ontology_warnings_context
 except ImportError:
     from contextvars import ContextVar
 

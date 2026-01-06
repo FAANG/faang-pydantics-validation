@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field, field_validator
 from validation_utils import (
     validate_photoperiod,
     validate_time_format,
@@ -9,8 +9,8 @@ from validation_utils import (
     is_restricted_value
 )
 from typing import Optional, Union, Literal
-from rulesets_pydantics.specimen_ruleset import FAANGSpecimenFromOrganismSample
-from generic_validator_classes import OntologyValidator
+from rulesets_pydantics.sample.specimen_ruleset import FAANGSpecimenFromOrganismSample
+from validation.generic_validator_classes import OntologyValidator
 
 
 class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):

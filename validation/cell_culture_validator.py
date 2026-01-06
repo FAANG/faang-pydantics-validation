@@ -1,8 +1,8 @@
 from typing import Dict, Any, Type
 from pydantic import BaseModel
-from base_validator import BaseValidator
-from generic_validator_classes import OntologyValidator, RelationshipValidator
-from rulesets_pydantics.cell_culture_ruleset import FAANGCellCultureSample
+from validation.base_validator import BaseValidator
+from validation.generic_validator_classes import OntologyValidator, RelationshipValidator
+from rulesets_pydantics.sample.cell_culture_ruleset import FAANGCellCultureSample
 
 
 class CellCultureValidator(BaseValidator):
