@@ -112,7 +112,7 @@ class FAANGPoolOfSpecimensSample(SampleCoreMetadata):
 
     # convert empty strings to None for optional fields
     @field_validator(
-        'secondary_project', 'availability', 'same_as',
+        'availability', 'same_as',
         'specimen_volume', 'specimen_volume_unit',
         'specimen_size', 'specimen_size_unit',
         'specimen_weight', 'specimen_weight_unit',

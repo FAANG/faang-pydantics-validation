@@ -294,7 +294,7 @@ class FAANGCellLineSample(SampleCoreMetadata):
         'catalogue_number', 'number_of_passages', 'date_established', 'date_established_unit',
         'publication', 'breed', 'breed_term_source_id', 'cell_type',
         'culture_conditions', 'culture_protocol', 'disease', 'disease_term_source_id',
-        'karyotype', 'secondary_project', 'availability', 'same_as', mode='before'
+        'karyotype', 'availability', 'same_as', mode='before'
     )
     def convert_empty_strings_to_none(cls, v):
         return strip_and_convert_empty_to_none(v)

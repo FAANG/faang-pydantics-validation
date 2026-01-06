@@ -145,7 +145,7 @@ class FAANGCellCultureSample(SampleCoreMetadata):
 
     # convert empty strings to None for optional fields
     @field_validator(
-        'secondary_project', 'availability', 'same_as', mode='before'
+        'availability', 'same_as', mode='before'
     )
     def convert_empty_strings_to_none(cls, v):
         return strip_and_convert_empty_to_none(v)

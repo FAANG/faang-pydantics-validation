@@ -197,7 +197,7 @@ class FAANGOrganoidSample(SampleCoreMetadata):
 
     # convert empty strings to None for optional fields
     @field_validator(
-        'secondary_project', 'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
+        'availability', 'same_as', 'organ_part_model', 'organ_part_model_term_source_id',
         'freezing_date', 'freezing_date_unit', 'freezing_protocol', 'number_of_frozen_cells_unit',
         'organoid_culture_and_passage_protocol', 'organoid_morphology',
         'growth_environment_unit', 'stored_oxygen_level', 'stored_oxygen_level_unit',

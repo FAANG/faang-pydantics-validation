@@ -143,7 +143,7 @@ class FAANGSingleCellSpecimenSample(SampleCoreMetadata):
     @field_validator(
         'enrichment_markers', 'single_cell_isolation', 'single_cell_entity',
         'single_cell_quality', 'cell_number', 'cell_number_unit',
-        'secondary_project', 'availability', 'same_as', mode='before'
+        'availability', 'same_as', mode='before'
     )
     def convert_empty_strings_to_none(cls, v):
         return strip_and_convert_empty_to_none(v)
