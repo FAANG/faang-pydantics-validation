@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, field_validator
-from validation_utils import (
+from pydantic import Field, field_validator
+from validation.validation_utils import (
     validate_sample_name,
     validate_date_format,
     validate_protocol_url,

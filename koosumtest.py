@@ -1,0 +1,12 @@
+test = {'ECA_UKY_H1': {'material': 'organism', 'relationships': ['ECA_UKY_H11', 'ECA_UKY_H1']},
+        'ECA_UKY_H11': {'material': 'organism'},
+        'OCU_INRAE_PND18': {'material': 'organism', 'relationships': ['ECA_UKY_H11', 'ECA_UKY_H1']},
+        'OCU_INRAE_PND18_S1': {'material': 'specimen from organism', 'relationships': ['OCU_INRAE_PND18']},
+        'OCU_INRAE_S1': {'material': 'organoid', 'relationships': ['OCU_INRAE_PND18_S1']},
+        'OCU_INRAE_S2': {'material': 'organoid', 'relationships': ['OCU_INRAE_PND18_S19']},
+        'single_cell_specimen_1': {'material': 'single cell specimen', 'relationships': ['SAMEA118360669']},
+        'single_cell_specimen_2': {'material': 'single cell specimen', 'relationships': ['SAMEA117787491']},
+        'teleostei_embryo_1': {'material': 'specimen from organism', 'relationships': ['OCU_INRAE_PND18']},
+        'teleostei_embryo_2': {'material': 'specimen from organism', 'relationships': ['OCU_INRAE_PND18']},
+        'teleostei_post_hatching_1': {'material': 'specimen from organism', 'relationships': ['OCU_INRAE_PND18']},
+        'teleostei_post_hatching_2': {'material': 'specimen from organism', 'relationships': ['OCU_INRAE_PND18']}}

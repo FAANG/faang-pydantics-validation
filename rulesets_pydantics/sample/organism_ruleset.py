@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
-from validation.sample.generic_validator_classes import BreedSpeciesValidator, OntologyValidator
-from validation_utils import (
+from validation.generic_validator_classes import BreedSpeciesValidator, OntologyValidator
+from validation.validation_utils import (
     normalize_ontology_term,
     is_restricted_value,
     validate_sample_name,

@@ -1,0 +1,104 @@
+{
+  "validation_summary": {
+    "total_samples": 0,
+    "valid_samples": 0,
+    "invalid_samples": 0,
+    "warnings": 0,
+    "relationship_errors": 0
+  },
+  "analysis_types_processed": [
+    "faang",
+    "ena",
+    "eva"
+  ],
+  "analysis_results": {
+    "faang": {
+      "summary": {
+        "total": 5,
+        "valid": 5,
+        "invalid": 0,
+        "warnings": 5
+      },
+      "valid_records": [
+        {
+          "index": 0,
+          "alias": "H3K4me1_Adipose_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 1,
+          "alias": "H3K4me1_Brain_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 2,
+          "alias": "H3K4me1_Heart_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 3,
+          "alias": "H3K4me1_Lamina_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 4,
+          "alias": "H3K4me1_Liver_B_ProcessedReads",
+          "warnings": []
+        }
+      ],
+      "invalid_records": []
+    },
+    "ena": {
+      "summary": {
+        "total": 5,
+        "valid": 5,
+        "invalid": 0,
+        "warnings": 0
+      },
+      "valid_records": [
+        {
+          "index": 0,
+          "alias": "H3K4me1_Adipose_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 1,
+          "alias": "H3K4me1_Brain_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 2,
+          "alias": "H3K4me1_Heart_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 3,
+          "alias": "H3K4me1_Lamina_B_ProcessedReads",
+          "warnings": []
+        },
+        {
+          "index": 4,
+          "alias": "H3K4me1_Liver_B_ProcessedReads",
+          "warnings": []
+        }
+      ],
+      "invalid_records": []
+    },
+    "eva": {
+      "summary": {
+        "total": 1,
+        "valid": 1,
+        "invalid": 0,
+        "warnings": 1
+      },
+      "valid_records": [
+        {
+          "index": 0,
+          "alias": "H3K4me11_Adipose_B_ProcessedReads",
+          "warnings": []
+        }
+      ],
+      "invalid_records": []
+    }
+  }
+}

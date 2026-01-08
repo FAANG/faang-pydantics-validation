@@ -1,5 +1,5 @@
 from pydantic import Field, field_validator
-from validation_utils import (
+from validation.validation_utils import (
     validate_photoperiod,
     validate_non_negative_numeric,
     validate_percentage,

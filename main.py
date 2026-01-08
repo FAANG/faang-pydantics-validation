@@ -1,9 +1,12 @@
 import json
-from validation.sample.unified_validator import UnifiedFAANGValidator
+from validation.unified_validator import UnifiedFAANGValidator
 
 
 def main():
+
+    # file_path = 'json_files/sample2_theirversion.json'
     file_path = 'json_files/sample1.json'
+
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:

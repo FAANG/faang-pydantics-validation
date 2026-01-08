@@ -1,5 +1,5 @@
 from pydantic import Field, field_validator
-from validation_utils import (
+from validation.validation_utils import (
     validate_photoperiod,
     validate_time_format,
     validate_non_negative_numeric,
@@ -10,7 +10,7 @@ from validation_utils import (
 )
 from typing import Optional, Union, Literal
 from rulesets_pydantics.sample.specimen_ruleset import FAANGSpecimenFromOrganismSample
-from validation.sample.generic_validator_classes import OntologyValidator
+from validation.generic_validator_classes import OntologyValidator
 
 
 class FAANGTeleosteiPostHatchingSample(FAANGSpecimenFromOrganismSample):

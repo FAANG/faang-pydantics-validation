@@ -1,11 +1,10 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
 import json
 import traceback
 
-from validation.sample.unified_validator import UnifiedFAANGValidator
+from validation.unified_validator import UnifiedFAANGValidator
 
 app = FastAPI(
     title="FAANG Validation API",
@@ -120,11 +119,13 @@ async def validate_file(file: UploadFile = File(...)):
         # report
         report = validator.generate_unified_report(results)
 
+        # return data
+
         return {
-            "status": "success",
-            "filename": file.filename,
-            "message": "File validated successfully",
-            "results": results,
+            # "status": "success",
+            # "filename": file.filename,
+            # "message": "File validated successfully",
+            # "results": results,
             "report": report
         }
 

@@ -1,0 +1,273 @@
+{
+  "submission": [
+    {
+      "Alias": "test"
+    }
+  ],
+  "faang": [
+    {
+      "Secondary Project": [
+        "AQUA-FAANG",
+        "USPIGFAANG"
+      ],
+      "Alias": "H3K4me1_Adipose_B_ProcessedReads",
+      "Project": "FAANG",
+      "Assay Type": "ChIP-seq",
+      "Analysis Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/analysis/UCD_SOP_processing_and_analyzing_equine_ChIP_data_20191030.pdf",
+      "Analysis Code": "https://raw.githubusercontent.com/test/dcc-test/master/json_schema/module/analyses/test.metadata_rules.json",
+      "Analysis Code Version": "",
+      "Reference Genome": "EquCab3.0",
+      "Nextflow Config Url": "https://api.faang.org/nextflow_files_upload/nextflow_config/config.txt",
+      "Nextflow Spreadsheet Url": "https://api.faang.org/nextflow_files_upload/nextflow_spreadsheet/file.xlsx"
+    },
+    {
+      "Secondary Project": [],
+      "Alias": "H3K4me1_Brain_B_ProcessedReads",
+      "Project": "FAANG",
+      "Assay Type": "ChIP-seq",
+      "Analysis Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/analysis/UCD_SOP_processing_and_analyzing_equine_ChIP_data_20191030.pdf",
+      "Analysis Code": "",
+      "Analysis Code Version": "",
+      "Reference Genome": "EquCab3.0",
+      "Nextflow Config Url": "",
+      "Nextflow Spreadsheet Url": ""
+    },
+    {
+      "Secondary Project": [],
+      "Alias": "H3K4me1_Heart_B_ProcessedReads",
+      "Project": "FAANG",
+      "Assay Type": "ChIP-seq",
+      "Analysis Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/analysis/UCD_SOP_processing_and_analyzing_equine_ChIP_data_20191030.pdf",
+      "Analysis Code": "",
+      "Analysis Code Version": "",
+      "Reference Genome": "EquCab3.0",
+      "Nextflow Config Url": "",
+      "Nextflow Spreadsheet Url": ""
+    },
+    {
+      "Secondary Project": [],
+      "Alias": "H3K4me1_Lamina_B_ProcessedReads",
+      "Project": "FAANG",
+      "Assay Type": "ChIP-seq",
+      "Analysis Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/analysis/UCD_SOP_processing_and_analyzing_equine_ChIP_data_20191030.pdf",
+      "Analysis Code": "",
+      "Analysis Code Version": "",
+      "Reference Genome": "EquCab3.0",
+      "Nextflow Config Url": "",
+      "Nextflow Spreadsheet Url": ""
+    },
+    {
+      "Secondary Project": [],
+      "Alias": "H3K4me1_Liver_B_ProcessedReads",
+      "Project": "FAANG",
+      "Assay Type": "ChIP-seq",
+      "Analysis Protocol": "ftp://ftp.faang.ebi.ac.uk/ftp/protocols/analysis/UCD_SOP_processing_and_analyzing_equine_ChIP_data_20191030.pdf",
+      "Analysis Code": "",
+      "Analysis Code Version": "",
+      "Reference Genome": "EquCab3.0",
+      "Nextflow Config Url": "",
+      "Nextflow Spreadsheet Url": ""
+    }
+  ],
+  "ena": [
+    {
+      "File Names": [
+        "H3K4me1_Adipose_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "f1664c9ed92e20e273a821366d27b1ef"
+      ],
+      "Samples": [
+        "SAMEA104728736"
+      ],
+      "Experiments": [
+        "ERX3645338"
+      ],
+      "Runs": [
+        "ERR3653312"
+      ],
+      "Alias": "H3K4me1_Adipose_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD"
+    },
+    {
+      "File Names": [
+        "H3K4me1_Brain_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "4a7bbea94d708b9208d9c84019b3063d"
+      ],
+      "Samples": [
+        "SAMEA104728771"
+      ],
+      "Experiments": [
+        "ERX3645339"
+      ],
+      "Runs": [
+        "ERR3653313"
+      ],
+      "Alias": "H3K4me1_Brain_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD"
+    },
+    {
+      "File Names": [
+        "H3K4me1_Heart_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "8c552b17231a7c0cbfcea1b8c2e08142"
+      ],
+      "Samples": [
+        "SAMEA104728837"
+      ],
+      "Experiments": [
+        "ERX3645340"
+      ],
+      "Runs": [
+        "ERR3653314"
+      ],
+      "Alias": "H3K4me1_Heart_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD"
+    },
+    {
+      "File Names": [
+        "H3K4me1_Lamina_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "814d04719e0b71f18083c905135257f0"
+      ],
+      "Samples": [
+        "SAMEA104728770"
+      ],
+      "Experiments": [
+        "ERX3645341"
+      ],
+      "Runs": [
+        "ERR3653315"
+      ],
+      "Alias": "H3K4me1_Lamina_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD"
+    },
+    {
+      "File Names": [
+        "H3K4me1_Liver_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "3d34bbd348ed0349e4738a0bb79c6a28"
+      ],
+      "Samples": [
+        "SAMEA104728881"
+      ],
+      "Experiments": [
+        "ERX3645342"
+      ],
+      "Runs": [
+        "ERR3653316"
+      ],
+      "Alias": "H3K4me1_Liver_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD"
+    }
+  ],
+  "eva": [
+    {
+      "File Names": [
+        "H3K4me11_Adipose_B.duplicate-removed.bam"
+      ],
+      "File Types": [
+        "bam"
+      ],
+      "Checksum Methods": [
+        "MD5"
+      ],
+      "Checksums": [
+        "f1664c9ed92e20e273a821366d27b1e1f"
+      ],
+      "Samples": [
+        "SAMEA104728736"
+      ],
+      "Experiments": [
+        "ERX3645338"
+      ],
+      "Runs": [
+        "ERR3653312"
+      ],
+      "Alias": "H3K4me11_Adipose_B_ProcessedReads",
+      "Title": "Functionally annotating regulatory elements in the equine genome using histone mark ChIP-Seq",
+      "Analysis Type": "PROCESSED_READS",
+      "Description": "We used Chromatin Immunoprecipitation sequencing (ChIP-Seq) to map four histone modifications (H3K4me1, H3K4me3, H3K27ac, and H3K27me3) in eight prioritized tissues collected for the Equine Biobank from two Thoroughbred mares. Data were generated according to optimized experimental parameters developed during quality control testing. This file contains reads that have been aligned, trimmed, filtered, sorted, and deduplicated. These data are released under Fort Lauderdale principles, as confirmed in the Toronto Statement (Toronto International Data Release Workshop. Birney et al. 2009. Pre-publication data sharing. Nature 461:168-170). Any use of this dataset must abide by the FAANG data sharing principles. Data producers reserve the right to make the first publication of a global analysis of this data. If you are unsure if you are allowed to publish on this dataset, please contact rbellone@ucdavis.edu, cjfinno@ucdavis.edu, and jessica.petersen@unl.edu to inquire. The full guidelines can be found at http://www.faang.org/data-share-principle”.",
+      "Study": "PRJEB35307",
+      "Related Analyses": "",
+      "Analysis Center": "University of California - Davis",
+      "Analysis Date": "2018-11-12",
+      "Unit": "YYYY-MM-DD",
+      "Experiment Type": ["Whole Genome Sequencing"],
+      "Program": "",
+      "Platform": ["Nimblegen 4.2M Probe Custom DNA Microarray", "Illumina NovaSeq 6000"],
+      "Special Analysis Type": "imputation analysis"
+    }
+  ]
+}
+

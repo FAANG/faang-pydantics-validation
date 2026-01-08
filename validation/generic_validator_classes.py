@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 import re
 
-from constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
+from validation.constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 
 # import context variable from base_validator
 try:
