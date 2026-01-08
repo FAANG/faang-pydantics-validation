@@ -3,7 +3,7 @@ from validation.unified_validator import UnifiedFAANGValidator
 
 
 def main():
-    file_path = 'json_files/analysis.json'
+    file_path = 'json_files/analysis_complete.json'
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -35,52 +35,6 @@ def main():
         # Generate and print report
         report = validator.generate_unified_report(results)
         print(report)
-
-        # Print detailed results for each analysis type
-        print("\n" + "=" * 60)
-        print("DETAILED VALIDATION RESULTS")
-        print("=" * 60)
-
-        for analysis_type in results['analysis_types_processed']:
-            analysis_result = results['analysis_results'][analysis_type]
-
-            print(f"\n{analysis_type.upper()}:")
-            print(f"  Total: {analysis_result['summary']['total']}")
-            print(f"  Valid: {analysis_result['summary']['valid']}")
-            print(f"  Invalid: {analysis_result['summary']['invalid']}")
-
-            # Show invalid records with errors
-            if analysis_result['invalid']:
-                print(f"\n  Invalid {analysis_type} records:")
-                for item in analysis_result['invalid']:
-                    alias = item['data'].get('Alias', 'Unknown')
-                    print(f"    ❌ Record {item['index']}: {alias}")
-                    for error in item['errors']:
-                        print(f"       - {error}")
-
-            # Show valid records with warnings
-            if analysis_result['valid']:
-                records_with_warnings = [r for r in analysis_result['valid'] if r['warnings']]
-                if records_with_warnings:
-                    print(f"\n  Valid {analysis_type} records with warnings:")
-                    for item in records_with_warnings:
-                        alias = item['data'].get('Alias', 'Unknown')
-                        print(f"    ⚠ Record {item['index']}: {alias}")
-                        for warning in item['warnings']:
-                            print(f"       - {warning}")
-
-                valid_no_warnings = [r for r in analysis_result['valid'] if not r['warnings']]
-                if valid_no_warnings:
-                    print(f"\n  ✓ Valid {analysis_type} records (no warnings): {len(valid_no_warnings)}")
-
-        # Handle submission metadata if present
-        if 'submission' in faang_json_data and faang_json_data['submission']:
-            print("\n" + "=" * 60)
-            print("SUBMISSION METADATA")
-            print("=" * 60)
-            submission_data = faang_json_data['submission'][0] if isinstance(faang_json_data['submission'], list) else \
-            faang_json_data['submission']
-            print(f"  Alias: {submission_data.get('Alias', 'Not provided')}")
 
         # Save results to file
         save_results = True
@@ -119,9 +73,7 @@ def main():
 
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(output_data, f, indent=2, default=str)
-            print(f"\n{'=' * 60}")
             print(f"Results saved to: {output_file}")
-            print("=" * 60)
 
     except FileNotFoundError:
         raise FileNotFoundError(f"Analysis file not found: {file_path}")

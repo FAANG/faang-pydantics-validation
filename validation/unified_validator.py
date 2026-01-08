@@ -25,7 +25,7 @@ from validation.generic_validator_classes import (
 
 class UnifiedFAANGValidator:
     def __init__(self):
-        # shared validator instances for samples
+        # shared validator instances - samples
         self.shared_ontology_validator = OntologyValidator(cache_enabled=True)
         self.shared_relationship_validator = RelationshipValidator()
 
