@@ -5,7 +5,7 @@ from validation.unified_validator import UnifiedFAANGValidator
 def main():
 
     # file_path = 'json_files/sample2_theirversion.json'
-    file_path = 'json_files/sample1.json'
+    file_path = 'json_files/sample/sample1.json'
 
 
     try:

@@ -3,7 +3,7 @@ from validation.unified_validator import UnifiedFAANGValidator
 
 
 def main():
-    file_path = 'json_files/analysis_complete.json'
+    file_path = 'json_files/analysis/analysis_complete.json'
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
