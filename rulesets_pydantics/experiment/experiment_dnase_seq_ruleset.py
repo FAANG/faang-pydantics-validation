@@ -1,13 +1,11 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Literal
-from app.validation.validation_utils import validate_url
-from .experiment_core_ruleset import ExperimentCoreMetadata
+from validation.validation_utils import validate_url
+from .core_ruleset import ExperimentCoreMetadata
 
 
 class FAANGDNaseSeqExperiment(ExperimentCoreMetadata):
-    """DNase-Hypersensitivity seq experiment metadata model."""
-    
-    # Required fields
+    # required fields
     experiment_target_text: str = Field(..., alias="Experiment Target Text")
     experiment_target_term: Literal["SO:0001747", "restricted access"] = Field(
         ..., alias="Experiment Target Term"

@@ -19,20 +19,25 @@ class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
         "EFO:0005031",  # input DNA
         "restricted access"
     ] = Field(..., alias="Experiment Target Term")
-    
+
     chip_protocol: str = Field(..., alias="ChIP Protocol")
-    
-    adapter_step: Literal[
+
+    # optional
+    adapter_step: Optional[Literal[
         "Tn5 tagmentation",
         "Ligation",
         "restricted access"
-    ] = Field(..., alias="Adapter Step")
-    
+    ]] = Field(..., alias="Adapter Step")
+
     # Validators
     @field_validator('chip_protocol')
     def validate_chip_protocol_url(cls, v):
         return validate_url(v, field_name="ChIP Protocol", allow_restricted=True)
-    
+
+    @field_validator('adapter_step', mode='before')
+    def convert_empty_to_none(cls, v):
+        return strip_and_convert_empty_to_none(v)
+
     class Config:
         populate_by_name = True
         validate_default = True
@@ -44,20 +49,20 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
     # required fields
     chip_target_text: str = Field(..., alias="ChIP Target Text")
     chip_target_term: str = Field(..., alias="ChIP Target Term")
-    
+
     chip_antibody_provider: str = Field(..., alias="ChIP Antibody Provider")
     chip_antibody_catalog: str = Field(..., alias="ChIP Antibody Catalog")
     chip_antibody_lot: str = Field(..., alias="ChIP Antibody Lot")
-    
+
     library_generation_max_fragment_size_range: float = Field(..., alias="Library Generation Max Fragment Size Range")
     library_generation_min_fragment_size_range: float = Field(..., alias="Library Generation Min Fragment Size Range")
-    
+
     # Recommended fields
     control_experiment: Optional[str] = Field(
         None, alias="Control Experiment",
         json_schema_extra={"recommended": True}
     )
-    
+
     # Validators
     @field_validator('chip_target_term')
     def validate_chip_target_term(cls, v, info):
@@ -70,7 +75,7 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
         allowed_classes = ["OMIT:0038500", "NCIT:C17804", "NCIT:C34071"]
         if v in allowed_classes:
             return v
-        
+
         # otherwise validate as CHEBI term (subclass of CHEBI:15358 - histone)
         term = normalize_ontology_term(v)
         if term.startswith("CHEBI:"):
@@ -83,19 +88,19 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
             )
             if res.errors:
                 raise ValueError(f"ChIP target term invalid: {res.errors}")
-        
+
         return v
-    
+
     @field_validator('library_generation_max_fragment_size_range', 'library_generation_min_fragment_size_range', mode='before')
     def validate_fragment_size(cls, v):
         if v == "restricted access":
             return v
         return validate_non_negative_numeric(v, "Fragment size", allow_restricted=True)
-    
+
     @field_validator('control_experiment', mode='before')
     def convert_empty_to_none(cls, v):
         return strip_and_convert_empty_to_none(v)
-    
+
     class Config:
         populate_by_name = True
         validate_default = True
@@ -105,20 +110,17 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
 
 class FAANGChIPSeqInputDNAExperiment(FAANGChIPSeqExperiment):
     # required fields
-    library_generation_max_fragment_size_range: float = Field(
-        ..., alias="Library Generation Max Fragment Size Range"
-    )
-    library_generation_min_fragment_size_range: float = Field(
-        ..., alias="Library Generation Min Fragment Size Range"
-    )
-    
-    # Validators
+    library_generation_max_fragment_size_range: (
+        Union)[float, Literal["restricted access"]] = Field(..., alias="Library Generation Max Fragment Size Range")
+
+    library_generation_min_fragment_size_range: (
+        Union)[float, Literal["restricted access"]] = Field(..., alias="Library Generation Min Fragment Size Range")
+
+    # validators
     @field_validator('library_generation_max_fragment_size_range', 'library_generation_min_fragment_size_range', mode='before')
     def validate_fragment_size(cls, v):
-        if v == "restricted access":
-            return None
         return validate_non_negative_numeric(v, "Fragment size", allow_restricted=True)
-    
+
     class Config:
         populate_by_name = True
         validate_default = True
