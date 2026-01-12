@@ -1,21 +1,17 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, Union
-from app.validation.validation_utils import (
+from validation.validation_utils import (
     validate_url,
     validate_non_negative_numeric,
     strip_and_convert_empty_to_none
 )
-from .experiment_core_ruleset import ExperimentCoreMetadata
+from .core_ruleset import ExperimentCoreMetadata
 
 
 class FAANGEMSeqExperiment(ExperimentCoreMetadata):
-    """Enzymatic Methylation Sequencing (EM-seq) experiment metadata model."""
-    
-    # Required fields
+    # required fields
     experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["GO:0006306", "restricted access"] = Field(
-        ..., alias="Experiment Target Term"
-    )
+    experiment_target_term: Literal["GO:0006306", "restricted access"] = Field(..., alias="Experiment Target Term")
     
     library_selection: Literal[
         "whole-genome",
@@ -25,30 +21,21 @@ class FAANGEMSeqExperiment(ExperimentCoreMetadata):
     
     max_fragment_size_selection_range: Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
-    ]] = Field(..., alias="Max Fragment Size Selection Range")
+    ]] = Field(..., alias="Max Fragment Size Selection Range") # tocheck - might be recommended
     
     min_fragment_size_selection_range: Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
-    ]] = Field(..., alias="Min Fragment Size Selection Range")
+    ]] = Field(..., alias="Min Fragment Size Selection Range") # tocheck - might be recommended
     
-    enzymatic_methylation_conversion_protocol: str = Field(
-        ..., alias="Enzymatic Methylation Conversion Protocol"
-    )
+    enzymatic_methylation_conversion_protocol: str = Field(..., alias="Enzymatic Methylation Conversion Protocol")
     
-    # Recommended fields
+    # recommended fields
     enzymatic_methylation_conversion_percent: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
     ]]] = Field(None, alias="Enzymatic Methylation Conversion Percent",
                 json_schema_extra={"recommended": True})
     
-    # Validators
-    @field_validator('experiment_target_term')
-    def validate_target_term(cls, v):
-        # For EM-seq, the term should be 'DNA methylation' (GO:0006306)
-        if v not in ["GO:0006306", "restricted access"]:
-            raise ValueError("For EM-seq, experiment target term must be 'GO:0006306' (DNA methylation)")
-        return v
-    
+    # validators
     @field_validator('enzymatic_methylation_conversion_protocol')
     def validate_protocol_url(cls, v):
         return validate_url(v, field_name="Enzymatic Methylation Conversion Protocol", allow_restricted=True)
@@ -61,8 +48,8 @@ class FAANGEMSeqExperiment(ExperimentCoreMetadata):
     
     @field_validator('enzymatic_methylation_conversion_percent', mode='before')
     def validate_conversion_percent(cls, v):
-        if v in ["not applicable", "not collected", "not provided", "restricted access", None, ""]:
-            return None
+        if v in ["not applicable", "not collected", "not provided", "restricted access", None]:
+            return v
         try:
             val = float(v)
             if val < 0 or val > 100:
