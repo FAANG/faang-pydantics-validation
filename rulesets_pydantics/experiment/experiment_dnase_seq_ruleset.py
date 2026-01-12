@@ -1,0 +1,34 @@
+from pydantic import BaseModel, Field, field_validator
+from typing import Literal
+from app.validation.validation_utils import validate_url
+from .experiment_core_ruleset import ExperimentCoreMetadata
+
+
+class FAANGDNaseSeqExperiment(ExperimentCoreMetadata):
+    """DNase-Hypersensitivity seq experiment metadata model."""
+    
+    # Required fields
+    experiment_target_text: str = Field(..., alias="Experiment Target Text")
+    experiment_target_term: Literal["SO:0001747", "restricted access"] = Field(
+        ..., alias="Experiment Target Term"
+    )
+    
+    dnase_protocol: str = Field(..., alias="DNase Protocol")
+    
+    # Validators
+    @field_validator('experiment_target_term')
+    def validate_target_term(cls, v):
+        # For DNase-seq, the term should be 'open_chromatin_region' (SO:0001747)
+        if v not in ["SO:0001747", "restricted access"]:
+            raise ValueError("For DNase-seq, experiment target term must be 'SO:0001747' (open_chromatin_region)")
+        return v
+    
+    @field_validator('dnase_protocol')
+    def validate_protocol_url(cls, v):
+        return validate_url(v, field_name="DNase Protocol", allow_restricted=True)
+    
+    class Config:
+        populate_by_name = True
+        validate_default = True
+        validate_assignment = True
+        extra = "forbid"
