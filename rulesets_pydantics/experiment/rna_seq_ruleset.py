@@ -1,40 +1,31 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, Union
-from app.validation.validation_utils import (
+from validation.validation_utils import (
     validate_url,
     strip_and_convert_empty_to_none
 )
-from app.validation.sample.generic_validator_classes import get_ontology_validator
-from app.validation.validation_utils import normalize_ontology_term
-from .experiment_core_ruleset import ExperimentCoreMetadata
+from validation.generic_validator_classes import get_ontology_validator
+from validation.validation_utils import normalize_ontology_term
+from .core_ruleset import ExperimentCoreMetadata
 
 
 class FAANGRNASeqExperiment(ExperimentCoreMetadata):
-    """RNA-seq experiment metadata model."""
-    
-    # Required fields
+    # required fields
     experiment_target_text: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Text"
-    )
+        ..., alias="Experiment Target Text")
     experiment_target_term: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Term"
-    )
+        ..., alias="Experiment Target Term")
     
     rna_preparation_3_adapter_ligation_protocol: str = Field(
-        ..., alias="RNA Preparation 3' Adapter Ligation Protocol"
-    )
+        ..., alias="RNA Preparation 3' Adapter Ligation Protocol")
     rna_preparation_5_adapter_ligation_protocol: str = Field(
-        ..., alias="RNA Preparation 5' Adapter Ligation Protocol"
-    )
+        ..., alias="RNA Preparation 5' Adapter Ligation Protocol")
     library_generation_pcr_product_isolation_protocol: str = Field(
-        ..., alias="Library Generation PCR Product Isolation Protocol"
-    )
+        ..., alias="Library Generation PCR Product Isolation Protocol")
     preparation_reverse_transcription_protocol: str = Field(
-        ..., alias="Preparation Reverse Transcription Protocol"
-    )
+        ..., alias="Preparation Reverse Transcription Protocol")
     library_generation_protocol: str = Field(
-        ..., alias="Library Generation Protocol"
-    )
+        ..., alias="Library Generation Protocol")
     
     read_strand: Literal[
         "not applicable",
@@ -46,7 +37,7 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
         "restricted access"
     ] = Field(..., alias="Read Strand")
     
-    # Recommended fields
+    # recommended fields
     rna_purity_260_280_ratio: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
     ]]] = Field(None, alias="RNA Purity 260:280 Ratio",
@@ -67,8 +58,7 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
     def validate_target_term(cls, v, info):
         if v == "restricted access":
             return v
-        
-        # The term should be a subclass of CHEBI:33697 (RNA) in EFO ontology
+
         term = normalize_ontology_term(v)
         
         ov = get_ontology_validator()
@@ -77,7 +67,7 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
             ontology_name="EFO",
             allowed_classes=["CHEBI:33697"],
             text=info.data.get('experiment_target_text'),
-            field_name='experiment_target'
+            field_name='experiment_target_text'
         )
         if res.errors:
             raise ValueError(f"Experiment target term invalid: {res.errors}")
@@ -96,8 +86,8 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
     
     @field_validator('rna_purity_260_280_ratio', 'rna_purity_260_230_ratio', 'rna_integrity_number', mode='before')
     def validate_rna_quality_metrics(cls, v):
-        if v in ["not applicable", "not collected", "not provided", "restricted access", None, ""]:
-            return None
+        if v in ["not applicable", "not collected", "not provided", "restricted access", None]:
+            return v
         try:
             return float(v)
         except (ValueError, TypeError):
