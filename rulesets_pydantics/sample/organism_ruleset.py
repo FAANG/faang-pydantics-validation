@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from validation.generic_validator_classes import BreedSpeciesValidator, OntologyValidator
+from validation.generic_validator_classes import BreedSpeciesValidator, get_ontology_validator
 from validation.validation_utils import (
     normalize_ontology_term,
     is_restricted_value,
@@ -24,14 +24,20 @@ class HealthStatus(BaseModel):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
             return v
 
-        if v.startswith("EFO:"):
+        # Strip whitespace before normalizing
+        v = v.strip() if isinstance(v, str) else v
+
+        # Normalize the term (convert underscore to colon)
+        term = normalize_ontology_term(v)
+
+        if term.startswith("EFO:"):
             ontology_name = "EFO"
         else:
             ontology_name = "PATO"
 
-        ov = OntologyValidator(cache_enabled=True)
+        ov = get_ontology_validator()
         res = ov.validate_ontology_term(
-            term=v,
+            term=term,
             ontology_name=ontology_name,
             allowed_classes=["PATO:0000461", "EFO:0000408"],
             text=info.data.get('text'),
@@ -63,10 +69,13 @@ class FAANGOrganismSample(SampleCoreMetadata):
         "restricted access",
         ""
     ]] = Field(None, alias="Unit", json_schema_extra={"recommended": True})
+
+    breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(
+        None,
+        alias="Breed Term Source ID",
+        json_schema_extra={"recommended": True}
+    )
     breed: Optional[str] = Field(None, alias="Breed", json_schema_extra={"recommended": True})
-    breed_term_source_id: Optional[Union[str, Literal["not applicable", "restricted access", ""]]] = Field(None,
-                                                                                                           alias="Breed Term Source ID",
-                                                                                                           json_schema_extra={"recommended": True})
 
     health_status: Optional[List[HealthStatus]] = Field(None,
                                                         alias="Health Status",
@@ -126,7 +135,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Organism term '{v}' should be from NCBITaxon ontology")
 
         # ontology validation
-        ov = OntologyValidator(cache_enabled=True)
+        ov = get_ontology_validator()
         res = ov.validate_ontology_term(
             term=term,
             ontology_name="NCBITaxon",
@@ -150,7 +159,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Sex term '{v}' should be from PATO ontology")
 
         # ontology validation
-        ov = OntologyValidator(cache_enabled=True)
+        ov = get_ontology_validator()
         res = ov.validate_ontology_term(
             term=term,
             ontology_name="PATO",
@@ -174,7 +183,7 @@ class FAANGOrganismSample(SampleCoreMetadata):
             raise ValueError(f"Breed term '{v}' should be from LBO ontology")
 
         # ontology validation
-        ov = OntologyValidator(cache_enabled=True)
+        ov = get_ontology_validator()
         res = ov.validate_ontology_term(
             term=term,
             ontology_name="LBO",
