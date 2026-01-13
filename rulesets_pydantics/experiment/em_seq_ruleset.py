@@ -3,14 +3,16 @@ from typing import Optional, Literal, Union
 from validation.validation_utils import (
     validate_url,
     validate_non_negative_numeric,
-    strip_and_convert_empty_to_none
+    strip_and_convert_empty_to_none,
+normalize_ontology_term
 )
 from .core_ruleset import ExperimentCoreMetadata
+from validation.generic_validator_classes import get_ontology_validator
 
 
 class FAANGEMSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["GO:0006306", "restricted access"] = Field(..., alias="Experiment Target Term Source ID")
     
     library_selection: Literal[
@@ -36,6 +38,26 @@ class FAANGEMSeqExperiment(ExperimentCoreMetadata):
                 json_schema_extra={"recommended": True})
     
     # validators
+    @field_validator('experiment_target_term_source_id')
+    def validate_experiment_target_term(cls, v, info):
+        if v == "restricted access":
+            return v
+
+        term = normalize_ontology_term(v)
+        ov = get_ontology_validator()
+
+        res = ov.validate_ontology_term(
+            term=term,
+            ontology_name="OBI",
+            allowed_classes=["GO:0006306"],
+            text=info.data.get('experiment_target'),
+            field_name='experiment_target'
+        )
+        if res.errors:
+            raise ValueError(f"Experiment target term invalid: {res.errors}")
+
+        return v
+
     @field_validator('enzymatic_methylation_conversion_protocol')
     def validate_protocol_url(cls, v):
         return validate_url(v, field_name="Enzymatic Methylation Conversion Protocol", allow_restricted=True)

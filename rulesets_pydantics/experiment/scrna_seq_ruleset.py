@@ -12,7 +12,7 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: Union[str, Literal["restricted access"]] = Field(
+    experiment_target: Union[str, Literal["restricted access"]] = Field(
         ..., alias="Experiment Target")
     experiment_target_term_source_id: Union[str, Literal["restricted access"]] = Field(
         ..., alias="Experiment Target Term Source ID")
@@ -103,7 +103,7 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     ]]] = Field(None, alias="RNA Integrity Number")
     
     # Validators
-    @field_validator('experiment_target_term')
+    @field_validator('experiment_target_term_source_id')
     def validate_target_term(cls, v, info):
         if v == "restricted access":
             return v
@@ -115,8 +115,8 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
             term=term,
             ontology_name="EFO",
             allowed_classes=["CHEBI:33697"],
-            text=info.data.get('experiment_target_text'),
-            field_name='experiment_target_text'
+            text=info.data.get('experiment_target'),
+            field_name='experiment_target'
         )
         if res.errors:
             raise ValueError(f"Experiment target term invalid: {res.errors}")

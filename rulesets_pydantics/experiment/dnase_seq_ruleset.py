@@ -1,21 +1,39 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Literal
-from validation.validation_utils import validate_url
+from validation.validation_utils import (
+    validate_url,
+    normalize_ontology_term
+)
 from .core_ruleset import ExperimentCoreMetadata
+from validation.generic_validator_classes import get_ontology_validator
 
 
 class FAANGDNaseSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(..., alias="Experiment Target Term Source ID")
     
     dnase_protocol: str = Field(..., alias="DNase Protocol")
     
     # Validators
-    @field_validator('experiment_target_term')
-    def validate_target_term(cls, v):
-        if v not in ["SO:0001747", "restricted access"]:
-            raise ValueError("For DNase-seq, experiment target term must be 'SO:0001747' (open_chromatin_region) or 'restricted access'")
+    @field_validator('experiment_target_term_source_id')
+    def validate_experiment_target_term(cls, v, info):
+        if v == "restricted access":
+            return v
+
+        term = normalize_ontology_term(v)
+        ov = get_ontology_validator()
+
+        res = ov.validate_ontology_term(
+            term=term,
+            ontology_name="SO",
+            allowed_classes=["SO:0001747"],
+            text=info.data.get('experiment_target'),
+            field_name='experiment_target'
+        )
+        if res.errors:
+            raise ValueError(f"Experiment target term invalid: {res.errors}")
+
         return v
     
     @field_validator('dnase_protocol')

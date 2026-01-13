@@ -12,7 +12,7 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal[
         "SO:0001700",  # TF_binding_site
         "SO:0000235",  # histone_modification
@@ -30,6 +30,33 @@ class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
     ]] = Field(..., alias="Adapter Step")
 
     # Validators
+    @field_validator('experiment_target_term_source_id')
+    def validate_experiment_target_term(cls, v, info):
+        if v == "restricted access":
+            return v
+
+        term = normalize_ontology_term(v)
+        if term.startswith("EFO:"):
+            ontology_name = "EFO"
+        elif term.startswith("SO:"):
+            ontology_name = ["SO", "OBI"]
+        else:
+            raise ValueError(f"Experiment Target term '{v}' should be from SO or EFO ontology")
+
+        ov = get_ontology_validator()
+
+        res = ov.validate_ontology_term(
+            term=term,
+            ontology_name=ontology_name,
+            allowed_classes=["SO:0001700", "SO:0000235", "EFO:0005031"],
+            text=info.data.get('experiment_target'),
+            field_name='experiment_target'
+        )
+        if res.errors:
+            raise ValueError(f"Experiment target term invalid: {res.errors}")
+
+        return v
+
     @field_validator('chip_protocol')
     def validate_chip_protocol_url(cls, v):
         return validate_url(v, field_name="ChIP Protocol", allow_restricted=True)

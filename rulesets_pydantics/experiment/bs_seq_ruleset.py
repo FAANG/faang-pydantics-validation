@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field, field_validator
+from validation.generic_validator_classes import get_ontology_validator
 from typing import Optional, Literal, Union
 from validation.validation_utils import (
     validate_url,
+    normalize_ontology_term,
     validate_non_negative_numeric,
     strip_and_convert_empty_to_none
 )
@@ -10,7 +12,7 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGBSSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["GO:0006306", "restricted access"] = Field(
         ..., alias="Experiment Target Term Source ID")
     library_selection: Literal["RRBS", "WGBS", "restricted access"] = Field(
@@ -36,11 +38,24 @@ class FAANGBSSeqExperiment(ExperimentCoreMetadata):
                 json_schema_extra={"recommended": True})
     
     # validators
-    @field_validator('experiment_target_term')
-    def validate_target_term(cls, v):
-        # for BS-seq, the term should be 'DNA methylation' (GO:0006306)
-        if v not in ["GO:0006306", "restricted access"]:
-            raise ValueError("For BS-seq, experiment target term must be 'GO:0006306' (DNA methylation)")
+    @field_validator('experiment_target_term_source_id')
+    def validate_experiment_target_term(cls, v, info):
+        if v == "restricted access":
+            return v
+
+        term = normalize_ontology_term(v)
+        ov = get_ontology_validator()
+
+        res = ov.validate_ontology_term(
+            term=term,
+            ontology_name="OBI",
+            allowed_classes=["GO:0006306"],
+            text=info.data.get('experiment_target'),
+            field_name='experiment_target'
+        )
+        if res.errors:
+            raise ValueError(f"Experiment target term invalid: {res.errors}")
+
         return v
     
     @field_validator('bisulfite_conversion_protocol', 'pcr_product_isolation_protocol')
