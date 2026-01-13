@@ -1,7 +1,3 @@
-"""
-Base validator for all experiment types.
-Similar to BaseValidator for samples but adapted for experiments.
-"""
 from typing import List, Dict, Any, Tuple, Optional, Type
 from pydantic import ValidationError, BaseModel
 from abc import ABC, abstractmethod

@@ -289,6 +289,31 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
     return term_ids
 
 
+def collect_ontology_terms_from_experiments(self, experiment_data: Dict[str, List[Dict]]) -> set:
+    terms = set()
+
+    term_fields = [
+        'Experiment Target Term Source ID',
+        'ChIP Target Term Source ID'
+    ]
+
+    for exp_type, records in experiment_data.items():
+        for record in records:
+            for field in term_fields:
+                if field in record:
+                    term_value = record[field]
+                    if term_value and term_value not in [
+                        "restricted access",
+                        "not applicable",
+                        "not collected",
+                        "not provided",
+                        ""
+                    ]:
+                        terms.add(term_value)
+
+    return terms
+
+
 class BreedSpeciesValidator:
 
     def __init__(self, ontology_validator):
