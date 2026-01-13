@@ -192,19 +192,19 @@ class ExperimentCoreMetadata(BaseModel):
     @field_validator('library_preparation_location_latitude', 'sequencing_location_latitude', mode='before')
     def validate_latitude_field(cls, v):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
-            return None
+            return v
         return validate_latitude(v)
     
     @field_validator('library_preparation_location_longitude', 'sequencing_location_longitude', mode='before')
     def validate_longitude_field(cls, v):
         if v in ["not applicable", "not collected", "not provided", "restricted access"]:
-            return None
+            return v
         return validate_longitude(v)
     
     @field_validator('sampling_to_preparation_interval', mode='before')
     def validate_sampling_interval(cls, v):
         if v == "restricted access":
-            return None
+            return v
         return validate_non_negative_numeric(v, "Sampling to Preparation Interval", allow_restricted=True)
     
     @field_validator('secondary_project', mode='before')

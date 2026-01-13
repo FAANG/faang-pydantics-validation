@@ -10,8 +10,8 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGEMSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["GO:0006306", "restricted access"] = Field(..., alias="Experiment Target Term")
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal["GO:0006306", "restricted access"] = Field(..., alias="Experiment Target Term Source ID")
     
     library_selection: Literal[
         "whole-genome",

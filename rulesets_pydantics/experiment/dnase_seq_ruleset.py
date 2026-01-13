@@ -6,8 +6,8 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGDNaseSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["SO:0001747", "restricted access"] = Field(..., alias="Experiment Target Term")
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(..., alias="Experiment Target Term Source ID")
     
     dnase_protocol: str = Field(..., alias="DNase Protocol")
     

@@ -11,8 +11,8 @@ class FAANGWGSExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target_text: Union[str, Literal["restricted access"]] = Field(
         ..., alias="Experiment Target")
-    experiment_target_term: Literal["EFO:0005031", "restricted access"] = Field(
-        ..., alias="Experiment Target Term")
+    experiment_target_term_source_id: Literal["EFO:0005031", "restricted access"] = Field(
+        ..., alias="Experiment Target Term Source ID")
     
     library_generation_pcr_product_isolation_protocol: str = Field(
         ..., alias="Library Generation PCR Product Isolation Protocol")

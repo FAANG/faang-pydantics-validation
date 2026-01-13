@@ -12,13 +12,13 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal[
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal[
         "SO:0001700",  # TF_binding_site
         "SO:0000235",  # histone_modification
         "EFO:0005031",  # input DNA
         "restricted access"
-    ] = Field(..., alias="Experiment Target Term")
+    ] = Field(..., alias="Experiment Target Term Source ID")
 
     chip_protocol: str = Field(..., alias="ChIP Protocol")
 
@@ -47,8 +47,8 @@ class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
 
 class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
     # required fields
-    chip_target_text: str = Field(..., alias="ChIP Target Text")
-    chip_target_term: str = Field(..., alias="ChIP Target Term")
+    chip_target_text: str = Field(..., alias="ChIP Target")
+    chip_target_term_source_id: str = Field(..., alias="ChIP Target Term Source ID")
 
     chip_antibody_provider: str = Field(..., alias="ChIP Antibody Provider")
     chip_antibody_catalog: str = Field(..., alias="ChIP Antibody Catalog")

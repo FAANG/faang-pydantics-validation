@@ -6,9 +6,9 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGHiCExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["GO:0000785", "restricted access"] = Field(
-        ..., alias="Experiment Target Term")
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal["GO:0000785", "restricted access"] = Field(
+        ..., alias="Experiment Target Term Source ID")
     restriction_enzyme: str = Field(..., alias="Restriction Enzyme")
     restriction_site: str = Field(..., alias="Restriction Site")
     hi_c_protocol: str = Field(..., alias="Hi-C Protocol")

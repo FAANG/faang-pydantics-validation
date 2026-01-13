@@ -51,7 +51,7 @@ def validate_non_negative_numeric(
     v: Any,
     field_name: str = "Value",
     allow_restricted: bool = True
-) -> Optional[float]:
+) -> float | str | None:
 
     # empty/None values
     if v is None or (isinstance(v, str) and v.strip() == ""):
@@ -152,7 +152,7 @@ def validate_date_format(
     unit: Optional[str],
     field_name: str = "Date"
 ) -> Optional[str]:
-    if not v or v in ["not applicable", "not collected", "not provided", "restricted access", ""]:
+    if not v or v in ["not applicable", "not collected", "not provided", "restricted access"]:
         return v
 
     if not unit:

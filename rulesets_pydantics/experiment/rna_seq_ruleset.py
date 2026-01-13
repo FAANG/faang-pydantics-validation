@@ -12,9 +12,9 @@ from .core_ruleset import ExperimentCoreMetadata
 class FAANGRNASeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target_text: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Text")
-    experiment_target_term: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Term")
+        ..., alias="Experiment Target")
+    experiment_target_term_source_id: Union[str, Literal["restricted access"]] = Field(
+        ..., alias="Experiment Target Term Source ID")
     
     rna_preparation_3_adapter_ligation_protocol: str = Field(
         ..., alias="RNA Preparation 3' Adapter Ligation Protocol")

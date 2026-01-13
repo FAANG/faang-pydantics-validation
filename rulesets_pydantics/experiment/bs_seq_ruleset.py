@@ -10,9 +10,9 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGBSSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["GO:0006306", "restricted access"] = Field(
-        ..., alias="Experiment Target Term")
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal["GO:0006306", "restricted access"] = Field(
+        ..., alias="Experiment Target Term Source ID")
     library_selection: Literal["RRBS", "WGBS", "restricted access"] = Field(
         ..., alias="Library Selection")
     bisulfite_conversion_protocol: str = Field(..., alias="Bisulfite Conversion Protocol")

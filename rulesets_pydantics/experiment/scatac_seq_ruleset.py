@@ -9,9 +9,9 @@ from .core_ruleset import ExperimentCoreMetadata
 
 class FAANGscATACSeqExperiment(ExperimentCoreMetadata):
     # required fields
-    experiment_target_text: str = Field(..., alias="Experiment Target Text")
-    experiment_target_term: Literal["SO:0001747", "restricted access"] = Field(
-        ..., alias="Experiment Target Term")
+    experiment_target_text: str = Field(..., alias="Experiment Target")
+    experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(
+        ..., alias="Experiment Target Term Source ID")
 
     transposase_protocol: str = Field(..., alias="Transposase Protocol")
     

@@ -13,9 +13,9 @@ from .core_ruleset import ExperimentCoreMetadata
 class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target_text: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Text")
-    experiment_target_term: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Term")
+        ..., alias="Experiment Target")
+    experiment_target_term_source_id: Union[str, Literal["restricted access"]] = Field(
+        ..., alias="Experiment Target Term Source ID")
     
     library_construction: Literal[
         "Smart-Seq2",
