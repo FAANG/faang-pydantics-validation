@@ -433,6 +433,7 @@ class UnifiedFAANGValidator:
             'sample_types_processed': [],
             'metadata_types_processed': [],
             'analysis_types_processed': [],
+            'experiment_types_processed': [],
             'total_summary': {
                 'total_samples': 0,
                 'valid_samples': 0,
@@ -451,16 +452,26 @@ class UnifiedFAANGValidator:
                 'invalid_analyses': 0,
                 'warnings': 0
             },
+            'experiment_summary': {
+                'total_experiments': 0,
+                'valid_experiments': 0,
+                'invalid_experiments': 0,
+                'warnings': 0,
+                'relationship_errors': 0
+            },
             'sample_results': {},
             'metadata_results': {},
             'analysis_results': {},
+            'experiment_results': {},
             'sample_reports': {},
             'metadata_reports': {},
-            'analysis_reports': {}
+            'analysis_reports': {},
+            'experiment_reports': {}
         }
 
         has_samples = any(k in self.supported_sample_types for k in data.keys())
         has_analyses = any(k in self.supported_analysis_types for k in data.keys())
+        has_experiments = any(k in self.supported_experiment_types for k in data.keys())
 
         if has_samples:
             print("Sample types in data:", [k for k in data.keys() if k in self.supported_sample_types])
@@ -561,6 +572,36 @@ class UnifiedFAANGValidator:
                     all_results['analysis_summary']['invalid_analyses'] += summary['invalid']
                     all_results['analysis_summary']['warnings'] += summary['warnings']
 
+        if has_experiments:
+            print("Experiment types in data:", [k for k in data.keys() if k in self.supported_experiment_types])
+            for exp_type, experiments in data.items():
+                if exp_type in self.supported_experiment_types:
+                    if not experiments:
+                        print(f"No experiments found for type '{exp_type}'. Skipping.")
+                        continue
+
+                    print(f"Validating {len(experiments)} {exp_type} experiments...")
+
+                    validator = self.experiment_validators[exp_type]
+
+                    results = validator.validate_records(
+                        experiments,
+                        validate_relationships=validate_relationships,
+                        all_experiments=data
+                    )
+
+                    all_results['experiment_types_processed'].append(exp_type)
+                    all_results['experiment_results'][exp_type] = results
+
+                    report = validator.generate_validation_report(results)
+                    all_results['experiment_reports'][exp_type] = report
+
+                    summary = results['summary']
+                    all_results['experiment_summary']['total_experiments'] += summary['total']
+                    all_results['experiment_summary']['valid_experiments'] += summary['valid']
+                    all_results['experiment_summary']['invalid_experiments'] += summary['invalid']
+                    all_results['experiment_summary']['warnings'] += summary['warnings']
+                    all_results['experiment_summary']['relationship_errors'] += summary.get('relationship_errors', 0)
         return all_results
 
     def generate_unified_report(self, validation_results: Dict[str, Any]) -> str:
@@ -578,10 +619,16 @@ class UnifiedFAANGValidator:
                 report_lines.append(f"\n{validation_results['sample_reports'][sample_type]}")
                 report_lines.append("\n" + "-" * 60)
 
-        # Analysis reports
+        # analysis reports
         if validation_results['analysis_types_processed']:
             for analysis_type in validation_results['analysis_types_processed']:
                 report_lines.append(f"\n{validation_results['analysis_reports'][analysis_type]}")
+                report_lines.append("\n" + "-" * 60)
+
+        # experiment reports
+        if validation_results['experiment_types_processed']:
+            for exp_type in validation_results['experiment_types_processed']:
+                report_lines.append(f"\n{validation_results['experiment_reports'][exp_type]}")
                 report_lines.append("\n" + "-" * 60)
 
         return "\n".join(report_lines)
@@ -1052,7 +1099,8 @@ class UnifiedFAANGValidator:
             'sample_types': list(self.supported_sample_types),
             'metadata_types': list(self.supported_metadata_types),
             'analysis_types': list(self.supported_analysis_types),
-            'analysis_metadata_types': list(self.supported_analysis_metadata_types)
+            'analysis_metadata_types': list(self.supported_analysis_metadata_types),
+            'experiment_types': list(self.supported_experiment_types)
         }
 
     def submit_to_biosamples(

@@ -91,7 +91,7 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
     )
 
     # Validators
-    @field_validator('chip_target_term')
+    @field_validator('chip_target_term_source_id')
     def validate_chip_target_term(cls, v, info):
         if v == "restricted access":
             return v

@@ -102,6 +102,10 @@ class BaseExperimentValidator(ABC):
         
         # Initialize context for validation
         ontology_warnings_context.set([])
+
+        if self.ontology_validator:
+            from validation.generic_validator_classes import ontology_validator_context
+            ontology_validator_context.set(self.ontology_validator)
         
         # Pydantic validation
         try:
@@ -133,6 +137,12 @@ class BaseExperimentValidator(ABC):
             return None, errors_dict
         finally:
             ontology_warnings_context.set([])
+            # Clear the ontology validator from context
+            try:
+                from validation.generic_validator_classes import ontology_validator_context
+                ontology_validator_context.set(None)
+            except:
+                pass
         
         # Check recommended fields
         recommended_fields = self.get_recommended_fields(model_class)

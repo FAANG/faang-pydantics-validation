@@ -289,7 +289,7 @@ def collect_ontology_terms_from_data(data: Dict[str, List[Dict]]) -> Set[str]:
     return term_ids
 
 
-def collect_ontology_terms_from_experiments(self, experiment_data: Dict[str, List[Dict]]) -> set:
+def collect_ontology_terms_from_experiments(experiment_data: Dict[str, List[Dict]]) -> set:
     terms = set()
 
     term_fields = [

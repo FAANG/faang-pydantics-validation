@@ -57,6 +57,11 @@ class BaseValidator(ABC):
         # initialize context for validation
         ontology_warnings_context.set([])
 
+        # Set the shared ontology validator in context so Pydantic validators can use it
+        if self.ontology_validator:
+            from validation.generic_validator_classes import ontology_validator_context
+            ontology_validator_context.set(self.ontology_validator)
+
         # pydantic validation
         try:
             model_instance = model_class(**data)
@@ -87,6 +92,12 @@ class BaseValidator(ABC):
             return None, errors_dict
         finally:
             ontology_warnings_context.set([])
+            # Clear the ontology validator from context
+            try:
+                from validation.generic_validator_classes import ontology_validator_context
+                ontology_validator_context.set(None)
+            except:
+                pass
 
         # recommended fields
         recommended_fields = self.get_recommended_fields(model_class)
