@@ -1,25 +1,21 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, Union
-from app.validation.validation_utils import (
+from validation.validation_utils import (
     validate_url,
     validate_non_negative_numeric,
     strip_and_convert_empty_to_none
 )
-from app.validation.sample.generic_validator_classes import get_ontology_validator
-from app.validation.validation_utils import normalize_ontology_term
-from .experiment_core_ruleset import ExperimentCoreMetadata
+from validation.generic_validator_classes import get_ontology_validator
+from validation.validation_utils import normalize_ontology_term
+from .core_ruleset import ExperimentCoreMetadata
 
 
 class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
-    """Single cell RNA-seq (scRNA-seq) experiment metadata model."""
-    
-    # Required fields
+    # required fields
     experiment_target_text: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Text"
-    )
+        ..., alias="Experiment Target Text")
     experiment_target_term: Union[str, Literal["restricted access"]] = Field(
-        ..., alias="Experiment Target Term"
-    )
+        ..., alias="Experiment Target Term")
     
     library_construction: Literal[
         "Smart-Seq2",
@@ -44,12 +40,8 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
         "restricted access"
     ] = Field(..., alias="Library Strand")
     
-    library_generation_protocol: str = Field(
-        ..., alias="Library Generation Protocol"
-    )
-    sequencing_protocol: str = Field(
-        ..., alias="Sequencing Protocol"
-    )
+    library_generation_protocol: str = Field(..., alias="Library Generation Protocol")
+    sequencing_protocol: str = Field(..., alias="Sequencing Protocol")
     
     read_strand: Literal[
         "sense",
@@ -60,11 +52,10 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
         "restricted access"
     ] = Field(..., alias="Read Strand")
     
-    # Recommended fields
+    # recommended fields
     primer: Optional[Literal["oligo-dT", "random"]] = Field(
         None, alias="Primer",
-        json_schema_extra={"recommended": True}
-    )
+        json_schema_extra={"recommended": True})
     
     spike_in: Optional[Literal[
         "none",
@@ -76,10 +67,9 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     spike_in_dilution_or_concentration: Optional[Literal[
         "1:40,000",
         "restricted access"
-    ]] = Field(None, alias="Spike In Dilution or Concentration",
-               json_schema_extra={"recommended": True})
+    ]] = Field(None, alias="Spike In Dilution or Concentration", json_schema_extra={"recommended": True})
     
-    # Optional fields
+    # optional fields
     amplification_method: Optional[Literal[
         "PCR",
         "in vitro transcription",
@@ -98,13 +88,13 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
         "not collected",
         "not provided",
         "restricted access"
-    ]]] = Field(None, alias="RNA Purity 260:280 Ratio")
+    ]]] = Field(None, alias="RNA Purity 260-280 Ratio")
     
     rna_purity_260_230_ratio: Optional[Union[float, Literal[
         "not collected",
         "not provided",
         "restricted access"
-    ]]] = Field(None, alias="RNA Purity 260:230 Ratio")
+    ]]] = Field(None, alias="RNA Purity 260-230 Ratio")
     
     rna_integrity_number: Optional[Union[float, Literal[
         "not collected",
@@ -117,8 +107,7 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     def validate_target_term(cls, v, info):
         if v == "restricted access":
             return v
-        
-        # The term should be a subclass of CHEBI:33697 (RNA) in EFO ontology
+
         term = normalize_ontology_term(v)
         
         ov = get_ontology_validator()
@@ -127,7 +116,7 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
             ontology_name="EFO",
             allowed_classes=["CHEBI:33697"],
             text=info.data.get('experiment_target_text'),
-            field_name='experiment_target'
+            field_name='experiment_target_text'
         )
         if res.errors:
             raise ValueError(f"Experiment target term invalid: {res.errors}")
@@ -140,8 +129,8 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
     
     @field_validator('amplification_cycles', mode='before')
     def validate_amplification_cycles(cls, v):
-        if v in ["not collected", "not provided", "restricted access", None, ""]:
-            return None
+        if v in ["not collected", "not provided", "restricted access", None]:
+            return v
         return validate_non_negative_numeric(v, "Amplification cycles", allow_restricted=False)
     
     @field_validator(
@@ -149,8 +138,8 @@ class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
         'rna_integrity_number', mode='before'
     )
     def validate_rna_quality_metrics(cls, v):
-        if v in ["not collected", "not provided", "restricted access", None, ""]:
-            return None
+        if v in ["not collected", "not provided", "restricted access", None]:
+            return v
         try:
             return float(v)
         except (ValueError, TypeError):
