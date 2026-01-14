@@ -25,25 +25,21 @@ class ChIPSeqDNABindingProteinsValidator(BaseExperimentValidator):
     def _get_relationship_errors(self, all_experiments: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
         relationship_errors = {}
         
-        # Get ChIP-seq DNA-binding proteins experiments
+        # ChIP-seq DNA-binding proteins experiments
         dna_binding_experiments = all_experiments.get('chip-seq dna-binding proteins', [])
         input_dna_experiments = all_experiments.get('chip-seq input dna', [])
         
-        # Build a set of Input DNA experiment aliases from current submission
         input_dna_aliases = set()
         for exp in input_dna_experiments:
-            # Check both potential identifier fields
             alias = exp.get('Experiment Alias', '')
             if alias:
                 input_dna_aliases.add(alias)
         
-        # Validate each DNA-binding experiment
         for exp in dna_binding_experiments:
             identifier = exp.get('Sample Descriptor', 
                                exp.get('Experiment Alias', 'unknown'))
             control_exp = exp.get('Control Experiment')
             
-            # Skip if no control experiment specified or if it's a special value
             if not control_exp or control_exp in [
                 "not applicable", 
                 "not collected", 
@@ -52,15 +48,12 @@ class ChIPSeqDNABindingProteinsValidator(BaseExperimentValidator):
             ]:
                 continue
             
-            # Check if control experiment exists in current submission
             if control_exp in input_dna_aliases:
                 continue
             
-            # Check if control experiment exists in ENA
-            if self._check_control_in_ena(control_exp):
+            if self.check_control_in_ena(control_exp):
                 continue
             
-            # Control experiment not found anywhere
             if identifier not in relationship_errors:
                 relationship_errors[identifier] = []
             relationship_errors[identifier].append(
@@ -69,7 +62,7 @@ class ChIPSeqDNABindingProteinsValidator(BaseExperimentValidator):
         
         return relationship_errors
     
-    def _check_control_in_ena(self, experiment_alias: str) -> bool:
+    def check_control_in_ena(self, experiment_alias: str) -> bool:
         try:
             url = f'https://www.ebi.ac.uk/ena/browser/api/summary/{experiment_alias}'
             response = requests.get(url, timeout=10)
