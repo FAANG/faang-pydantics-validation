@@ -121,7 +121,7 @@ def validate_url(
     v: Any,
     field_name: str = "URL",
     allow_restricted: bool = True,
-    allowed_protocols: tuple = ('http://', 'https://')
+    allowed_protocols: tuple = ('http://', 'https://', 'ftp://')
 ) -> Optional[str]:
     if not v or (isinstance(v, str) and v.strip() == ""):
         return v

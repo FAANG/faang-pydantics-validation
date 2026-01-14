@@ -511,37 +511,39 @@ class UnifiedFAANGValidator:
                     all_results['total_summary']['warnings'] += summary['warnings']
                     all_results['total_summary']['relationship_errors'] += summary['relationship_errors']
 
-        # Process metadata types
-        for metadata_type, metadata_records in data.items():
-            if metadata_type in self.supported_metadata_types or metadata_type in self.supported_analysis_metadata_types:
-                print(f"Validating {metadata_type} metadata...")
+            # Process metadata types
+            for metadata_type, metadata_records in data.items():
+                if metadata_type in self.supported_metadata_types or metadata_type in self.supported_analysis_metadata_types:
+                    print(f"Validating {metadata_type} metadata...")
 
-                if has_analyses and not has_samples and metadata_type in self.supported_analysis_metadata_types:
-                    validator = self.analysis_metadata_validators[metadata_type]
-                elif metadata_type in self.supported_metadata_types:
-                    validator = self.metadata_validators[metadata_type]
-                else:
-                    continue
+                    if has_analyses and not has_samples and metadata_type in self.supported_analysis_metadata_types:
+                        validator = self.analysis_metadata_validators[metadata_type]
+                    elif metadata_type in self.supported_metadata_types:
+                        validator = self.metadata_validators[metadata_type]
+                    else:
+                        continue
 
-                results = validator.validate_records(metadata_records)
+                    results = validator.validate_records(metadata_records)
 
-                # Store results
-                all_results['metadata_types_processed'].append(metadata_type)
-                all_results['metadata_results'][metadata_type] = results
+                    # Store results
+                    all_results['metadata_types_processed'].append(metadata_type)
+                    all_results['metadata_results'][metadata_type] = results
 
-                # Generate report
-                report = validator.generate_validation_report(results)
-                all_results['metadata_reports'][metadata_type] = report
+                    # Generate report
+                    report = validator.generate_validation_report(results)
+                    all_results['metadata_reports'][metadata_type] = report
 
-                # Update metadata summary (only if no error)
-                if 'error' not in results:
-                    summary = results['summary']
-                    all_results['metadata_summary']['total_metadata'] += summary['total']
-                    all_results['metadata_summary']['valid_metadata'] += summary['valid']
-                    all_results['metadata_summary']['invalid_metadata'] += summary['invalid']
-                else:
-                    # If there's an error (no data), still count it
-                    all_results['metadata_summary']['invalid_metadata'] += 1
+                    # Update metadata summary (only if no error)
+                    if 'error' not in results:
+                        summary = results['summary']
+                        all_results['metadata_summary']['total_metadata'] += summary['total']
+                        all_results['metadata_summary']['valid_metadata'] += summary['valid']
+                        all_results['metadata_summary']['invalid_metadata'] += summary['invalid']
+                    else:
+                        # If there's an error (no data), still count it
+                        all_results['metadata_summary']['invalid_metadata'] += 1
+
+
 
         # Process analysis types
         if has_analyses:

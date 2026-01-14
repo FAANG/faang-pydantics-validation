@@ -13,7 +13,7 @@ class FAANGDNaseSeqExperiment(ExperimentCoreMetadata):
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(..., alias="Experiment Target Term Source ID")
     
-    dnase_protocol: str = Field(..., alias="DNase Protocol")
+    dnase_protocol: str = Field(..., alias="Dnase Protocol")
     
     # Validators
     @field_validator('experiment_target_term_source_id')

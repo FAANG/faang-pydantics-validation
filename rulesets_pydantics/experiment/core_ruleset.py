@@ -13,7 +13,6 @@ from validation.validation_utils import (
 class ExperimentCoreMetadata(BaseModel):
     # required fields
     project: Literal["FAANG"] = Field(..., alias="Project")
-    
     assay_type: Literal[
         "ATAC-seq",
         "ChIP-seq",
@@ -50,11 +49,14 @@ class ExperimentCoreMetadata(BaseModel):
         "minutes", "hours", "days", "weeks", "months", "years",
         "minute", "hour", "day", "week", "month", "year",
         "restricted access"
-    ] = Field(..., alias="Sampling to Preparation Interval Unit")
+    ] = Field(..., alias="Unit")
     
     extraction_protocol: str = Field(..., alias="Extraction Protocol")
-    
+
     # Optional fields
+    sample_descriptor: Optional[str] = Field(None, alias="Sample Descriptor")
+    experiment_alias: Optional[str] = Field(None, alias="Experiment Alias")
+
     secondary_project: Optional[List[Literal[
         "AQUA-FAANG",
         "GENE-SWitCH",

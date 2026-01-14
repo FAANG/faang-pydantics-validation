@@ -17,9 +17,9 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
         ..., alias="Experiment Target Term Source ID")
     
     rna_preparation_3_adapter_ligation_protocol: str = Field(
-        ..., alias="RNA Preparation 3' Adapter Ligation Protocol")
+        ..., alias="Rna Preparation 3' adapter ligation protocol")
     rna_preparation_5_adapter_ligation_protocol: str = Field(
-        ..., alias="RNA Preparation 5' Adapter Ligation Protocol")
+        ..., alias="Rna Preparation 5' adapter ligation protocol")
     library_generation_pcr_product_isolation_protocol: str = Field(
         ..., alias="Library Generation PCR Product Isolation Protocol")
     preparation_reverse_transcription_protocol: str = Field(
@@ -40,12 +40,12 @@ class FAANGRNASeqExperiment(ExperimentCoreMetadata):
     # recommended fields
     rna_purity_260_280_ratio: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
-    ]]] = Field(None, alias="RNA Purity 260:280 Ratio",
+    ]]] = Field(None, alias="RNA Purity 260-280 ratio",
                 json_schema_extra={"recommended": True})
     
     rna_purity_260_230_ratio: Optional[Union[float, Literal[
         "not applicable", "not collected", "not provided", "restricted access"
-    ]]] = Field(None, alias="RNA Purity 260:230 Ratio",
+    ]]] = Field(None, alias="RNA Purity 260-230 ratio",
                 json_schema_extra={"recommended": True})
     
     rna_integrity_number: Optional[Union[float, Literal[

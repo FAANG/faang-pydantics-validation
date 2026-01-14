@@ -7,6 +7,7 @@ import re
 from contextvars import ContextVar
 from validation.constants import SPECIES_BREED_LINKS, ALLOWED_RELATIONSHIPS, ELIXIR_VALIDATOR_URL
 from validation.sample.base_validator import ontology_warnings_context
+from validation.validation_utils import normalize_ontology_term
 
 # Context variable to share OntologyValidator instance during Pydantic validation
 ontology_validator_context: ContextVar[Optional['OntologyValidator']] = ContextVar('ontology_validator', default=None)
@@ -309,6 +310,7 @@ def collect_ontology_terms_from_experiments(experiment_data: Dict[str, List[Dict
                         "not provided",
                         ""
                     ]:
+                        term_value = normalize_ontology_term(term_value)
                         terms.add(term_value)
 
     return terms
