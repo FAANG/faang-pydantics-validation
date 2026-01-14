@@ -16,7 +16,7 @@ from validation.validation_utils import (
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGATACSeqExperiment(ExperimentCoreMetadata):
+class ATACSeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(

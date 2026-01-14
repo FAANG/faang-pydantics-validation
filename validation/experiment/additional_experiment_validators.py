@@ -2,15 +2,15 @@ from typing import Type
 from pydantic import BaseModel
 from validation.experiment.base_experiment_validator import BaseExperimentValidator
 from validation.generic_validator_classes import OntologyValidator
-from rulesets_pydantics.experiment.bs_seq_ruleset import FAANGBSSeqExperiment
-from rulesets_pydantics.experiment.cage_seq_ruleset import FAANGCAGESeqExperiment
-from rulesets_pydantics.experiment.dnase_seq_ruleset import FAANGDNaseSeqExperiment
-from rulesets_pydantics.experiment.em_seq_ruleset import FAANGEMSeqExperiment
-from rulesets_pydantics.experiment.hi_c_ruleset import FAANGHiCExperiment
-from rulesets_pydantics.experiment.rna_seq_ruleset import FAANGRNASeqExperiment
-from rulesets_pydantics.experiment.scrna_seq_ruleset import FAANGscRNASeqExperiment
-from rulesets_pydantics.experiment.scatac_seq_ruleset import FAANGscATACSeqExperiment
-from rulesets_pydantics.experiment.wgs_ruleset import FAANGWGSExperiment
+from rulesets_pydantics.experiment.bs_seq_ruleset import BSSeqExperiment
+from rulesets_pydantics.experiment.cage_seq_ruleset import CAGESeqExperiment
+from rulesets_pydantics.experiment.dnase_seq_ruleset import DNaseSeqExperiment
+from rulesets_pydantics.experiment.em_seq_ruleset import EMSeqExperiment
+from rulesets_pydantics.experiment.hi_c_ruleset import HiCExperiment
+from rulesets_pydantics.experiment.rna_seq_ruleset import RNASeqExperiment
+from rulesets_pydantics.experiment.scrna_seq_ruleset import scRNASeqExperiment
+from rulesets_pydantics.experiment.scatac_seq_ruleset import scATACSeqExperiment
+from rulesets_pydantics.experiment.wgs_ruleset import WGSExperiment
 
 
 class BSSeqValidator(BaseExperimentValidator):
@@ -20,7 +20,7 @@ class BSSeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGBSSeqExperiment
+        return BSSeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "bs-seq"
@@ -33,7 +33,7 @@ class CAGESeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGCAGESeqExperiment
+        return CAGESeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "cage-seq"
@@ -46,7 +46,7 @@ class DNaseSeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGDNaseSeqExperiment
+        return DNaseSeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "dnase-seq"
@@ -59,7 +59,7 @@ class EMSeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGEMSeqExperiment
+        return EMSeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "em-seq"
@@ -72,7 +72,7 @@ class HiCValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGHiCExperiment
+        return HiCExperiment
     
     def get_experiment_type_name(self) -> str:
         return "hi-c"
@@ -85,7 +85,7 @@ class RNASeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGRNASeqExperiment
+        return RNASeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "rna-seq"
@@ -98,7 +98,7 @@ class scRNASeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGscRNASeqExperiment
+        return scRNASeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "scrna-seq"
@@ -111,7 +111,7 @@ class scATACSeqValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGscATACSeqExperiment
+        return scATACSeqExperiment
     
     def get_experiment_type_name(self) -> str:
         return "snatac-seq"
@@ -124,7 +124,7 @@ class WGSValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGWGSExperiment
+        return WGSExperiment
     
     def get_experiment_type_name(self) -> str:
         return "wgs"

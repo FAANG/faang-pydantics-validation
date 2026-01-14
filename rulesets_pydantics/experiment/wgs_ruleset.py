@@ -9,7 +9,7 @@ from validation.generic_validator_classes import get_ontology_validator
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGWGSExperiment(ExperimentCoreMetadata):
+class WGSExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: Union[str, Literal["restricted access"]] = Field(
         ..., alias="Experiment Target")

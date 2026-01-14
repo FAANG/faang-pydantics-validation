@@ -10,7 +10,7 @@ from validation.validation_utils import normalize_ontology_term
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGscRNASeqExperiment(ExperimentCoreMetadata):
+class scRNASeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: Union[str, Literal["restricted access"]] = Field(
         ..., alias="Experiment Target")

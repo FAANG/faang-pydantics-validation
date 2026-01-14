@@ -5,8 +5,8 @@ from pydantic import BaseModel
 from validation.experiment.base_experiment_validator import BaseExperimentValidator
 from validation.generic_validator_classes import OntologyValidator
 from rulesets_pydantics.experiment.experiment_chip_seq_ruleset import (
-    FAANGChIPSeqDNABindingProteinsExperiment,
-    FAANGChIPSeqInputDNAExperiment
+    ChIPSeqDNABindingProteinsExperiment,
+    ChIPSeqInputDNAExperiment
 )
 
 
@@ -17,7 +17,7 @@ class ChIPSeqDNABindingProteinsValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGChIPSeqDNABindingProteinsExperiment
+        return ChIPSeqDNABindingProteinsExperiment
     
     def get_experiment_type_name(self) -> str:
         return "chip-seq_dna-binding_proteins"
@@ -96,7 +96,7 @@ class ChIPSeqInputDNAValidator(BaseExperimentValidator):
             self.ontology_validator = OntologyValidator(cache_enabled=True)
     
     def get_model_class(self) -> Type[BaseModel]:
-        return FAANGChIPSeqInputDNAExperiment
+        return ChIPSeqInputDNAExperiment
     
     def get_experiment_type_name(self) -> str:
         return "chip-seq_input_dna"

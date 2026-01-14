@@ -10,7 +10,7 @@ from validation.validation_utils import (
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGBSSeqExperiment(ExperimentCoreMetadata):
+class BSSeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["GO:0006306", "restricted access"] = Field(

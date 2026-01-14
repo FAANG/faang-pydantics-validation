@@ -9,7 +9,7 @@ from validation.generic_validator_classes import get_ontology_validator
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGscATACSeqExperiment(ExperimentCoreMetadata):
+class scATACSeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["SO:0001747", "restricted access"] = Field(

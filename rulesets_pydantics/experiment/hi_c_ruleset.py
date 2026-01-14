@@ -8,7 +8,7 @@ from .core_ruleset import ExperimentCoreMetadata
 from validation.generic_validator_classes import get_ontology_validator
 
 
-class FAANGHiCExperiment(ExperimentCoreMetadata):
+class HiCExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal["GO:0000785", "restricted access"] = Field(

@@ -10,7 +10,7 @@ from validation.validation_utils import normalize_ontology_term
 from .core_ruleset import ExperimentCoreMetadata
 
 
-class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
+class ChIPSeqExperiment(ExperimentCoreMetadata):
     # required fields
     experiment_target: str = Field(..., alias="Experiment Target")
     experiment_target_term_source_id: Literal[
@@ -72,7 +72,7 @@ class FAANGChIPSeqExperiment(ExperimentCoreMetadata):
         extra = "forbid"
 
 
-class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
+class ChIPSeqDNABindingProteinsExperiment(ChIPSeqExperiment):
     # required fields
     chip_target_text: str = Field(..., alias="ChIP Target")
     chip_target_term_source_id: str = Field(..., alias="ChIP Target Term Source ID")
@@ -135,7 +135,7 @@ class FAANGChIPSeqDNABindingProteinsExperiment(FAANGChIPSeqExperiment):
         extra = "forbid"
 
 
-class FAANGChIPSeqInputDNAExperiment(FAANGChIPSeqExperiment):
+class ChIPSeqInputDNAExperiment(ChIPSeqExperiment):
     # required fields
     library_generation_max_fragment_size_range: (
         Union)[float, Literal["restricted access"]] = Field(..., alias="Library Generation Max Fragment Size Range")
