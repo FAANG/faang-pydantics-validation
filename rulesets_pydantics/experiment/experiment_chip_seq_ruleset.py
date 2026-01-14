@@ -23,11 +23,11 @@ class ChIPSeqExperiment(ExperimentCoreMetadata):
     chip_protocol: str = Field(..., alias="ChIP Protocol")
 
     # optional
-    adapter_step: Optional[Literal[
-        "Tn5 tagmentation",
-        "Ligation",
-        "restricted access"
-    ]] = Field(..., alias="Adapter Step")
+    # adapter_step: Optional[Literal[
+    #     "Tn5 tagmentation",
+    #     "Ligation",
+    #     "restricted access"
+    # ]] = Field(..., alias="Adapter Step")
 
     # Validators
     @field_validator('experiment_target_term_source_id')
@@ -61,9 +61,6 @@ class ChIPSeqExperiment(ExperimentCoreMetadata):
     def validate_chip_protocol_url(cls, v):
         return validate_url(v, field_name="ChIP Protocol", allow_restricted=True)
 
-    @field_validator('adapter_step', mode='before')
-    def convert_empty_to_none(cls, v):
-        return strip_and_convert_empty_to_none(v)
 
     class Config:
         populate_by_name = True

@@ -331,10 +331,10 @@ class UnifiedFAANGValidator:
             'cage-seq': CAGESeqValidator(
                 ontology_validator=self.shared_ontology_validator
             ),
-            'chip-seq_dna-binding_proteins': ChIPSeqDNABindingProteinsValidator(
+            'chip-seq dna-binding proteins': ChIPSeqDNABindingProteinsValidator(
                 ontology_validator=self.shared_ontology_validator
             ),
-            'chip-seq_input_dna': ChIPSeqInputDNAValidator(
+            'chip-seq input dna': ChIPSeqInputDNAValidator(
                 ontology_validator=self.shared_ontology_validator
             ),
             'dnase-seq': DNaseSeqValidator(

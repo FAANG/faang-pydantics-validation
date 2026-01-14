@@ -20,14 +20,14 @@ class ChIPSeqDNABindingProteinsValidator(BaseExperimentValidator):
         return ChIPSeqDNABindingProteinsExperiment
     
     def get_experiment_type_name(self) -> str:
-        return "chip-seq_dna-binding_proteins"
+        return "chip-seq dna-binding proteins"
     
     def _get_relationship_errors(self, all_experiments: Dict[str, List[Dict]]) -> Dict[str, List[str]]:
         relationship_errors = {}
         
         # Get ChIP-seq DNA-binding proteins experiments
-        dna_binding_experiments = all_experiments.get('chip-seq_dna-binding_proteins', [])
-        input_dna_experiments = all_experiments.get('chip-seq_input_dna', [])
+        dna_binding_experiments = all_experiments.get('chip-seq dna-binding proteins', [])
+        input_dna_experiments = all_experiments.get('chip-seq input dna', [])
         
         # Build a set of Input DNA experiment aliases from current submission
         input_dna_aliases = set()
@@ -99,4 +99,4 @@ class ChIPSeqInputDNAValidator(BaseExperimentValidator):
         return ChIPSeqInputDNAExperiment
     
     def get_experiment_type_name(self) -> str:
-        return "chip-seq_input_dna"
+        return "chip-seq input dna"
