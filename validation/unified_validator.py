@@ -320,7 +320,7 @@ class UnifiedFAANGValidator:
         }
         self.supported_analysis_types = set(self.analysis_validators.keys())
 
-        # Experiment validators (instantiated with shared ontology validator)
+        # experiment validators
         self.experiment_validators = {
             'atac-seq': ATACSeqValidator(
                 ontology_validator=self.shared_ontology_validator
