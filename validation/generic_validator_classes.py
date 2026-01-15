@@ -144,6 +144,7 @@ class OntologyValidator:
         try:
             print(term_id)
             url = f"https://www.ebi.ac.uk/ols4/api/search?q={term_id}&rows=100"
+            print(url)
             response = requests.get(url, timeout=10)
             response.raise_for_status()
             data = response.json()
@@ -294,7 +295,7 @@ def collect_ontology_terms_from_experiments(experiment_data: Dict[str, List[Dict
     terms = set()
 
     term_fields = [
-        'Experiment Target Term Source ID',
+        'Term Source ID',
         'ChIP Target Term Source ID'
     ]
 
