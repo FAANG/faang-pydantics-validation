@@ -92,26 +92,26 @@ def convert_ontology_fields_to_dicts(model: Dict[str, Any]) -> Dict[str, Any]:
 
 def generate_experiment_xml(json_data: Dict[str, Any], output_filename: Optional[str] = None) -> str:
     try:
-        # Get experiment_ena data (ENA-specific metadata)
+        # Get experiment ena data (ENA-specific metadata)
         experiment_results = json_data.get('experiment_results', {})
-        ena_data = experiment_results.get('experiment_ena', {})
+        ena_data = experiment_results.get('experiment ena', {})
         ena_records = ena_data.get('valid', []) if isinstance(ena_data, dict) else []
         
         if not ena_records:
-            return 'Error: No valid experiment_ena records found in JSON data'
+            return 'Error: No valid experiment ena records found in JSON data'
         
         # Create XML structure
         experiment_set = etree.Element('EXPERIMENT_SET')
         experiment_xml = etree.ElementTree(experiment_set)
         
-        # Process each experiment_ena record
+        # Process each experiment ena record
         for record in ena_records:
             model = record.get('model', {})
             
             # Extract ENA fields
             alias = model.get('Experiment Alias')
             if not alias:
-                return 'Error: Missing Experiment Alias in experiment_ena record'
+                return 'Error: Missing Experiment Alias in experiment ena record'
             
             title = model.get('Title')
             study_ref = model.get('Study Ref')
