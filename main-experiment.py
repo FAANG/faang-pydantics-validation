@@ -123,10 +123,10 @@ def main():
                 })
 
         if 'run' in faang_json_data:
-            if 'run' not in results['experiment_results']:
-                results['experiment_results']['run'] = {'valid': [], 'invalid': []}
+            if 'run' not in results['metadata_results']:
+                results['metadata_results']['run'] = {'valid': [], 'invalid': []}
             for record in faang_json_data['run']:
-                results['experiment_results']['run']['valid'].append({
+                results['metadata_results']['run']['valid'].append({
                     'model': record,
                     'data': record
                 })
