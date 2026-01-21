@@ -25,6 +25,27 @@ def normalize_experiment_ena_record(record: dict) -> dict:
     return normalized
 
 
+def normalize_run_record(record: dict) -> dict:
+    # Field name mappings: JSON name -> Expected name
+    field_mappings = {
+        'Run center': 'Run Center',
+        'Run date': 'Run Date',
+        'Experiment Ref': 'Experiment Ref',
+        'Checksum Method': 'Checksum Method',
+        'Filename pair': 'Filename Pair',
+        'Filetype pair': 'Filetype Pair',
+        'Checksum method pair': 'Checksum Method Pair',
+        'Checksum pair': 'Checksum Pair'
+    }
+
+    normalized = {}
+    for key, value in record.items():
+        normalized_key = field_mappings.get(key, key)
+        normalized[normalized_key] = value
+
+    return normalized
+
+
 def main():
     file_path = 'json_files/experiment/small_exp.json'
 
@@ -126,9 +147,10 @@ def main():
             if 'run' not in results['metadata_results']:
                 results['metadata_results']['run'] = {'valid': [], 'invalid': []}
             for record in faang_json_data['run']:
+                normalized_record = normalize_run_record(record)
                 results['metadata_results']['run']['valid'].append({
-                    'model': record,
-                    'data': record
+                    'model': normalized_record,
+                    'data': normalized_record
                 })
 
         if 'study' in faang_json_data:
