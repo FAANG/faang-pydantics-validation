@@ -12,6 +12,19 @@ except ImportError:
     ExperimentSubmitter = None
 
 
+def normalize_experiment_ena_record(record: dict) -> dict:
+    normalized = {}
+    for key, value in record.items():
+        if isinstance(value, list):
+            if len(value) >= 1:
+                normalized[key] = value[0]
+            else:
+                normalized[key] = ""
+        else:
+            normalized[key] = value
+    return normalized
+
+
 def main():
     file_path = 'json_files/experiment/small_exp.json'
 
@@ -103,9 +116,10 @@ def main():
             if 'experiment ena' not in results['experiment_results']:
                 results['experiment_results']['experiment ena'] = {'valid': [], 'invalid': []}
             for record in faang_json_data['experiment ena']:
+                normalized_record = normalize_experiment_ena_record(record)
                 results['experiment_results']['experiment ena']['valid'].append({
-                    'model': record,
-                    'data': record
+                    'model': normalized_record,
+                    'data': normalized_record
                 })
 
         if 'run' in faang_json_data:
