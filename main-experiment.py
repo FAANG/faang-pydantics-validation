@@ -185,6 +185,16 @@ def main():
             action=SUBMISSION_ACTION
         )
 
+        # Check if result is None (shouldn't happen but handle it)
+        if result is None:
+            print()
+            print("=" * 60)
+            print("SUBMISSION RESULTS")
+            print("=" * 60)
+            print("✗ Submission returned None - this indicates an unexpected error")
+            print("  Check the console output above for error details")
+            return
+
         # Print results
         print()
         print("=" * 60)

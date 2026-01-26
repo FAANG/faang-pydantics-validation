@@ -3,20 +3,26 @@ from typing import Dict, Any, Optional
 import uuid
 import datetime
 import re
+import os
+from pathlib import Path
 
 
 def get_xml_files(json_data: Dict[str, Any], submission_id: Optional[str] = None, action: str = "submission"):
+    # create XMLs directory if it doesn't exist
+    xml_dir = Path("XMLs")
+    xml_dir.mkdir(exist_ok=True)
+
     if submission_id:
-        experiment_filename = f"{submission_id}_experiment.xml"
-        run_filename = f"{submission_id}_run.xml"
-        study_filename = f"{submission_id}_study.xml"
-        submission_filename = f"{submission_id}_submission.xml"
+        experiment_filename = f"XMLs/{submission_id}_experiment.xml"
+        run_filename = f"XMLs/{submission_id}_run.xml"
+        study_filename = f"XMLs/{submission_id}_study.xml"
+        submission_filename = f"XMLs/{submission_id}_submission.xml"
     else:
         unique_id = str(uuid.uuid4())
-        experiment_filename = f"{unique_id}_experiment.xml"
-        run_filename = f"{unique_id}_run.xml"
-        study_filename = f"{unique_id}_study.xml"
-        submission_filename = f"{unique_id}_submission.xml"
+        experiment_filename = f"XMLs/{unique_id}_experiment.xml"
+        run_filename = f"XMLs/{unique_id}_run.xml"
+        study_filename = f"XMLs/{unique_id}_study.xml"
+        submission_filename = f"XMLs/{unique_id}_submission.xml"
     
     # Generate XML files
     experiment_result = generate_experiment_xml(json_data, experiment_filename)
@@ -278,7 +284,7 @@ def parse_faang_experiment(faang_data: Dict[str, Any], experiment_attributes_elt
             continue
         
         # Convert field name to tag format (Title Case with spaces)
-        tag_name = field_name
+        tag_name = field_name.lower().replace("'", "")
         
         # Handle different field value types
         if isinstance(field_value, list):
