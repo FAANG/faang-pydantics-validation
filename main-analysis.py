@@ -1,9 +1,10 @@
 import json
 from validation.unified_validator import UnifiedFAANGValidator
+from submission.analysis.analysis_submitter import AnalysisSubmitter
 
 
 def main():
-    file_path = 'json_files/analysis/analysis_complete.json'
+    file_path = 'json_files/analysis/analysis.json'
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -35,6 +36,40 @@ def main():
         # Generate and print report
         report = validator.generate_unified_report(results)
         print(report)
+
+        # Submission to ENA
+        print("\n" + "=" * 60)
+        print("Starting ENA Submission Process...")
+        print("=" * 60)
+
+        # Add submission metadata from JSON (following experiment pattern)
+        if 'submission' in faang_json_data:
+            if 'submission' not in results.get('metadata_results', {}):
+                if 'metadata_results' not in results:
+                    results['metadata_results'] = {}
+                results['metadata_results']['submission'] = {'valid': [], 'invalid': []}
+            for record in faang_json_data['submission']:
+                results['metadata_results']['submission']['valid'].append({
+                    'model': record,
+                    'data': record
+                })
+
+        credentials = {
+            'username': 'your_username',
+            'password': 'your_password',
+            'mode': 'test'
+        }
+
+        submitter = AnalysisSubmitter()
+        submission_result = submitter.submit_to_ena(results, credentials, action="submission")
+
+        if submission_result['success']:
+            print(f"\n{submission_result['message']}")
+        else:
+            print(f"\nSubmission failed: {submission_result['message']}")
+            if 'errors' in submission_result:
+                for error in submission_result['errors']:
+                    print(f"  - {error}")
 
         # Save results to file
         save_results = True
